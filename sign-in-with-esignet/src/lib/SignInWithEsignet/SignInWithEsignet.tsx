@@ -1,5 +1,6 @@
 import React from "react";
 import { ISignInWithEsignetProps } from "./ISignInWithEsignetProps";
+import esignetLogo from "./esignet_logo.png";
 
 const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
   // const { oidcConfig, buttonConfig } = props;
@@ -7,8 +8,8 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
   const redirectURL =
     "https://esignet.dev.mosip.net/authorize?nonce=ere973eieljznge2311&state=eree2311&client_id=88Vjt34c5Twz1oJ&redirect_uri=https://healthservices.dev.mosip.net/userprofile&response_type=code&scope=openid%20profile&acr_values=mosip:idp:acr:generated-code%20mosip:idp:acr:biometrics%20mosip:idp:acr:static-code&claims=%7B%22userinfo%22:%7B%22given_name%22:%7B%22essential%22:true%7D,%22phone_number%22:%7B%22essential%22:false%7D,%22email%22:%7B%22essential%22:true%7D,%22picture%22:%7B%22essential%22:false%7D,%22gender%22:%7B%22essential%22:false%7D,%22birthdate%22:%7B%22essential%22:false%7D,%22address%22:%7B%22essential%22:false%7D%7D,%22id_token%22:%7B%7D%7D&display=page&prompt=consent&max_age=21&claims_locales=en&ui_locales=en"; // oidcConfig.redirect_uri;
   const label = "Sign in with e-Signet";
-  const logoPath = "./esignet_logo.png";
-  // const logoPath = img;
+  // const logoPath = "./esignet_logo.png";
+  const logoPath = esignetLogo;
   const logoAlt = "E-signet logo";
 
   return (
