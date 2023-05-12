@@ -15,21 +15,17 @@ interface OidcConfigProp {
   prompt?: string;
 }
 
-interface ButtonConfig {
+interface ButtonConfigProp {
   type?: string;
   theme?: string;
-  size?: string;
   text?: string;
   shape?: string;
   width?: number;
-  logo_path?: string;
-  logo_alignment?: object;
-  font?: string;
-  background_color?: string;
-  text_color?: string;
-  border?: number;
-  border_color?: string;
-  border_width?: string;
+  logoPath?: string;
+  background?: string;
+  textColor?: string;
+  borderColor?: string;
+  borderWidth?: string;
 }
 
 interface ISignInWithEsignetProps
@@ -38,7 +34,7 @@ interface ISignInWithEsignetProps
     HTMLButtonElement
   > {
   oidcConfig: OidcConfigProp;
-  buttonConfig: ButtonConfig;
+  buttonConfig: ButtonConfigProp;
 }
 
-export { OidcConfigProp, ButtonConfig, ISignInWithEsignetProps };
+export { OidcConfigProp, ButtonConfigProp, ISignInWithEsignetProps };

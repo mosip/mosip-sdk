@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  ButtonConfigProp,
   ISignInWithEsignetProps,
   OidcConfigProp,
 } from "./ISignInWithEsignetProps";
@@ -94,8 +95,92 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   return urlToNavigate;
 }
 
+function buildButtonCustomStyles(
+  baseStyle: React.CSSProperties,
+  buttonConfig: ButtonConfigProp
+): React.CSSProperties {
+  if (buttonConfig?.width) baseStyle.width = buttonConfig.width;
+  if (buttonConfig?.background) baseStyle.background = buttonConfig.background;
+  if (buttonConfig?.textColor) baseStyle.color = buttonConfig.textColor;
+  if (buttonConfig?.borderWidth)
+    baseStyle.borderWidth = buttonConfig.borderWidth;
+  if (buttonConfig?.borderColor)
+    baseStyle.borderColor = buttonConfig.borderColor;
+
+  return baseStyle;
+}
+
+function buildButtonClasses(buttonConfig: ButtonConfigProp): {
+  outerDivClasses: string;
+  logoDivClasses: string;
+  logoImgClasses: string;
+  labelSpanClasses: string;
+} {
+  let outerDivClasses = "";
+  let logoDivClasses = "";
+  let logoImgClasses = "";
+  let labelSpanClasses = styles.textbox;
+
+  switch (buttonConfig.shape) {
+    case defaultShapes.sharpEdges:
+      outerDivClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.sharpRectIcon
+          : styles.sharpRectBox;
+      logoDivClasses = styles.sharpLogoBox;
+      logoImgClasses = styles.sharpLogo;
+      break;
+    case defaultShapes.softEdges:
+      outerDivClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.softRectIcon
+          : styles.softRectBox;
+      logoDivClasses = styles.softLogoBox;
+      logoImgClasses = styles.softLogo;
+      break;
+    case defaultShapes.roundedEdges:
+      outerDivClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.roundedRectIcon
+          : styles.roundedRectBox;
+      logoDivClasses = styles.roundedLogoBox;
+      logoImgClasses = styles.roundedLogo;
+      break;
+    default:
+      outerDivClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.sharpRectIcon
+          : styles.sharpRectBox;
+      logoDivClasses = styles.sharpLogoBox;
+      logoImgClasses = styles.sharpLogo;
+  }
+
+  switch (buttonConfig.theme) {
+    case defaultThemes.outline:
+      outerDivClasses += " " + styles.standardOutline;
+      break;
+    case defaultThemes.filledOrange:
+      outerDivClasses += " " + styles.filledOrange;
+      break;
+    case defaultThemes.filledBlack:
+      outerDivClasses += " " + styles.filledBlack;
+      break;
+    default:
+      outerDivClasses += " " + styles.standardOutline;
+  }
+
+  return {
+    outerDivClasses: outerDivClasses,
+    logoDivClasses: logoDivClasses,
+    logoImgClasses: logoImgClasses,
+    labelSpanClasses: labelSpanClasses,
+  };
+}
+
 const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
-  const { oidcConfig, buttonConfig } = props;
+  const { oidcConfig, buttonConfig, style } = props;
+
+  const baseStyle: React.CSSProperties = style || {};
 
   let errorObj = validateInput(oidcConfig);
   let urlToNavigate = "#";
@@ -104,62 +189,11 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
   }
 
   const defaultButtonLabel = "Sign in with e-Signet";
-
   const label = buttonConfig?.text ?? defaultButtonLabel;
-  const logoPath = buttonConfig?.logo_path ?? esignetLogo;
+  const logoPath = buttonConfig?.logoPath ?? esignetLogo;
 
-  let logoBoxClasses = "";
-  let rectClasses = "";
-  let logoClasses = "";
-
-  switch (buttonConfig.shape) {
-    case defaultShapes.sharpEdges:
-      rectClasses =
-        buttonConfig.type == buttonTypes.icon
-          ? styles.sharpRectIcon
-          : styles.sharpRectBox;
-      logoBoxClasses = styles.sharpLogoBox;
-      logoClasses = styles.sharpLogo;
-      break;
-    case defaultShapes.softEdges:
-      rectClasses =
-        buttonConfig.type == buttonTypes.icon
-          ? styles.softRectIcon
-          : styles.softRectBox;
-      logoBoxClasses = styles.softLogoBox;
-      logoClasses = styles.softLogo;
-      break;
-    case defaultShapes.roundedEdges:
-      rectClasses =
-        buttonConfig.type == buttonTypes.icon
-          ? styles.roundedRectIcon
-          : styles.roundedRectBox;
-      logoBoxClasses = styles.roundedLogoBox;
-      logoClasses = styles.roundedLogo;
-      break;
-    default:
-      rectClasses =
-        buttonConfig.type == buttonTypes.icon
-          ? styles.sharpRectIcon
-          : styles.sharpRectBox;
-      logoBoxClasses = styles.sharpLogoBox;
-      logoClasses = styles.sharpLogo;
-  }
-
-  switch (buttonConfig.theme) {
-    case defaultThemes.outline:
-      rectClasses += " " + styles.standardOutline;
-      break;
-    case defaultThemes.filledOrange:
-      rectClasses += " " + styles.filledOrange;
-      break;
-    case defaultThemes.filledBlack:
-      rectClasses += " " + styles.filledBlack;
-      break;
-    default:
-      rectClasses += " " + styles.standardOutline;
-  }
-
+  const buttonClasses = buildButtonClasses(buttonConfig);
+  const buttonStyle = buildButtonCustomStyles(baseStyle, buttonConfig);
   return (
     <>
       {errorObj.errorMsg && (
@@ -168,12 +202,12 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
         </span>
       )}
       <a href={urlToNavigate}>
-        <div className={rectClasses} style={{ width: buttonConfig.width }}>
-          <div className={logoBoxClasses}>
-            <img className={logoClasses} src={logoPath} />
+        <div className={buttonClasses.outerDivClasses} style={buttonStyle}>
+          <div className={buttonClasses.logoDivClasses}>
+            <img className={buttonClasses.logoImgClasses} src={logoPath} />
           </div>
           {buttonConfig.type != buttonTypes.icon && (
-            <span className={styles.textbox}>{label}</span>
+            <span className={buttonClasses.labelSpanClasses}>{label}</span>
           )}
         </div>
       </a>
