@@ -45,6 +45,23 @@
   padding-left: 3px;
 }
 
+.sharpRectIcon {
+  border-width: 2px;
+  display: inline-block;
+}
+
+.softRectIcon {
+  border-width: 2px;
+  display: inline-block;
+  border-radius: 6px;
+}
+
+.roundedRectIcon {
+  border-width: 2px;
+  display: inline-block;
+  border-radius: 46px;
+}
+
 .sharpLogoBox {
   display: flex;
   justify-content: center;
@@ -61,7 +78,7 @@
   width: 44px;
   height: 44px;
   background-color: white;
-  border-radius: 6px 0px 0px 6px;
+  border-radius: 6px;
 }
 
 .roundedLogoBox {

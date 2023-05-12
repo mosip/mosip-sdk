@@ -6,14 +6,15 @@ import {
 //import esignetLogo from "../assets/esignet_logo.png";
 import esignetLogo from "../assets/esignet_logo.png";
 import {
+  buttonTypes,
   defaultShapes,
   defaultThemes,
   validDisplays,
   validPrompt,
   validResponseTypes,
-} from "./constants";
-import { Error } from "./CommonTypes";
-import styles from "./button.module.css";
+} from "../common/constants";
+import { Error } from "../common/CommonTypes";
+import styles from "./SignInWithEsignet.module.css";
 
 const defaultResponseType = "code";
 
@@ -113,22 +114,34 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
 
   switch (buttonConfig.shape) {
     case defaultShapes.sharpEdges:
-      rectClasses = styles.sharpRectBox;
+      rectClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.sharpRectIcon
+          : styles.sharpRectBox;
       logoBoxClasses = styles.sharpLogoBox;
       logoClasses = styles.sharpLogo;
       break;
     case defaultShapes.softEdges:
-      rectClasses = styles.softRectBox;
+      rectClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.softRectIcon
+          : styles.softRectBox;
       logoBoxClasses = styles.softLogoBox;
       logoClasses = styles.softLogo;
       break;
     case defaultShapes.roundedEdges:
-      rectClasses = styles.roundedRectBox;
+      rectClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.roundedRectIcon
+          : styles.roundedRectBox;
       logoBoxClasses = styles.roundedLogoBox;
       logoClasses = styles.roundedLogo;
       break;
     default:
-      rectClasses = styles.sharpRectBox;
+      rectClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? styles.sharpRectIcon
+          : styles.sharpRectBox;
       logoBoxClasses = styles.sharpLogoBox;
       logoClasses = styles.sharpLogo;
   }
@@ -159,7 +172,9 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
           <div className={logoBoxClasses}>
             <img className={logoClasses} src={logoPath} />
           </div>
-          <span className={styles.textbox}>{label}</span>
+          {buttonConfig.type != buttonTypes.icon && (
+            <span className={styles.textbox}>{label}</span>
+          )}
         </div>
       </a>
     </>
