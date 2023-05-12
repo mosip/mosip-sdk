@@ -1,57 +1,168 @@
 import React from "react";
-import { ISignInWithEsignetProps } from "./ISignInWithEsignetProps";
-import esignetLogo from "./esignet_logo.png";
+import {
+  ISignInWithEsignetProps,
+  OidcConfigProp,
+} from "./ISignInWithEsignetProps";
+//import esignetLogo from "../assets/esignet_logo.png";
+import esignetLogo from "../assets/esignet_logo.png";
+import {
+  defaultShapes,
+  defaultThemes,
+  validDisplays,
+  validPrompt,
+  validResponseTypes,
+} from "./constants";
+import { Error } from "./CommonTypes";
+import styles from "./button.module.css";
+
+const defaultResponseType = "code";
+
+function validateInput(oidcConfig: OidcConfigProp): Error {
+  let errorObj: Error = {};
+
+  //Required parameters
+  if (
+    !oidcConfig ||
+    !oidcConfig.authorizeUri ||
+    !oidcConfig.redirect_uri ||
+    !oidcConfig.client_id ||
+    !oidcConfig.scope
+  ) {
+    errorObj.errorCode = "require_param_missing";
+    errorObj.errorMsg = "Required parameter is missing";
+    return errorObj;
+  }
+
+  //if not null and invalid then return false
+  if (
+    oidcConfig.response_type &&
+    !validResponseTypes.includes(oidcConfig.response_type)
+  ) {
+    errorObj.errorCode = "invalid_response_type";
+    errorObj.errorMsg = "Invalid Response Type";
+    return errorObj;
+  }
+  if (oidcConfig.display && !validDisplays.includes(oidcConfig.display)) {
+    errorObj.errorCode = "invalid_display_value";
+    errorObj.errorMsg = "Invalid display value";
+    return errorObj;
+  }
+  if (oidcConfig.prompt && !validPrompt.includes(oidcConfig.prompt)) {
+    errorObj.errorCode = "invalid_prompt_value";
+    errorObj.errorMsg = "Invalid prompt value";
+    return errorObj;
+  }
+
+  return errorObj;
+}
+
+function buildRedirectURL(oidcConfig: OidcConfigProp): string {
+  let urlToNavigate: string = oidcConfig?.authorizeUri;
+
+  if (oidcConfig?.nonce) urlToNavigate += "?nonce=" + oidcConfig.nonce;
+
+  if (oidcConfig?.client_id)
+    urlToNavigate += "&client_id=" + oidcConfig.client_id;
+  if (oidcConfig?.redirect_uri)
+    urlToNavigate += "&redirect_uri=" + oidcConfig.redirect_uri;
+  if (oidcConfig?.scope) urlToNavigate += "&scope=" + oidcConfig.scope;
+  if (oidcConfig?.acr_values)
+    urlToNavigate += "&acr_values=" + oidcConfig?.acr_values;
+  if (oidcConfig?.claims)
+    urlToNavigate += "&claims=" + encodeURI(JSON.stringify(oidcConfig.claims));
+  if (oidcConfig?.display) urlToNavigate += "&display=" + oidcConfig.display;
+  if (oidcConfig?.prompt) urlToNavigate += "&state=" + oidcConfig.prompt;
+  if (oidcConfig?.max_age) urlToNavigate += "&max_age=" + oidcConfig.max_age;
+  if (oidcConfig?.claims_locales)
+    urlToNavigate += "&claims_locales=" + oidcConfig.claims_locales;
+
+  if (oidcConfig?.response_type) {
+    urlToNavigate += "&response_type=" + oidcConfig.response_type;
+  } else {
+    urlToNavigate += "&response_type=" + defaultResponseType;
+  }
+
+  //Generating random state if not provided
+  if (oidcConfig?.state) {
+    urlToNavigate += "&state=" + oidcConfig.state;
+  } else {
+    const randomState = Math.random().toString(36).substring(5);
+    urlToNavigate += "&state=" + randomState;
+  }
+
+  return urlToNavigate;
+}
 
 const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
-  // const { oidcConfig, buttonConfig } = props;
+  const { oidcConfig, buttonConfig } = props;
 
-  const redirectURL =
-    "https://esignet.dev.mosip.net/authorize?nonce=ere973eieljznge2311&state=eree2311&client_id=88Vjt34c5Twz1oJ&redirect_uri=https://healthservices.dev.mosip.net/userprofile&response_type=code&scope=openid%20profile&acr_values=mosip:idp:acr:generated-code%20mosip:idp:acr:biometrics%20mosip:idp:acr:static-code&claims=%7B%22userinfo%22:%7B%22given_name%22:%7B%22essential%22:true%7D,%22phone_number%22:%7B%22essential%22:false%7D,%22email%22:%7B%22essential%22:true%7D,%22picture%22:%7B%22essential%22:false%7D,%22gender%22:%7B%22essential%22:false%7D,%22birthdate%22:%7B%22essential%22:false%7D,%22address%22:%7B%22essential%22:false%7D%7D,%22id_token%22:%7B%7D%7D&display=page&prompt=consent&max_age=21&claims_locales=en&ui_locales=en"; // oidcConfig.redirect_uri;
-  const label = "Sign in with e-Signet";
-  // const logoPath = "./esignet_logo.png";
-  const logoPath = esignetLogo;
-  const logoAlt = "E-signet logo";
+  let errorObj = validateInput(oidcConfig);
+  let urlToNavigate = "#";
+  if (!errorObj.errorCode) {
+    urlToNavigate = buildRedirectURL(oidcConfig);
+  }
+
+  const defaultButtonLabel = "Sign in with e-Signet";
+
+  const label = buttonConfig?.text ?? defaultButtonLabel;
+  const logoPath = buttonConfig?.logo_path ?? esignetLogo;
+
+  let logoBoxClasses = "";
+  let rectClasses = "";
+  let logoClasses = "";
+
+  switch (buttonConfig.shape) {
+    case defaultShapes.sharpEdges:
+      rectClasses = styles.sharpRectBox;
+      logoBoxClasses = styles.sharpLogoBox;
+      logoClasses = styles.sharpLogo;
+      break;
+    case defaultShapes.softEdges:
+      rectClasses = styles.softRectBox;
+      logoBoxClasses = styles.softLogoBox;
+      logoClasses = styles.softLogo;
+      break;
+    case defaultShapes.roundedEdges:
+      rectClasses = styles.roundedRectBox;
+      logoBoxClasses = styles.roundedLogoBox;
+      logoClasses = styles.roundedLogo;
+      break;
+    default:
+      rectClasses = styles.sharpRectBox;
+      logoBoxClasses = styles.sharpLogoBox;
+      logoClasses = styles.sharpLogo;
+  }
+
+  switch (buttonConfig.theme) {
+    case defaultThemes.outline:
+      rectClasses += " " + styles.standardOutline;
+      break;
+    case defaultThemes.filledOrange:
+      rectClasses += " " + styles.filledOrange;
+      break;
+    case defaultThemes.filledBlack:
+      rectClasses += " " + styles.filledBlack;
+      break;
+    default:
+      rectClasses += " " + styles.standardOutline;
+  }
 
   return (
-    <a
-      href={redirectURL}
-      style={{
-        position: "relative",
-        width: "100%",
-        borderWidth: "1px",
-        borderColor: "rgb(203 213 225)",
-        backgroundColor: "#f3f4f6",
-        padding: "0.625rem 1.25rem",
-        display: "inline-block",
-        borderRadius: "0.375rem",
-        textDecoration: "none",
-        color: "black",
-      }}
-    >
-      <span
-        style={{
-          display: "inline-block",
-          verticalAlign: "middle",
-          fontWeight: "600",
-          fontSize: "0.875rem",
-          lineHeight: "1.25rem",
-        }}
-      >
-        {label}
-      </span>
-      <img
-        style={{
-          position: "absolute",
-          display: "inline-block",
-          verticalAlign: "middle",
-          width: "1.5rem",
-          height: "1.5rem",
-          right: "1.25rem",
-        }}
-        src={logoPath}
-        alt={logoAlt}
-      />
-    </a>
+    <>
+      {errorObj.errorMsg && (
+        <span style={{ color: "red", fontSize: "14px" }}>
+          {errorObj.errorMsg + ". Please report to site admin"}
+        </span>
+      )}
+      <a href={urlToNavigate}>
+        <div className={rectClasses}>
+          <div className={logoBoxClasses}>
+            <img className={logoClasses} src={logoPath} />
+          </div>
+          <span className={styles.textbox}>{label}</span>
+        </div>
+      </a>
+    </>
   );
 };
 

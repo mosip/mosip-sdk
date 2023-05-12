@@ -1,6 +1,7 @@
 {
   "name": "sign-in-with-esignet",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "description": "A react component for rendering “Sign in with..” button on client’s web page for esignet integration.",
   "private": true,
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -33,20 +34,9 @@
     "@types/node": "^16.18.25",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
-    "axios": "^1.4.0",
-    "browserify-zlib": "^0.2.0",
-    "buffer": "^6.0.3",
-    "crypto-browserify": "^3.12.0",
     "css-loader": "^6.7.3",
-    "fs": "^0.0.1-security",
-    "https-browserify": "^1.0.0",
-    "jose": "^4.14.3",
-    "path-browserify": "^1.0.1",
-    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "react-select": "^5.7.2",
     "rollup": "^2.60.0",
     "rollup-plugin-dts": "^4.0.1",
     "rollup-plugin-peer-deps-external": "^2.2.4",
@@ -54,17 +44,9 @@
     "sass": "^1.62.1",
     "sass-loader": "^13.2.2",
     "storybook": "^7.0.7",
-    "stream-browserify": "^3.0.0",
-    "stream-http": "^3.2.0",
-    "style-loader": "^3.3.2",
-    "typescript": "^4.9.5",
-    "url": "^0.11.0",
-    "util": "^0.12.5",
-    "web-vitals": "^2.1.4"
+    "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "axios": "^1.4.0",
-    "jose": "^4.14.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -76,7 +58,8 @@
     "rollup": "rollup -c",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "package": "npm run rollup && npm pack"
+    "package": "npm run rollup && npm pack",
+    "watch": "npm-watch"
   },
   "eslintConfig": {
     "extends": [
@@ -95,5 +78,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "dependencies": {
+    "npm-watch": "^0.11.0",
+    "typescript-plugin-css-modules": "^5.0.1"
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src/lib"
+      ],
+      "extensions": "ts,tsx"
+    }
   }
 }

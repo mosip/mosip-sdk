@@ -21,7 +21,8 @@
     "declaration": true,
     "declarationDir": "types",
     "sourceMap": false,
-    "outDir": "dist"
+    "outDir": "dist",
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
     // "emitDeclarationOnly": true
   },
   "include": ["src"]
