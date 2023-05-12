@@ -27,7 +27,7 @@
 }
 
 .softRectBox {
-  max-width: 336px;
+  max-width: 400px;
   height: 48px;
   border-width: 2px;
   display: flex;

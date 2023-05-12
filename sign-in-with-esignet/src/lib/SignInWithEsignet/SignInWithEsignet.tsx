@@ -168,7 +168,7 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
         </span>
       )}
       <a href={urlToNavigate}>
-        <div className={rectClasses}>
+        <div className={rectClasses} style={{ width: buttonConfig.width }}>
           <div className={logoBoxClasses}>
             <img className={logoClasses} src={logoPath} />
           </div>
