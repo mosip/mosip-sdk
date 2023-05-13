@@ -18,7 +18,7 @@ interface OidcConfigProp {
 interface ButtonConfigProp {
   type?: string;
   theme?: string;
-  text?: string;
+  labelText?: string;
   shape?: string;
   width?: number;
   logoPath?: string;
@@ -26,6 +26,12 @@ interface ButtonConfigProp {
   textColor?: string;
   borderColor?: string;
   borderWidth?: string;
+  customStyle?: {
+    outerDivStyle: React.CSSProperties;
+    logoDivStyle: React.CSSProperties;
+    logoImgStyle: React.CSSProperties;
+    labelSpanStyle: React.CSSProperties;
+  };
 }
 
 interface ISignInWithEsignetProps

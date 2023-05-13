@@ -43,7 +43,4 @@ SignInWithEsignetStory.args = {
     max_age: 21,
     ui_locales: "en",
   },
-  buttonConfig: {
-    logo_path: "esignet_logo.png",
-  },
 };
