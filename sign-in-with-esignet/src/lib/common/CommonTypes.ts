@@ -1,8 +1,3 @@
-interface Error {
-  errorCode?: string;
-  errorMsg?: string;
-}
-
 interface customStyle {
   outerDivStyle?: React.CSSProperties;
   logoDivStyle?: React.CSSProperties;
@@ -17,4 +12,4 @@ interface styleClasses {
   labelSpanClasses: string;
 }
 
-export { Error, customStyle, styleClasses };
+export { customStyle, styleClasses };

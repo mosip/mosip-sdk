@@ -7,20 +7,24 @@ import {
 import esignetLogo from "../assets/esignet_logo.png";
 import {
   buttonTypes,
+  defaultButtonLabel,
   defaultShapes,
   defaultThemes,
   validDisplays,
   validPrompt,
   validResponseTypes,
 } from "../common/constants";
-import { Error, customStyle, styleClasses } from "../common/CommonTypes";
+import { customStyle, styleClasses } from "../common/CommonTypes";
 import styles from "./SignInWithEsignet.module.css";
 
 const defaultResponseType = "code";
 
-function validateInput(oidcConfig: OidcConfigProp): Error {
-  let errorObj: Error = {};
-
+/**
+ * Validates oidc configuration for required params and valid values
+ * @param oidcConfig oidc configuration prop
+ * @returns Error object with error code and error msg.
+ */
+function validateInput(oidcConfig: OidcConfigProp): string {
   //Required parameters
   if (
     !oidcConfig ||
@@ -29,34 +33,31 @@ function validateInput(oidcConfig: OidcConfigProp): Error {
     !oidcConfig.client_id ||
     !oidcConfig.scope
   ) {
-    errorObj.errorCode = "require_param_missing";
-    errorObj.errorMsg = "Required parameter is missing";
-    return errorObj;
+    return "Required parameter is missing";
   }
 
-  //if not null and invalid then return false
+  //if the param is not null and has and an invalid value return error msg.
   if (
     oidcConfig.response_type &&
     !validResponseTypes.includes(oidcConfig.response_type)
   ) {
-    errorObj.errorCode = "invalid_response_type";
-    errorObj.errorMsg = "Invalid Response Type";
-    return errorObj;
+    return "Invalid Response Type";
   }
   if (oidcConfig.display && !validDisplays.includes(oidcConfig.display)) {
-    errorObj.errorCode = "invalid_display_value";
-    errorObj.errorMsg = "Invalid display value";
-    return errorObj;
+    return "Invalid display value";
   }
   if (oidcConfig.prompt && !validPrompt.includes(oidcConfig.prompt)) {
-    errorObj.errorCode = "invalid_prompt_value";
-    errorObj.errorMsg = "Invalid prompt value";
-    return errorObj;
+    return "Invalid prompt value";
   }
 
-  return errorObj;
+  return "";
 }
 
+/**
+ * Builds redirect URL to navigate to id provider's portal.
+ * @param oidcConfig
+ * @returns URL
+ */
 function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   let urlToNavigate: string = oidcConfig?.authorizeUri;
 
@@ -94,14 +95,36 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   return urlToNavigate;
 }
 
+/**
+ * builds classes based on input shape, theme and button type.
+ *
+ * if theme is 'custom' then standard classes are applied and these clases
+ *  are expected to be added by the button implementer.
+ *
+ * @param buttonConfig
+ * @returns classes
+ */
 function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
   let outerDivClasses = "";
   let logoDivClasses = "";
   let logoImgClasses = "";
   let labelSpanClasses = styles.textbox;
 
+  if (buttonConfig.theme == defaultThemes.custom) {
+    return {
+      outerDivClasses: (outerDivClasses =
+        buttonConfig.type == buttonTypes.icon
+          ? "sign-in-outer-div-container-icon"
+          : "sign-in-outer-div-container-standard"),
+      logoDivClasses: "sign-in-logo-div-container",
+      logoImgClasses: "sign-in-logo-img",
+      labelSpanClasses: "sign-in-label-span",
+    };
+  }
+
   switch (buttonConfig.shape) {
     case defaultShapes.sharpEdges:
+      //default button type is standard
       outerDivClasses =
         buttonConfig.type == buttonTypes.icon
           ? styles.sharpRectIcon
@@ -125,7 +148,7 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
       logoDivClasses = styles.roundedLogoBox;
       logoImgClasses = styles.roundedLogo;
       break;
-    default:
+    default: //default shaped SharpEdges
       outerDivClasses =
         buttonConfig.type == buttonTypes.icon
           ? styles.sharpRectIcon
@@ -144,7 +167,7 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
     case defaultThemes.filledBlack:
       outerDivClasses += " " + styles.filledBlack;
       break;
-    default:
+    default: //default theme outline
       outerDivClasses += " " + styles.standardOutline;
   }
 
@@ -156,6 +179,14 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
   };
 }
 
+/**
+ * builds style for the outer div by updating baseStyle by adding/overriding
+ *  button config styling parameters.
+ *
+ * @param baseStyle
+ * @param buttonConfig
+ * @returns style
+ */
 function buildButtonStyles(
   baseStyle: React.CSSProperties,
   buttonConfig: ButtonConfigProp
@@ -171,6 +202,16 @@ function buildButtonStyles(
   return baseStyle;
 }
 
+/**
+ * builds style based on button type and custom style.
+ *
+ * if theme is 'custom' then standard classes are applied and these clases
+ *  are expected to be added by the button implementer.
+ *
+ * @param baseStyle
+ * @param buttonConfig
+ * @returns
+ */
 function buildButtonCustomStyles(
   baseStyle: React.CSSProperties,
   buttonConfig: ButtonConfigProp
@@ -178,8 +219,14 @@ function buildButtonCustomStyles(
   if (!buttonConfig.customStyle) {
     return {};
   }
-  //outerDiv Style has precedence over base style
-  Object.assign(baseStyle, buttonConfig.customStyle.outerDivStyle);
+
+  let outerDiv =
+    buttonConfig.type == buttonTypes.icon
+      ? buttonConfig.customStyle.outerDivStyleIcon
+      : buttonConfig.customStyle.outerDivStyleStandard;
+
+  // assigning/overriding outerDiv style onto base style
+  Object.assign(baseStyle, outerDiv);
 
   return {
     outerDivStyle: buildButtonStyles(baseStyle, buttonConfig),
@@ -188,18 +235,19 @@ function buildButtonCustomStyles(
     labelSpanStyle: buttonConfig.customStyle.labelSpanStyle,
   };
 }
+
 const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
   const { oidcConfig, buttonConfig, style } = props;
 
   const baseStyle: React.CSSProperties = style || {};
 
+  //validate input
   let errorObj = validateInput(oidcConfig);
   let urlToNavigate = "#";
-  if (!errorObj.errorCode) {
+  if (!errorObj) {
     urlToNavigate = buildRedirectURL(oidcConfig);
   }
 
-  const defaultButtonLabel = "Sign in with e-Signet";
   const label = buttonConfig?.labelText ?? defaultButtonLabel;
   const logoPath = buttonConfig?.logoPath ?? esignetLogo;
 
@@ -214,11 +262,12 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
     buttonClasses = buildButtonClasses(buttonConfig);
     buttonStyle = buildButtonStyles(baseStyle, buttonConfig);
   }
+
   return (
     <>
-      {errorObj.errorMsg && (
+      {errorObj && (
         <span style={{ color: "red", fontSize: "14px" }}>
-          {errorObj.errorMsg + ". Please report to site admin"}
+          {errorObj + ". Please report to site admin"}
         </span>
       )}
 

@@ -6,6 +6,7 @@ const defaultThemes = {
   outline: "outline",
   filledOrange: "filled_orange",
   filledBlack: "filled_black",
+  custom: "custom",
 };
 
 const defaultShapes = {
@@ -19,11 +20,14 @@ const buttonTypes = {
   icon: "icon",
 };
 
+const defaultButtonLabel = "Sign in with e-Signet";
+
 export {
   validResponseTypes,
   validDisplays,
   validPrompt,
   defaultThemes,
   defaultShapes,
-  buttonTypes
+  buttonTypes,
+  defaultButtonLabel,
 };

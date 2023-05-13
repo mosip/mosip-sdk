@@ -27,7 +27,8 @@ interface ButtonConfigProp {
   borderColor?: string;
   borderWidth?: string;
   customStyle?: {
-    outerDivStyle: React.CSSProperties;
+    outerDivStyleStandard: React.CSSProperties;
+    outerDivStyleIcon: React.CSSProperties;
     logoDivStyle: React.CSSProperties;
     logoImgStyle: React.CSSProperties;
     labelSpanStyle: React.CSSProperties;
