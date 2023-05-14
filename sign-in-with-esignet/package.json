@@ -1,13 +1,29 @@
 {
   "name": "sign-in-with-esignet",
   "version": "0.0.1",
-  "description": "A react component for rendering “Sign in with..” button on client’s web page for esignet integration.",
-  "private": true,
+  "description": "A react component for rendering “Sign in with..” button on mosip client’s web page for oidc integration.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "homepage": "https://docs.esignet.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosip/esignet-plugins/sign-in-with-esignet"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "keywords": [
+    "mosip",
+    "button",
+    "login",
+    "signin",
+    "signup",
+    "oidc",
+    "openidconnect",
+    "esignet"
+  ],
+  "license": "MIT",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@babel/core": "^7.19.3",
@@ -44,7 +60,9 @@
     "sass": "^1.62.1",
     "sass-loader": "^13.2.2",
     "storybook": "^7.0.7",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "npm-watch": "^0.11.0",
+    "typescript-plugin-css-modules": "^5.0.1"
   },
   "peerDependencies": {
     "react": "^18.2.0",
@@ -78,10 +96,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "dependencies": {
-    "npm-watch": "^0.11.0",
-    "typescript-plugin-css-modules": "^5.0.1"
   },
   "watch": {
     "build": {
