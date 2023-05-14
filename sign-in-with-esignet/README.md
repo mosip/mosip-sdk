@@ -40,18 +40,18 @@ yarn add sign-in-with-esignet
 
 ### Prop `buttonConfig`
 
-| field         | type     | valid values                                                 | default value          | note                                       |
-| ------------- | -------- | ------------------------------------------------------------ | ---------------------- | ------------------------------------------ |
-| `type`        | `string` | (“standard”, “icon”)                                         | "standard"             | The button type: icon, or standard button. |
-| `theme`       | `string` | (“outline”, “filled_blue”, “filled_black”, “custom”)         | “outline”              | The button theme.                          |
-| `shape`       | `string` | (“sharp_edges”, “soft_edges”, “rounded_edges”)               | “sharp_edges”          | The button shape.                          |
-| `labelText`   | `string` |                                                              | “Sign in with Esignet” | The button text.                           |
-| `logoPath`    | `string` |                                                              | esignet logo           | Path to the id provider’s logo             |
-| `width`       | `number` | The button width, in pixels. The maximum width is 400 pixels |                        | The button width, in pixels                |
-| `background`  | `string` |                                                              |                        | Background property of esignet button      |
-| `textColor`   | `string` |                                                              |                        | Color of label text                        |
-| `borderColor` | `string` |                                                              |                        | Border color of esignet button             |
-| `borderWidth` | `string` |                                                              |                        | Border width of esignet button             |
+| field         | type     | valid values                                         | default value          | note                                       |
+| ------------- | -------- | ---------------------------------------------------- | ---------------------- | ------------------------------------------ |
+| `type`        | `string` | (“standard”, “icon”)                                 | "standard"             | The button type: icon, or standard button. |
+| `theme`       | `string` | (“outline”, “filled_blue”, “filled_black”, “custom”) | “outline”              | The button theme.                          |
+| `shape`       | `string` | (“sharp_edges”, “soft_edges”, “rounded_edges”)       | “sharp_edges”          | The button shape.                          |
+| `labelText`   | `string` |                                                      | “Sign in with Esignet” | The button text.                           |
+| `logoPath`    | `string` |                                                      | esignet logo           | Path to the id provider’s logo             |
+| `width`       | `number` |                                                      | 400px                  | The button width, in pixels                |
+| `background`  | `string` |                                                      |                        | Background property of esignet button      |
+| `textColor`   | `string` |                                                      |                        | Color of label text                        |
+| `borderColor` | `string` |                                                      |                        | Border color of esignet button             |
+| `borderWidth` | `string` |                                                      |                        | Border width of esignet button             |
 
 ## Usage
 

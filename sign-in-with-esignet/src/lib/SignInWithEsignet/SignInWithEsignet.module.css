@@ -19,7 +19,7 @@
 
 /* Common css */
 .sharpRectBox {
-  max-width: 336px;
+  width: 400px;
   height: 48px;
   border-width: 2px;
   display: flex;
@@ -27,7 +27,7 @@
 }
 
 .softRectBox {
-  max-width: 400px;
+  width: 400px;
   height: 48px;
   border-width: 2px;
   display: flex;
@@ -36,7 +36,7 @@
 }
 
 .roundedRectBox {
-  max-width: 336px;
+  width: 400px;
   height: 48px;
   border-width: 2px;
   display: flex;
