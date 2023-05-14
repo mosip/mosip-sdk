@@ -63,27 +63,6 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
 
   if (oidcConfig?.nonce) urlToNavigate += "?nonce=" + oidcConfig.nonce;
 
-  if (oidcConfig?.client_id)
-    urlToNavigate += "&client_id=" + oidcConfig.client_id;
-  if (oidcConfig?.redirect_uri)
-    urlToNavigate += "&redirect_uri=" + oidcConfig.redirect_uri;
-  if (oidcConfig?.scope) urlToNavigate += "&scope=" + oidcConfig.scope;
-  if (oidcConfig?.acr_values)
-    urlToNavigate += "&acr_values=" + oidcConfig?.acr_values;
-  if (oidcConfig?.claims)
-    urlToNavigate += "&claims=" + encodeURI(JSON.stringify(oidcConfig.claims));
-  if (oidcConfig?.display) urlToNavigate += "&display=" + oidcConfig.display;
-  if (oidcConfig?.prompt) urlToNavigate += "&state=" + oidcConfig.prompt;
-  if (oidcConfig?.max_age) urlToNavigate += "&max_age=" + oidcConfig.max_age;
-  if (oidcConfig?.claims_locales)
-    urlToNavigate += "&claims_locales=" + oidcConfig.claims_locales;
-
-  if (oidcConfig?.response_type) {
-    urlToNavigate += "&response_type=" + oidcConfig.response_type;
-  } else {
-    urlToNavigate += "&response_type=" + defaultResponseType;
-  }
-
   //Generating random state if not provided
   if (oidcConfig?.state) {
     urlToNavigate += "&state=" + oidcConfig.state;
@@ -91,6 +70,31 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
     const randomState = Math.random().toString(36).substring(5);
     urlToNavigate += "&state=" + randomState;
   }
+
+  if (oidcConfig?.client_id)
+    urlToNavigate += "&client_id=" + oidcConfig.client_id;
+  if (oidcConfig?.redirect_uri)
+    urlToNavigate += "&redirect_uri=" + oidcConfig.redirect_uri;
+  if (oidcConfig?.scope) urlToNavigate += "&scope=" + oidcConfig.scope;
+
+  if (oidcConfig?.response_type) {
+    urlToNavigate += "&response_type=" + oidcConfig.response_type;
+  } else {
+    urlToNavigate += "&response_type=" + defaultResponseType;
+  }
+
+  if (oidcConfig?.acr_values)
+    urlToNavigate += "&acr_values=" + oidcConfig?.acr_values;
+  if (oidcConfig?.claims)
+    urlToNavigate += "&claims=" + encodeURI(JSON.stringify(oidcConfig.claims));
+  if (oidcConfig?.claims_locales)
+    urlToNavigate += "&claims_locales=" + oidcConfig.claims_locales;
+  if (oidcConfig?.display) urlToNavigate += "&display=" + oidcConfig.display;
+  if (oidcConfig?.prompt) urlToNavigate += "&state=" + oidcConfig.prompt;
+  if (oidcConfig?.max_age) urlToNavigate += "&max_age=" + oidcConfig.max_age;
+
+  if (oidcConfig?.ui_locales)
+    urlToNavigate += "&ui_locales=" + oidcConfig.ui_locales;
 
   return urlToNavigate;
 }
@@ -237,7 +241,7 @@ function buildButtonCustomStyles(
 }
 
 const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
-  const { oidcConfig, buttonConfig, style } = props;
+  let { oidcConfig, buttonConfig, style } = props;
 
   const baseStyle: React.CSSProperties = style || {};
 
@@ -248,8 +252,17 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
     urlToNavigate = buildRedirectURL(oidcConfig);
   }
 
-  const label = buttonConfig?.labelText ?? defaultButtonLabel;
-  const logoPath = buttonConfig?.logoPath ?? esignetLogo;
+  if (!buttonConfig) {
+    //default values
+    buttonConfig = {
+      type: buttonTypes.standard,
+      theme: defaultThemes.outline,
+      labelText: defaultButtonLabel,
+      shape: defaultShapes.sharpEdges,
+    };
+  }
+  const label = buttonConfig.labelText ?? defaultButtonLabel;
+  const logoPath = buttonConfig.logoPath ?? esignetLogo;
 
   let buttonCustomStyle: customStyle | null = null;
   let buttonClasses: styleClasses | null = null;
