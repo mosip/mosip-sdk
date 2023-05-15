@@ -1,0 +1,44 @@
+.mdb-mr-2 {
+    margin-right: .5rem;
+}
+
+.mdb-w-8 {
+    width: 2rem;
+}
+
+.mdb-h-8 {
+    height: 2rem;
+}
+
+.mdb-text-gray-200 {
+    --text-opacity: 1;
+    color: #edf2f7;
+    color: rgba(237, 242, 247, var(--text-opacity));
+}
+
+.mdb-animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.mdb-dark:text-gray-600 {
+    --text-opacity: 1;
+    color: #718096;
+    color: rgba(113, 128, 150, var(--text-opacity));
+}
+
+.mdb-fill-blue-600 {
+    fill: #4299e1;
+}
+
+.mdb-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+
+}

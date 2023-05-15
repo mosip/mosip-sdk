@@ -1,0 +1,233 @@
+.mdb-flex {
+    display: flex;
+
+    &-col {
+        flex-direction: column;
+    }
+}
+
+.mdb-justify-center {
+    justify-content: center;
+}
+
+.mdb-items-center {
+    align-items: center;
+}
+
+.mdb-items-stretch {
+    align-items: stretch;
+}
+
+.mdb-block {
+    display: block;
+}
+
+.mdb-h-full {
+    height: 100%;
+}
+
+.mdb-w-full {
+    width: 100%;
+}
+
+.mdb-text-white {
+    --mdb-text-opacity: 1;
+    color: rgb(255, 255, 255, var(--mdb-text-opacity));
+}
+
+.mdb-text-slate-400 {
+    --mdb-text-opacity: 1;
+    color: rgb(148, 163, 184, var(--mdb-text-opacity));
+}
+
+.mdb-text-gray-900 {
+    --mdb-text-opacity: 1;
+    color: #1a202c;
+    color: rgba(26, 32, 44, var(--mdb-text-opacity));
+}
+
+.mdb-text-red-700 {
+    --mdb-text-opacity: 1;
+    color: #c53030;
+    color: rgba(197, 48, 48, var(--mdb-text-opacity));
+}
+
+.mdb-bg-red-100 {
+    --mdb-bg-opacity: 1;
+    background-color: #fff5f5;
+    background-color: rgba(255, 245, 245, var(--mdb-bg-opacity));
+}
+
+.mdb-text-sm {
+    font-size: .875rem;
+}
+
+.mdb-bg-white {
+    --mdb-bg-opacity: 1;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, var(--mdb-bg-opacity));
+}
+
+.mdb-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+}
+
+.mdb-border {
+    border-width: 1px;
+}
+
+.mdb-border-gray-300 {
+    --mdb-border-opacity: 1;
+    border-color: #e2e8f0;
+    border-color: rgba(226, 232, 240, var(--mdb-border-opacity));
+}
+
+.mdb-hover\:bg-gray-100:hover {
+    --mdb-bg-opacity: 1;
+    background-color: #f7fafc;
+    background-color: rgba(247, 250, 252, var(--mdb-bg-opacity));
+}
+
+.mdb-font-medium {
+    font-weight: 500;
+}
+
+.mdb-font-semibold {
+    font-weight: 600;
+}
+
+.mdb-rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.mdb-text-lg {
+    font-size: 1.125rem;
+}
+
+.mdb-text-xs {
+    font-size: .75rem;
+}
+
+.mdb-text-opacity-70 {
+    --mdb-text-opacity: 70;
+}
+
+.mdb-px-3 {
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+
+.mdb-py-1 {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+.mdb-py-2 {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+}
+
+.mdb-py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.mdb-p-2 {
+    padding: .5rem;
+}
+
+.mdb-ml-1 {
+    margin-left: .25rem;
+}
+
+.mdb-mt-1 {
+    margin-top: .25rem;
+}
+
+.mdb-mb-1 {
+    margin-bottom: .25rem;
+}
+
+.mdb-mb-2 {
+    margin-bottom: .5rem;
+}
+
+.mdb-mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mdb-ml-2 {
+    margin-left: .5rem;
+}
+
+.mdb-ml-auto {
+    margin-left: auto !important;
+}
+
+.mdb-mr-2 {
+    margin-right: .5rem;
+}
+
+.mdb-bottom-0 {
+    bottom: 0;
+}
+
+.mdb-left-0 {
+    left: 0;
+}
+
+.mdb-border {
+    border-width: 1px;
+}
+
+.mdb-border-2 {
+    border-width: 2px;
+}
+
+.mdb-bg-opacity-70 {
+    --mdb-bg-opacity: 0.7;
+}
+
+.mdb-cursor-pointer {
+    cursor: pointer;
+}
+
+@mixin circle {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+.ready {
+    @include circle;
+    background: green;
+}
+
+.not-ready {
+    @include circle;
+    background: gray;
+}
+
+.busy {
+    @include circle;
+    background: orange;
+}
+
+.not-registered {
+    @include circle;
+    background: white;
+    border-color: gray;
+    border-width: 2px;
+}
+
+.mdb-bg-gradient {
+    --mdb-gradient-from: #06b6d4;
+    --mdb-gradient-to: #3b82f6;
+    --mdb-gradient-stops: var(--mdb-gradient-from), var(--mdb-gradient-to);
+    background-image: linear-gradient(to top, var(--mdb-gradient-stops));
+
+    &:hover {
+        background-image: linear-gradient(to bottom, var(--mdb-gradient-stops));
+    }
+}
