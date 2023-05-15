@@ -7,7 +7,7 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
   component: MosipBioDevice,
   tags: ["autodocs"],
   argTypes: {
-    labelName: {
+    langCode: {
       control: "text",
     },
     buttonName: {
@@ -48,8 +48,8 @@ export const MosipBioDeviceStory: StoryObj<typeof MosipBioDeviceMeta> = {
 };
 
 MosipBioDeviceStory.args = {
-  labelName: "Biometric Device",
-  buttonName: "Scan & Verify",
+  langCode: "en",
+  buttonName: "scan_and_verify",
   transactionId: "My Transaction Id",
   biometricEnv: {
     env: "Staging",

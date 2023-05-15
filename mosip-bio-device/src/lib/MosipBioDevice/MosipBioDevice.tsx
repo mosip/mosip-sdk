@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
+import { useTranslation } from "react-i18next";
 import { LoadingIndicator } from "../common";
 import { localStorageService, SbiService } from "../service";
 import {
@@ -15,6 +16,7 @@ import {
   loadingContClass,
   verifyButtonClass,
   scanButtonClass,
+  DeviceStateStatusType,
 } from "../models";
 
 import faceIcon from "../assets/face_sign_in.png";
@@ -30,6 +32,8 @@ const modalityIconPath: { [name: string]: string } = {
 };
 
 const MosipBioDevice = (props: IMosipBioDeviceProps) => {
+  const { t, i18n } = useTranslation();
+
   const sbiService = new SbiService(props.biometricEnv);
 
   const { getDeviceInfos } = {
@@ -49,21 +53,32 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   const [errorState, setErrorState] = useState<string | null>(null);
 
   useEffect(() => {
-    scanDevices();
-  }, []);
+    handleLanguageChange();
+    scanDevices(false);
+  }, [props.langCode]);
 
-  const scanDevices = () => {
+  const handleLanguageChange = () => {
+    if (props.langCode && i18n.language != props.langCode) {
+      i18n.changeLanguage(props.langCode);
+    }
+  };
+
+  const scanDevices = (forceScan: boolean) => {
+    if (!forceScan && modalityDevices?.length && selectedDevice) {
+      return;
+    }
     props.onErrored(null);
     setErrorState(null);
+
     try {
       setStatus({
         state: states.LOADING,
-        msg: "Scanning Devices. Please Wait...",
+        msg: t("scanning_devices_msg"),
       });
 
       discoverDevicesAsync(host);
     } catch (error: any) {
-      setErrorState("Device discovery failed");
+      setErrorState(t("device_disc_failed"));
       props.onErrored({
         errorCode: error.message,
         defaultMsg: error.message,
@@ -85,7 +100,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       if (timeLeft <= 0) {
         clearInterval(intervalId);
         setStatus({ state: states.LOADED, msg: "" });
-        setErrorState("Device discovery failed");
+        setErrorState(t("device_disc_failed"));
         props.onErrored({
           errorCode: "device_not_found_msg",
           defaultMsg: "Device not found",
@@ -109,7 +124,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
     if (!deviceInfosPortsWise) {
       setModalityDevices([]);
-      setErrorState("No device found");
+      setErrorState(t("no_devices_found_msg"));
       props.onErrored({
         errorCode: "no_devices_found_msg",
       });
@@ -144,7 +159,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     setModalityDevices(modalitydevices);
 
     if (modalitydevices.length === 0) {
-      setErrorState("No device found");
+      setErrorState(t("no_devices_found_msg"));
       props.onErrored({
         errorCode: "no_devices_found_msg",
       });
@@ -160,7 +175,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const handleDeviceChange = (device: any) => setSelectedDevice(device);
 
-  const handleScan = () => scanDevices();
+  const handleScan = () => scanDevices(true);
 
   const scanAndVerify = () => startCapture();
 
@@ -168,7 +183,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     props.onErrored(null);
     setErrorState(null);
     if (selectedDevice === null || selectedDevice === undefined) {
-      setErrorState("Device not found");
+      setErrorState(t("device_not_found_msg"));
       props.onErrored({
         errorCode: "device_not_found_msg",
       });
@@ -180,7 +195,10 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     try {
       setStatus({
         state: states.AUTHENTICATING,
-        msg: `${selectedDevice.type} capture initiated on ${selectedDevice.model}`,
+        msg: t("capture_initiated_msg", {
+          modality: t(selectedDevice.type),
+          deviceModel: selectedDevice.model,
+        }),
       });
 
       biometricResponse = await sbiService.capture_Auth(
@@ -194,7 +212,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
       setStatus({ state: states.LOADED, msg: "" });
     } catch (error: any) {
-      setErrorState("Biometric capture failed");
+      setErrorState(t("biometric_capture_failed_msg"));
       props.onErrored({
         errorCode: error.message,
         defaultMsg: error.message,
@@ -237,7 +255,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                 htmlFor="modality_device"
                 className="block mb-2 text-xs font-medium text-gray-900 text-opacity-70"
               >
-                {props.labelName}
+                {t("select_a_device")}
               </label>
               <div className="mdb-flex mdb-items-stretch">
                 <Select
@@ -268,18 +286,28 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                         type="button"
                         value="button"
                         onClick={scanAndVerify}
-                        className={verifyButtonClass + (props.disable ? " mdb-text-slate-400" : " mdb-bg-gradient mdb-text-white")}
+                        className={
+                          verifyButtonClass +
+                          (props.disable
+                            ? " mdb-text-slate-400"
+                            : " mdb-bg-gradient mdb-text-white")
+                        }
                         disabled={props.disable}
                       >
-                        {props.buttonName}
+                        {t(props.buttonName)}
                       </button>
                     )}
                   {selectedDevice &&
                     selectedDevice.status != DeviceStateStatus.Ready &&
                     errorStateDiv(
-                      selectedDevice.text +
-                        " device is " +
-                        DeviceState[selectedDevice.status].name
+                      t("invalid_state_msg", {
+                        deviceName: selectedDevice.text,
+                        deviceState: t(
+                          DeviceState[
+                            selectedDevice.status as DeviceStateStatusType
+                          ].name
+                        ),
+                      })
                     )}
                 </>
               )}
