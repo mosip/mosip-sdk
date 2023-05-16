@@ -19,32 +19,34 @@
 .mdb-text-gray-200 {
     --text-opacity: 1;
     color: #edf2f7;
-    color: rgba(237, 242, 247, var(--text-opacity));
+    color: rgba(229, 231, 235, var(--text-opacity));
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .mdb-animate-spin {
     animation: spin 1s linear infinite;
 }
 
-.mdb-dark:text-gray-600 {
+.mdb-dark\:text-gray-600 {
     --text-opacity: 1;
     color: #718096;
-    color: rgba(113, 128, 150, var(--text-opacity));
+    color: rgba(75, 85, 99, var(--text-opacity));
 }
 
 .mdb-fill-blue-600 {
-    fill: #4299e1;
+    fill: #2563eb;
 }
 
 .mdb-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
     padding: 0;
     margin: -1px;
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
-
 }

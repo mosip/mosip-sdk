@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import "./LoadingIndicator.scss";
+
 const dynamicSize: { [name: string]: object } = {
   small: {
     width: "1.5rem",
