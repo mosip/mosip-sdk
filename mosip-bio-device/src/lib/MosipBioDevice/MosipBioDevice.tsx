@@ -52,6 +52,10 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const [errorState, setErrorState] = useState<string | null>(null);
 
+  const [isRtl, setIsRtl] = useState<boolean>(
+    i18n.dir(i18n.language) === "rtl"
+  );
+
   useEffect(() => {
     handleLanguageChange();
     scanDevices(false);
@@ -59,6 +63,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const handleLanguageChange = () => {
     if (props.langCode && i18n.language != props.langCode) {
+      setIsRtl(i18n.dir(props.langCode) === "rtl");
       i18n.changeLanguage(props.langCode);
     }
   };
@@ -226,8 +231,15 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   const bioSelectOptionLabel = (e: IDeviceDetail) => (
     <div className="mdb-flex mdb-items-center h-7">
       <img className="w-7" src={e.icon} />
-      <span className="mdb-ml-2 mdb-text-xs">{e.text}</span>
-      <span className={DeviceState[e.status].class + " mdb-ml-auto"}></span>
+      <span className={"mdb-text-xs" + (isRtl ? " mdb-mr-2" : " mdb-ml-2")}>
+        {e.text}
+      </span>
+      <span
+        className={
+          DeviceState[e.status].class +
+          (isRtl ? " mdb-mr-auto" : " mdb-ml-auto")
+        }
+      ></span>
     </div>
   );
 
@@ -238,7 +250,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   );
 
   return (
-    <div className="mdb-flex mdb-flex-col">
+    <div dir={isRtl ? "rtl" : "ltr"} className="mdb-flex mdb-flex-col">
       <>
         {(status.state === states.LOADING ||
           status.state === states.AUTHENTICATING) && (
@@ -262,7 +274,10 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   name="modality_device"
                   id="modality_device"
                   aria-label="Modality Device Select"
-                  className="mdb-block rounded mdb-bg-white mdb-shadow mdb-w-full mdb-mr-2"
+                  className={
+                    "mdb-block rounded mdb-bg-white mdb-shadow mdb-w-full" +
+                    (isRtl ? " mdb-ml-2" : " mdb-mr-2")
+                  }
                   value={selectedDevice}
                   options={modalityDevices}
                   onChange={handleDeviceChange}
