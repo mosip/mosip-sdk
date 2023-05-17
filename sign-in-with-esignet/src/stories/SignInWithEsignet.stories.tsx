@@ -20,8 +20,10 @@ export default SignInWithEsignetMeta;
 export const SignInWithEsignetStory: StoryObj<typeof SignInWithEsignet> = {
   render: (args) => {
     return (
-      <div style={{ padding: "20px" }}>
-        <SignInWithEsignet {...args} />
+      <div style={{ margin: "20px" }}>
+        <div style={{ padding: "20px" }}>
+          <SignInWithEsignet {...args} />
+        </div>
       </div>
     );
   },
@@ -42,5 +44,11 @@ SignInWithEsignetStory.args = {
     prompt: "consent",
     max_age: 21,
     ui_locales: "en",
+  },
+  buttonConfig: {
+    type: "standard",
+    theme: "filled_black",
+    shape: "rounded_edges",
+    labelText: "Sign in with IKEA"
   },
 };
