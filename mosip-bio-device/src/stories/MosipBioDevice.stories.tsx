@@ -22,7 +22,7 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
     transactionId: {
       control: "text",
     },
-    jsonCss: {
+    customStyle: {
       control: "object",
     },
     biometricEnv: {
@@ -72,6 +72,22 @@ MosipBioDeviceStory.args = {
     discTimeout: 15,
     dinfoTimeout: 30,
     domainUri: `${window.origin}`,
+  },
+  customStyle: {
+    // errorBannerStyle: {
+    //   backgroundColor: "blue",
+    //   color: "yellow",
+    // },
+    refreshButtonStyle: {
+      iconUniCode: "\u21bb",
+    },
+    verifyButtonStyle: {
+      background: "green",
+      color: "yellow"
+    },
+    // selectBoxStyle: {
+    //   paddingTop: "10px",
+    // },
   },
   onCapture: myChange,
   onErrored: myError,

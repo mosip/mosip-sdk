@@ -46,18 +46,17 @@ Common props you may want to specify include:
 | `transactionId`| `string` | | Transaction id of the current biometric authorization |
 | `onCapture`    | `func`   |                 | The function to be called on a successful capture with [Biometric response](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification#capture-response). |
 | `onErrored`    | `func`   |                 | optional callback function on capture failure with error msg string.                                                                                                     |
-| `jsonCss`      | `Object` | See below       | Json object for customize the css of the component                                                                                                                       |
+| `customStyle`      | `Object` | See below       | Json object for customize the css of the component                                                                                                                       |
 | `biometricEnv` | `Object` | See below       | Biometric environment detail                                                                                                                                             |
 
-### Prop jsonCss
+### Prop customStyle
 
 For more information check [React-JSS integration page](https://cssinjs.org/react-jss)
 
 | field          | type     | note                          |
 | -------------- | -------- | ----------------------------- |
-| `selectBox`    | `Object` | Css for select dropdown       |
-| `selectLabel`  | `Object` | Css for select dropdown label |
-| `verifyButton` | `Object` | Css for verify button         |
+| `refreshButtonStyle`    | `Object` | Css for refresh button       |
+| `verifyButtonStyle` | `Object` | Css for verify button         |
 
 ### Prop biometricEnv
 For more information check [MDS Specification](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification)

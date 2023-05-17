@@ -294,7 +294,8 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   className={scanButtonClass}
                   onClick={handleScan}
                 >
-                  &#x21bb;
+                  {props.customStyle?.refreshButtonStyle?.iconUniCode ??
+                    "\u21bb"}
                 </button>
               </div>
             </div>
@@ -313,6 +314,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                             ? " mdb-text-slate-400"
                             : " mdb-bg-gradient mdb-text-white")
                         }
+                        style={{
+                          background:
+                            props.customStyle?.verifyButtonStyle?.background,
+                          color: props.customStyle?.verifyButtonStyle?.color,
+                        }}
                         disabled={props.disable}
                       >
                         {t(props.buttonName)}

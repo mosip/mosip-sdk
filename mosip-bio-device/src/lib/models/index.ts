@@ -15,6 +15,9 @@ export {
   IErrorClass,
   IDeviceDetail,
   IBiometricEnv,
+  IBioCompStyle,
+  IRefreshButtonStyle,
+  IVerifyButtonStyle,
 } from "./StandardInterface";
 
 export {

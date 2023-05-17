@@ -4,12 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { IBiometricEnv, IErrorClass } from "./StandardInterface";
+import { IBiometricEnv, IErrorClass, IBioCompStyle } from "./StandardInterface";
 
 interface IMosipBioDeviceProps {
   buttonName: string;
   transactionId: string;
-  jsonCss?: Object;
+  customStyle?: IBioCompStyle;
   langCode?: string;
   biometricEnv?: IBiometricEnv;
   disable?: boolean;
