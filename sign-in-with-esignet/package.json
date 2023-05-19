@@ -23,7 +23,7 @@
     "openidconnect",
     "esignet"
   ],
-  "license": "MIT",
+  "license": "MPL 2.0",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@babel/core": "^7.19.3",

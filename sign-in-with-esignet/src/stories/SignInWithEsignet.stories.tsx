@@ -49,6 +49,6 @@ SignInWithEsignetStory.args = {
     type: "standard",
     theme: "filled_black",
     shape: "rounded_edges",
-    labelText: "Sign in with IKEA"
+    labelText: "Sign in with e-Signet"
   },
 };
