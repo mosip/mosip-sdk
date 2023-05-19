@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from "react";
-import Select from "react-select";
+import Select, { StylesConfig } from "react-select";
 import { useTranslation } from "react-i18next";
 import { LoadingIndicator } from "../common";
 import { localStorageService, SbiService } from "../service";
@@ -23,6 +23,7 @@ import {
   verifyButtonClass,
   scanButtonClass,
   DeviceStateStatusType,
+  SelectBoxColor,
 } from "../models";
 
 import faceIcon from "../assets/face_sign_in.png";
@@ -61,6 +62,60 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   const [isRtl, setIsRtl] = useState<boolean>(
     i18n.dir(i18n.language) === "rtl"
   );
+
+  const selectBoxStyles: StylesConfig = {
+    control: (styles, { isFocused }) => {
+      const borderColorActive =
+        props.customStyle?.selectBoxStyle?.borderColorActive ??
+        SelectBoxColor.BOX_BORDER_ACTIVE;
+      const borderColor =
+        props.customStyle?.selectBoxStyle?.borderColor ??
+        SelectBoxColor.BOX_BORDER_NORMAL;
+      const borderColorHover =
+        props.customStyle?.selectBoxStyle?.borderColorHover ??
+        SelectBoxColor.BOX_BORDER_HOVER;
+
+      return {
+        ...styles,
+        borderColor,
+        boxShadow: `0 0 0 1px ${borderColor}`,
+        ":focus-within": {
+          borderColor: borderColorActive,
+          boxShadow: `0 0 0 1px ${borderColorActive}`,
+        },
+        ":hover": {
+          borderColor: isFocused ? borderColorActive : borderColorHover,
+          boxShadow: `0 0 0 1px ${
+            isFocused ? borderColorActive : borderColorHover
+          }`,
+        },
+      };
+    },
+    option: (styles, { isSelected }) => {
+      const activeColor =
+        props.customStyle?.selectBoxStyle?.panelBgColorActive ??
+        SelectBoxColor.PANEL_ACTIVE;
+      const normalColor =
+        props.customStyle?.selectBoxStyle?.panelBgColorActive ??
+        SelectBoxColor.PANEL_ACTIVE;
+      const hoverColor =
+        props.customStyle?.selectBoxStyle?.panelBgColorHover ??
+        SelectBoxColor.PANEL_HOVER;
+      return {
+        ...styles,
+        backgroundColor: isSelected ? activeColor : normalColor,
+
+        ":hover": {
+          ...styles[":hover"],
+          backgroundColor: isSelected ? activeColor : hoverColor,
+        },
+        ":active": {
+          ...styles[":active"],
+          backgroundColor: activeColor,
+        },
+      };
+    },
+  };
 
   useEffect(() => {
     handleLanguageChange();
@@ -277,6 +332,9 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
               </label>
               <div className="mdb-flex mdb-items-stretch">
                 <Select
+                  classNamePrefix="mbd-dropdown"
+                  placeholder={t("device_not_found_msg")}
+                  noOptionsMessage={() => t("no_options")}
                   name="modality_device"
                   id="modality_device"
                   aria-label="Modality Device Select"
@@ -287,6 +345,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   value={selectedDevice}
                   options={modalityDevices}
                   onChange={handleDeviceChange}
+                  styles={selectBoxStyles}
                   formatOptionLabel={(e: any) => bioSelectOptionLabel(e)}
                 />
                 <button

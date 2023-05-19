@@ -85,9 +85,14 @@ MosipBioDeviceStory.args = {
       background: "green",
       color: "yellow"
     },
-    // selectBoxStyle: {
-    //   paddingTop: "10px",
-    // },
+    selectBoxStyle: {
+      borderColorHover: "yellow",
+      borderColorActive: "red",
+      borderColor: "green",
+      panelBgColor: "yellow",
+      panelBgColorHover: "red",
+      panelBgColorActive: "green",
+    },
   },
   onCapture: myChange,
   onErrored: myError,

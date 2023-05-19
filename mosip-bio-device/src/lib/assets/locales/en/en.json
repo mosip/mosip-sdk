@@ -16,5 +16,6 @@
   "NOTREADY": "NOT READY",
   "BUSY": "BUSY",
   "NOTREGISTERED": "NOT REGISTERED",
-  "select_a_device": "Select a device"
+  "select_a_device": "Select a device",
+  "no_options": "No Options"
 }

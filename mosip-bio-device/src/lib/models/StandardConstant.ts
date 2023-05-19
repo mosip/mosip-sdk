@@ -61,6 +61,17 @@ const verifyButtonClass =
 const scanButtonClass =
   "mdb-cursor-pointer mdb-flex mdb-items-center mdb-ml-auto mdb-text-gray-900 mdb-bg-white mdb-shadow border mdb-border-gray-300 mdb-hover:bg-gray-100 mdb-font-medium mdb-rounded-lg mdb-text-lg mdb-px-3 mdb-py-1 mdb-ml-1";
 
+
+enum SelectBoxColor {
+  PANEL_ACTIVE = "#2684ff",
+  PANEL_HOVER = "#deebff",
+  PANEL_DISABLED = "lightgray",
+  PANEL_NORMAL = "#fff",
+  BOX_BORDER_ACTIVE = "#2684ff",
+  BOX_BORDER_HOVER = "#b3b3b3",
+  BOX_BORDER_NORMAL = "#cccccc",
+}
+
 export {
   host,
   DeviceState,
@@ -70,4 +81,5 @@ export {
   loadingContClass,
   verifyButtonClass,
   scanButtonClass,
+  SelectBoxColor
 };

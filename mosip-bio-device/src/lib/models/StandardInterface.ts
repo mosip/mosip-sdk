@@ -109,12 +109,14 @@ interface IBiometricEnv {
   domainUri: string;
 }
 
-// interface ISelectBoxStyle {
-//   borderColor?: string;
-//   borderColorHover?: string
-//   panelBgColor?: string;
-//   panelBgColorHover?: string; 
-// }
+interface ISelectBoxStyle {
+  borderColor?: string;
+  borderColorActive?: string;
+  borderColorHover?: string
+  panelBgColor?: string;
+  panelBgColorHover?: string;
+  panelBgColorActive?: string; 
+}
 
 interface IVerifyButtonStyle {
   background?: string;
@@ -126,7 +128,7 @@ interface IRefreshButtonStyle {
 }
 
 interface IBioCompStyle {
-  // selectBoxStyle?: ISelectBoxStyle;
+  selectBoxStyle?: ISelectBoxStyle;
   refreshButtonStyle?: IRefreshButtonStyle;
   verifyButtonStyle?: IVerifyButtonStyle;
   // errorBannerStyle?: Object;
@@ -144,6 +146,6 @@ export {
   IBiometricEnv,
   IBioCompStyle,
   IRefreshButtonStyle,
-  // ISelectBoxStyle,
+  ISelectBoxStyle,
   IVerifyButtonStyle,
 };

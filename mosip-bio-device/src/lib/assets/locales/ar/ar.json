@@ -16,5 +16,6 @@
   "NOTREADY": "غير جاهز",
   "BUSY": "مشغول",
   "NOTREGISTERED": "غير مسجل",
-  "select_a_device": "اختر جهازا"
+  "select_a_device": "اختر جهازا",
+  "no_options": "لا يوجد خيارات"
 }

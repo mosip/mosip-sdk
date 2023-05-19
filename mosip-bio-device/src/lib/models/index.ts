@@ -29,6 +29,7 @@ export {
   loadingContClass,
   verifyButtonClass,
   scanButtonClass,
+  SelectBoxColor
 } from "./StandardConstant";
 
 export {
