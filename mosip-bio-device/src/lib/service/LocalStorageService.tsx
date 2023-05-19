@@ -10,6 +10,9 @@ const device_info_keyname = "deviceInfo";
 const discover_keyname = "discover";
 
 const localStorageService = {
+  /**
+   * @returns deviceInfoList
+   */
   getDeviceInfos: (): Record<number, IDeviceInfo[]> => {
     return JSON.parse(localStorage.getItem(device_info_keyname) || "[]");
   },

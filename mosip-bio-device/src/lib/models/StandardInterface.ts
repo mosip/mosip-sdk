@@ -131,7 +131,6 @@ interface IBioCompStyle {
   selectBoxStyle?: ISelectBoxStyle;
   refreshButtonStyle?: IRefreshButtonStyle;
   verifyButtonStyle?: IVerifyButtonStyle;
-  // errorBannerStyle?: Object;
 }
 
 export {

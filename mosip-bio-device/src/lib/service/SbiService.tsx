@@ -22,10 +22,17 @@ const certification = "L1";
 
 const DeviceStatusReady = "Ready";
 
+/**
+ * endpoint for the biometric device
+ */
 const deviceEndPoint = "/device";
 const infoEndPoint = "/info";
 const captureEndPoint = "/capture";
 
+/**
+ * http method for retrieving from & 
+ * sending data to the biometric devices
+ */
 const mosip_DiscoverMethod = "MOSIPDISC";
 const mosip_DeviceInfoMethod = "MOSIPDINFO";
 const mosip_CaptureMethod = "CAPTURE";

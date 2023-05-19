@@ -122,6 +122,10 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     scanDevices(false);
   }, [props.langCode]);
 
+  /**
+   * change the current language & also set 
+   * directionality according to the language
+   */
   const handleLanguageChange = () => {
     if (props.langCode && i18n.language != props.langCode) {
       setIsRtl(i18n.dir(props.langCode) === "rtl");
@@ -129,6 +133,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     }
   };
 
+  /**
+   * Scan for the biometric devices connected to the system
+   * @param forceScan if enabled, it will scan for the
+   * devices even if the devices are already scanned
+   */
   const scanDevices = (forceScan: boolean) => {
     if (!forceScan && modalityDevices?.length && selectedDevice) {
       return;
@@ -152,6 +161,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     }
   };
 
+  /**
+   * Discover the device connected with the system
+   * & stored it into the local storage
+   * @param host 
+   */
   const discoverDevicesAsync = async (host: string) => {
     if (timer) {
       clearInterval(timer);
@@ -185,6 +199,10 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     setTimer(intervalId);
   };
 
+  /**
+   * get the device list from the local storage &
+   * set the device list in the modality device state
+   */
   const refreshDeviceList = () => {
     let deviceInfosPortsWise = getDeviceInfos();
 
@@ -239,12 +257,25 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     setSelectedDevice(selectedDevice);
   };
 
+  /**
+   * Set the current selected device
+   * @param device current selected device
+   */
   const handleDeviceChange = (device: any) => setSelectedDevice(device);
 
+  /**
+   * Start the scan device
+   */
   const handleScan = () => scanDevices(true);
 
+  /**
+   * Start capturing the biometric details
+   */
   const scanAndVerify = () => startCapture();
 
+  /**
+   * to capture the biometric details
+   */
   const startCapture = async () => {
     props.onErrored(null);
     setErrorState(null);
@@ -289,6 +320,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     props.onCapture(biometricResponse);
   };
 
+  /**
+   * option to show in the select box
+   * @param e IDeviceDetail options
+   * @returns element to show in the select box
+   */
   const bioSelectOptionLabel = (e: IDeviceDetail) => (
     <div className="mdb-flex mdb-items-center h-7">
       <img className="w-7" src={e.icon} />
@@ -304,6 +340,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     </div>
   );
 
+  /**
+   * error ribbon to show in the UI
+   * @param eMsg error message
+   * @returns element to show in the error ribbon
+   */
   const errorStateDiv = (eMsg: string) => (
     <div className={errorRibbonClass} role="alert">
       {eMsg}
