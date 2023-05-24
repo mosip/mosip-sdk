@@ -39,3 +39,4 @@ yarn-error.log*
 .VSCodeCounter
 
 package-lock.json
+storybook-static

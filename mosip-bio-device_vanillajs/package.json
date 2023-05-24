@@ -1,0 +1,19 @@
+{
+  "name": "mosip-bio-device-js",
+  "description": "A vanillaJs library for integrating MOSIP Bio Devices",
+  "version": "1.0.0",
+  "license": "MPL 2.0",
+	"main": "dist/cjs/index.js",
+	"module": "dist/es/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+		"package": "rollup -c && npm pack"
+  },
+  "devDependencies": {
+    "rollup": "^2.60.0",
+		"rollup-plugin-postcss": "^4.0.2"
+  }
+}
