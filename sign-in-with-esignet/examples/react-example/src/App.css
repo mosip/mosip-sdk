@@ -1,0 +1,9 @@
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
