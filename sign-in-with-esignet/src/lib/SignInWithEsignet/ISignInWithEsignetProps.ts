@@ -26,20 +26,9 @@ interface ButtonConfigProp {
   textColor?: string;
   borderColor?: string;
   borderWidth?: string;
-  customStyle?: {
-    outerDivStyleStandard: React.CSSProperties;
-    outerDivStyleIcon: React.CSSProperties;
-    logoDivStyle: React.CSSProperties;
-    logoImgStyle: React.CSSProperties;
-    labelSpanStyle: React.CSSProperties;
-  };
 }
 
-interface ISignInWithEsignetProps
-  extends React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  > {
+interface ISignInWithEsignetProps {
   oidcConfig: OidcConfigProp;
   buttonConfig: ButtonConfigProp;
 }
