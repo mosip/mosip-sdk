@@ -15,6 +15,7 @@ interface OidcConfigProp {
   prompt?: string;
 }
 
+//TODO change the type of style
 interface ButtonConfigProp {
   type?: string;
   theme?: string;
@@ -26,11 +27,18 @@ interface ButtonConfigProp {
   textColor?: string;
   borderColor?: string;
   borderWidth?: string;
+  customStyle?: {
+    outerDivStyleStandard: any;
+    outerDivStyleIcon: any;
+    logoDivStyle: any;
+    logoImgStyle: any;
+    labelSpanStyle: any;
+  };
 }
 
-interface ISignInWithEsignetProps {
-  oidcConfig: OidcConfigProp;
-  buttonConfig: ButtonConfigProp;
-}
+// interface ISignInWithEsignetProps {
+//   oidcConfig: OidcConfigProp;
+//   buttonConfig: ButtonConfigProp;
+// }
 
-export { OidcConfigProp, ButtonConfigProp, ISignInWithEsignetProps };
+export { OidcConfigProp, ButtonConfigProp };

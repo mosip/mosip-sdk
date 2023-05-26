@@ -1,8 +1,4 @@
-import {
-  ButtonConfigProp,
-  ISignInWithEsignetProps,
-  OidcConfigProp,
-} from "./ISignInWithEsignetProps";
+import { ButtonConfigProp, OidcConfigProp } from "./ISignInWithEsignetProps";
 import esignetLogo from "../assets/esignet_logo.png";
 import {
   buttonTypes,
@@ -182,106 +178,142 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
   };
 }
 
-// /**
-//  * builds style for the outer div by updating baseStyle by adding/overriding
-//  *  button config styling parameters.
-//  *
-//  * @param baseStyle
-//  * @param buttonConfig
-//  * @returns style
-//  */
-// function buildButtonStyles(
-//   baseStyle: React.CSSProperties,
-//   buttonConfig: ButtonConfigProp
-// ): React.CSSProperties {
-//   if (buttonConfig?.width) baseStyle.width = buttonConfig.width;
-//   if (buttonConfig?.background) baseStyle.background = buttonConfig.background;
-//   if (buttonConfig?.textColor) baseStyle.color = buttonConfig.textColor;
-//   if (buttonConfig?.borderWidth)
-//     baseStyle.borderWidth = buttonConfig.borderWidth;
-//   if (buttonConfig?.borderColor)
-//     baseStyle.borderColor = buttonConfig.borderColor;
+/**
+ * builds style for the outer div by updating baseStyle by adding/overriding
+ *  button config styling parameters.
+ * @param baseStyle
+ * @param buttonConfig
+ * @returns style
+ */
+function buildButtonStyles(
+  baseStyle: any,
+  buttonConfig: ButtonConfigProp
+): any {
+  if (buttonConfig?.width) baseStyle.width = buttonConfig.width;
+  if (buttonConfig?.background) baseStyle.background = buttonConfig.background;
+  if (buttonConfig?.textColor) baseStyle.color = buttonConfig.textColor;
+  if (buttonConfig?.borderWidth)
+    baseStyle.borderWidth = buttonConfig.borderWidth;
+  if (buttonConfig?.borderColor)
+    baseStyle.borderColor = buttonConfig.borderColor;
 
-//   return baseStyle;
-// }
+  return baseStyle;
+}
 
-// /**
-//  * builds style based on button type and custom style.
-//  *
-//  * if theme is 'custom' then standard classes are applied and these clases
-//  *  are expected to be added by the button implementer.
-//  *
-//  * @param baseStyle
-//  * @param buttonConfig
-//  * @returns
-//  */
-// function buildButtonCustomStyles(
-//   baseStyle: React.CSSProperties,
-//   buttonConfig: ButtonConfigProp
-// ): customStyle {
-//   if (!buttonConfig.customStyle) {
-//     return {};
-//   }
+/**
+ * builds style based on button type and custom style.
+ *
+ * if theme is 'custom' then standard classes are applied and these clases
+ *  are expected to be added by the button implementer.
+ * @param baseStyle
+ * @param buttonConfig
+ * @returns
+ */
+function buildButtonCustomStyles(
+  baseStyle: any,
+  buttonConfig: ButtonConfigProp
+): customStyle {
+  if (!buttonConfig.customStyle) {
+    return {};
+  }
 
-//   let outerDiv =
-//     buttonConfig.type == buttonTypes.icon
-//       ? buttonConfig.customStyle.outerDivStyleIcon
-//       : buttonConfig.customStyle.outerDivStyleStandard;
+  let outerDiv =
+    buttonConfig.type == buttonTypes.icon
+      ? buttonConfig.customStyle.outerDivStyleIcon
+      : buttonConfig.customStyle.outerDivStyleStandard;
 
-//   // assigning/overriding outerDiv style onto base style
-//   Object.assign(baseStyle, outerDiv);
+  Object.assign(baseStyle, outerDiv);
 
-//   return {
-//     outerDivStyle: buildButtonStyles(baseStyle, buttonConfig),
-//     logoDivStyle: buttonConfig.customStyle.logoDivStyle,
-//     logoImgStyle: buttonConfig.customStyle.logoImgStyle,
-//     labelSpanStyle: buttonConfig.customStyle.labelSpanStyle,
-//   };
-// }
+  return {
+    outerDivStyle: buildButtonStyles(baseStyle, buttonConfig),
+    logoDivStyle: buttonConfig.customStyle.logoDivStyle,
+    logoImgStyle: buttonConfig.customStyle.logoImgStyle,
+    labelSpanStyle: buttonConfig.customStyle.labelSpanStyle,
+  };
+}
 
-const createButton = (
+const setStyleAttribute = (
+  element: HTMLElement,
+  attrs: { [key: string]: string }
+): void => {
+  if (attrs !== undefined) {
+    Object.keys(attrs).forEach((key: string) => {
+      element.style.setProperty(key, attrs[key]);
+    });
+  }
+};
+
+const createButtonWithClasses = (
   buttonLabel: string,
   urlToNavigate: string,
-  buttonClasses: styleClasses,
-  logoPath: string
+  buttonCustomStyle: customStyle | null,
+  buttonClasses: styleClasses | null,
+  buttonStyle: any,
+  logoPath: string,
+  errorMsg: string
 ) => {
+  //Div Container
+  var container = document.createElement("div");
+
+  //Button
   var anchor = document.createElement("a");
   anchor.href = urlToNavigate;
 
   var outerDiv = document.createElement("div");
-  outerDiv.classList.add(...buttonClasses.outerDivClasses.split(" "));
 
   var logoDiv = document.createElement("div");
-  logoDiv.classList.add(...buttonClasses.logoDivClasses.split(" "));
 
   var logoImg = document.createElement("img");
-  logoImg.classList.add(...buttonClasses.logoImgClasses.split(" "));
   logoImg.src = logoPath;
 
   var labelSpan = document.createElement("span");
-  labelSpan.classList.add(...buttonClasses.labelSpanClasses.split(" "));
   labelSpan.innerHTML = buttonLabel;
+
+  if (buttonCustomStyle) {
+    //apply custom style
+    setStyleAttribute(outerDiv, buttonCustomStyle.outerDivStyle);
+    setStyleAttribute(logoDiv, buttonCustomStyle.logoDivStyle);
+    setStyleAttribute(logoImg, buttonCustomStyle.logoDivStyle);
+    setStyleAttribute(labelSpan, buttonCustomStyle.labelSpanStyle);
+  } else if (buttonClasses) {
+    //or apply classes
+    setStyleAttribute(outerDiv, buttonStyle);
+    outerDiv.classList.add(...buttonClasses.outerDivClasses.split(" "));
+    logoDiv.classList.add(...buttonClasses.logoDivClasses.split(" "));
+    logoImg.classList.add(...buttonClasses.logoImgClasses.split(" "));
+    labelSpan.classList.add(...buttonClasses.labelSpanClasses.split(" "));
+  }
 
   logoDiv.appendChild(logoImg);
   outerDiv.appendChild(logoDiv);
   outerDiv.appendChild(labelSpan);
   anchor.appendChild(outerDiv);
-  return anchor;
+
+  if (errorMsg) {
+    //adding error span
+    var errorSpan = document.createElement("span");
+    errorSpan.style.color = "red";
+    errorSpan.style.color = "14px";
+    errorSpan.innerHTML = errorMsg + ". Please report to site admin";
+    container.appendChild(errorSpan);
+  }
+
+  container.appendChild(anchor);
+  return container;
 };
 
+//TODO add option for custom styling
 const SignInWithEsignet = ({ ...props }) => {
-  let { oidcConfig, buttonConfig, signInElement, style } = props;
+  let { oidcConfig, buttonConfig, signInElement } = props;
 
   if (signInElement == null) {
     return;
   }
 
-  // const baseStyle: React.CSSProperties = style || {};
-
   //validate input
-  let errorObj = validateInput(oidcConfig);
+  let errorMsg = validateInput(oidcConfig);
   let urlToNavigate = "#";
-  if (!errorObj) {
+  if (!errorMsg) {
     urlToNavigate = buildRedirectURL(oidcConfig);
   }
 
@@ -297,70 +329,31 @@ const SignInWithEsignet = ({ ...props }) => {
   const label = buttonConfig.labelText ?? defaultButtonLabel;
   const logoPath = buttonConfig.logoPath ?? esignetLogo;
 
-  // let buttonCustomStyle: customStyle | null = null;
+  let buttonCustomStyle: customStyle | null = null;
   let buttonClasses: styleClasses | null = null;
-  // let buttonStyle: React.CSSProperties = {};
+  let buttonStyle: any = {};
 
   buttonClasses = buildButtonClasses(buttonConfig);
 
-  //customStyle has precedence over buttonClasses
-  // if (buttonConfig.customStyle) {
-  //   buttonCustomStyle = buildButtonCustomStyles(baseStyle, buttonConfig);
-  // } else {
-  //   buttonClasses = buildButtonClasses(buttonConfig);
-  //   buttonStyle = buildButtonStyles(baseStyle, buttonConfig);
-  // }
+  // customStyle has precedence over buttonClasses
+  if (buttonConfig.customStyle) {
+    buttonCustomStyle = buildButtonCustomStyles(buttonStyle, buttonConfig);
+  } else {
+    buttonClasses = buildButtonClasses(buttonConfig);
+    buttonStyle = buildButtonStyles(buttonStyle, buttonConfig);
+  }
 
-  var button = createButton(label, urlToNavigate, buttonClasses, logoPath);
+  var button = createButtonWithClasses(
+    label,
+    urlToNavigate,
+    buttonCustomStyle,
+    buttonClasses,
+    buttonStyle,
+    logoPath,
+    errorMsg
+  );
   signInElement.innerHTML = "";
   signInElement.appendChild(button);
-
-  // return (
-  //   <>
-  //     {errorObj && (
-  //       <span style={{ color: "red", fontSize: "14px" }}>
-  //         {errorObj + ". Please report to site admin"}
-  //       </span>
-  //     )}
-
-  //     <a href={urlToNavigate}>
-  //       <div className={buttonClasses.outerDivClasses} style={style}>
-  //         <div className={buttonClasses.logoDivClasses}>
-  //           <img className={buttonClasses.logoImgClasses} src={logoPath} />
-  //         </div>
-  //         {buttonConfig.type != buttonTypes.icon && (
-  //           <span className={buttonClasses.labelSpanClasses}>{label}</span>
-  //         )}
-  //       </div>
-  //     </a>
-
-  //     {/* {!buttonCustomStyle && buttonClasses && (
-  //       <a href={urlToNavigate}>
-  //         <div className={buttonClasses.outerDivClasses} style={buttonStyle}>
-  //           <div className={buttonClasses.logoDivClasses}>
-  //             <img className={buttonClasses.logoImgClasses} src={logoPath} />
-  //           </div>
-  //           {buttonConfig.type != buttonTypes.icon && (
-  //             <span className={buttonClasses.labelSpanClasses}>{label}</span>
-  //           )}
-  //         </div>
-  //       </a>
-  //     )} */}
-
-  //     {/* {buttonCustomStyle && (
-  //       <a href={urlToNavigate}>
-  //         <div style={buttonCustomStyle.outerDivStyle}>
-  //           <div style={buttonCustomStyle.logoDivStyle}>
-  //             <img style={buttonCustomStyle.logoImgStyle} src={logoPath} />
-  //           </div>
-  //           {buttonConfig.type != buttonTypes.icon && (
-  //             <span style={buttonCustomStyle.labelSpanStyle}>{label}</span>
-  //           )}
-  //         </div>
-  //       </a>
-  //     )} */}
-  //   </>
-  // );
 };
 
 export default SignInWithEsignet;
