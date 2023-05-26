@@ -9,8 +9,6 @@
   </head>
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
-    <div id="app">Loading...</div>
-    <div id="sign-in-with-esignet"></div>
     <script type="module">
       import { SignInWithEsignet } from "../../dist/esm/index.js";
       //configuration for Open id connect
@@ -42,5 +40,11 @@
         });
       };
     </script>
+
+    <div style="height: 100vh; width: 100%; background: #f6f6f2">
+      <div class="center">
+        <div id="sign-in-with-esignet"></div>
+      </div>
+    </div>
   </body>
 </html>

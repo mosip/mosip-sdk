@@ -1,46 +1,55 @@
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* signinbutton theme specific css */
 .sign-in-outer-div-container-standard {
-    border-color: #333333;
-    background-color: #333333;
-    color: white;
-    max-width: 336px;
-    height: 48px;
-    border-width: 2px;
-    display: flex;
-    align-items: center;
-    border-radius: 46px;
-    padding-left: 3px;
-    padding-right: 3px;
-  }
-  
-  .sign-in-outer-div-container-icon {
-    border-color: #333333;
-    border-width: 2px;
-    display: inline-block;
-    border-radius: 46px;
-  }
-  
-  .sign-in-logo-div-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 38px;
-    height: 38px;
-    background-color: white;
-    border-radius: 36px;
-  }
-  
-  .sign-in-logo-img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-  }
-  
-  .sign-in-label-span {
-    vertical-align: middle;
-    font-weight: 600;
-    font: normal normal 600 14px/17px;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  
+  border-color: #333333;
+  background-color: #333333;
+  color: white;
+  max-width: 336px;
+  height: 48px;
+  border-width: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 46px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.sign-in-outer-div-container-icon {
+  border-color: #333333;
+  border-width: 2px;
+  display: inline-block;
+  border-radius: 46px;
+}
+
+.sign-in-logo-div-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 38px;
+  height: 38px;
+  background-color: white;
+  border-radius: 36px;
+}
+
+.sign-in-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.sign-in-label-span {
+  vertical-align: middle;
+  font-weight: 600;
+  font: normal normal 600 14px/17px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
