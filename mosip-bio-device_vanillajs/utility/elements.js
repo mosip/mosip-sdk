@@ -111,6 +111,7 @@ const path = (...args) => makeElement(`path`, ...args);
 const circle = (...args) => makeElement(`circle`, ...args);
 const input = (...args) => makeElement(`input`, ...args);
 const label = (...args) => makeElement(`label`, ...args);
+const img = (...args) => makeElement(`img`, ...args);
 
 export {
   a,
@@ -128,5 +129,6 @@ export {
   path,
   circle,
   input,
-  label
+  label,
+  img
 };

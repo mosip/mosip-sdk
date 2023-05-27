@@ -1,0 +1,270 @@
+.mbd-dropdown__container {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__container.active .mbd-dropdown__menu {
+  display: block;
+}
+
+.mbd-dropdown__container .mbd-dropdown__menu {
+  display: none;
+}
+
+
+.mbd-dropdown__control {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  cursor: default;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  min-height: 38px;
+  outline: 0 !important;
+  position: relative;
+  -webkit-transition: all 100ms;
+  transition: all 100ms ease 0s;
+  background-color: rgb(255, 255, 255);
+  border-color: #cccccc;
+  border-radius: 4px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 0px 0px 0px 1px #cccccc;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__control:hover {
+  border-color: #b3b3b3;
+  box-shadow: 0px 0px 0px 1px #b3b3b3;
+}
+
+.mbd-dropdown__control:focus-within {
+  border-color: #2684ff;
+  box-shadow: 0px 0px 0px 1px #2684ff;
+}
+
+.mbd-dropdown__value-container {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: grid;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1 1 0%;
+  -webkit-box-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  overflow: hidden;
+  padding: 2px 8px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__placeholder {
+  grid-area: 1/1/2/3;
+  color: hsl(0, 0%, 50%);
+  margin-left: 2px;
+  margin-right: 2px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__single-value {
+  grid-area: 1 / 1 / 2 / 3;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(51, 51, 51);
+  margin-left: 2px;
+  margin-right: 2px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__input-container {
+  visibility: visible;
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  display: inline-grid;
+  grid-area: 1/1/2/3;
+  grid-template-columns: 0 min-content;
+  margin: 2px;
+  padding-bottom: 2px;
+  padding-top: 2px;
+  color: hsl(0, 0%, 20%);
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__input{
+  content: attr(data-value) " ";
+  visibility: hidden;
+  white-space: pre;
+  grid-area: 1/2;
+  font: inherit;
+  min-width: 2px;
+  border: 0;
+  margin: 0;
+  outline: 0;
+  padding: 0;
+}
+
+.mbd-dropdown__indicators {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-align-self: stretch;
+  -ms-flex-item-align: stretch;
+  align-self: stretch;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__indicator-separator {
+  -webkit-align-self: stretch;
+  -ms-flex-item-align: stretch;
+  align-self: stretch;
+  width: 1px;
+  background-color: rgb(204, 204, 204);
+  margin-bottom: 8px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__indicator-container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-transition: color 150ms;
+  transition: color 150ms ease 0s;
+  color: rgb(204, 204, 204);
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__indicator-container:hover {
+  color: rgb(153, 153, 153);
+}
+
+.mbd-dropdown__indicator-svg {
+  display: inline-block;
+  fill: currentcolor;
+  line-height: 1;
+  stroke: currentcolor;
+  stroke-width: 0;
+}
+
+.mbd-dropdown__menu {
+  top: 100%;
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  background-color: hsl(0, 0%, 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.1), 0 4px 11px hsla(0, 0%, 0%, 0.1);
+  margin-bottom: 8px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__menu-list {
+  max-height: 300px;
+  overflow-y: auto;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  padding-top: 4px;
+  box-sizing: border-box;
+}
+
+.mbd-dropdown__option {
+  cursor: default;
+  display: block;
+  font-size: inherit;
+  width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  background-color: #fff;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  color: inherit;
+}
+
+.selected.mbd-dropdown__option {
+  background-color: #2684ff;
+  color: hsl(0, 0%, 100%);
+}
+
+.selected.mbd-dropdown__option:hover {
+  background-color: #2684ff;
+  color: hsl(0, 0%, 100%);
+}
+
+.mbd-dropdown__option:hover {
+  background-color: #deebff;
+}
+
+.mbd-dropdown__option:active {
+  background-color: #2684ff;
+}
+
+.mbd-dropdown__A11yText {
+  z-index: 9999;
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  width: 1px;
+  position: absolute;
+  overflow: hidden;
+  padding: 0;
+  white-space: nowrap;
+}
+
+/* <div class="mbd-dropdown__menu-list css-1n6sfyn-MenuList">
+    <div class="mbd-dropdown__option mbd-dropdown__option--is-focused mbd-dropdown__option--is-selected css-1tf6gho-option" aria-disabled="false" id="react-select-3-option-0" tabindex="-1">
+      <div class="mdb-flex mdb-items-center h-7">
+        <img class="w-7" src="static/media/src/lib/assets/fingerprint_sign_in.png">
+        <span class="mdb-text-xs mdb-ml-2">MOSIP-SINGLE01</span>
+        <span class="ready mdb-ml-auto"></span>
+      </div>
+    </div>
+    
+    <div class="mbd-dropdown__option css-xplumr-option" aria-disabled="false" id="react-select-3-option-1" tabindex="-1">
+      <div class="mdb-flex mdb-items-center h-7">
+        <img class="w-7" src="static/media/src/lib/assets/face_sign_in.png">
+        <span class="mdb-text-xs mdb-ml-2">MOSIP-FACE01</span>
+        <span class="ready mdb-ml-auto"></span>
+      </div>
+    </div>
+    
+    <div class="mbd-dropdown__option css-xplumr-option" aria-disabled="false" id="react-select-3-option-2" tabindex="-1">
+      <div class="mdb-flex mdb-items-center h-7">
+        <img class="w-7" src="static/media/src/lib/assets/iris_sign_in.png">
+        <span class="mdb-text-xs mdb-ml-2">MOSIP-IRIS02</span>
+        <span class="ready mdb-ml-auto"></span>
+      </div>
+    </div>
+  </div> */

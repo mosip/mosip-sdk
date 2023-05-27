@@ -1,5 +1,24 @@
-import { ul, li, div, span, button, i, label } from "./../utility/elements";
+import {
+  // ul,
+  // li,
+  div,
+  span,
+  button,
+  // i,
+  label,
+  svg,
+  path,
+  input,
+  img,
+} from "./../utility/elements";
+
+import faceIcon from "../assets/face_sign_in.png";
+import fingerIcon from "../assets/fingerprint_sign_in.png";
+import irisIcon from "../assets/iris_sign_in.png";
+
+import "./../mbd.min.css";
 import "./style.css";
+import "./select-dropdown.css";
 
 class MosipBioDevice {
   /**
@@ -7,70 +26,189 @@ class MosipBioDevice {
    */
   constructor(container) {
     this.container = container;
+    this.isRtl = false;
+
     this.optionElementAr = [
-      "Github",
-      "Instagram",
-      "LinkdIn",
-      "Twitter",
-      "Youtube",
+      { icon: faceIcon, text: "MOSIP-FACE01" },
+      { icon: fingerIcon, text: "MOSIP-SINGLE01" },
+      { icon: irisIcon, text: "MOSIP-IRIS02" },
     ];
-
-    this.selectBtnActive = () =>
-      document.querySelector(".select-menu").classList.toggle("active");
-
-    this.optionSelection = (item) => {
-      document.querySelector(".sBtn-text").innerText = item;
-      document.querySelector(".select-menu").classList.remove("active");
-    };
-
-    this.handleScan = () => {
-      console.log("************** Scan Button Clicked **************");
-    };
-
-    this.scanAndVerify = () => {
-      console.log("************** Scan & Verify Button Clicked **************");
-    };
   }
 
   start() {
     this.container.replaceChildren(this.generateSekeleton());
   }
 
-  generateDropdown() {
-    const optionElement = this.optionElementAr.map((item) =>
-      li(
-        { className: "option", onclick: () => this.optionSelection(item) },
-        span({ className: "option-text" }, item)
-      )
-    );
+  selectBtnActive = () =>
+    this.container
+      .querySelector(".mbd-dropdown__container")
+      .classList.toggle("active");
 
-    const allOptions = ul({ className: "options" }, optionElement);
+  removeSelect = () => {
+    const rEl = this.container.querySelector(".mbd-dropdown__option.selected");
+    if (rEl) {
+      rEl.classList.remove("selected");
+    }
+  };
 
-    const selectDropdown = div(
-      { className: "select-btn", onclick: () => this.selectBtnActive() },
+  optionSelection = (el) => {
+    this.removeSelect();
+    const mbdOption = el.closest(".mbd-dropdown__option");
+    mbdOption.classList.add("selected");
+    this.container.querySelector(".mbd-dropdown__single-value").innerHTML =
+      mbdOption.innerHTML;
+    this.container
+      .querySelector(".mbd-dropdown__container")
+      .classList.remove("active");
+  };
+
+  handleScan = () => {
+    console.log("************** Scan Button Clicked **************");
+  };
+
+  scanAndVerify = () => {
+    console.log("************** Scan & Verify Button Clicked **************");
+  };
+
+  bioSelectOptionLabel = (e) =>
+    div(
+      {
+        className: "mbd-flex mbd-items-center h-7",
+      },
       [
-        span({ className: "sBtn-text" }, "Select your option"),
-        i({ className: "bx bx-chevron-down" }),
+        img({
+          className: "w-7",
+          src: e.icon,
+          alt: e.text,
+        }),
+        span(
+          {
+            className: "mbd-text-xs" + (this.isRtl ? " mbd-mr-2" : " mbd-ml-2"),
+          },
+          e.text
+        ),
+        span({
+          className:
+            "ready" +
+            (this.isRtl ? " mbd-mr-auto mbd-ml-2" : " mbd-ml-auto mbd-mr-2"),
+        }),
       ]
     );
 
-    const selectMenu = div(
+  selectOptionElement(i) {
+    let j = i === null || i === undefined || i < 0 ? 0 : i;
+    const allOptions = this.container.querySelectorAll(".mbd-dropdown__option");
+    if (allOptions.length > 0) {
+      j = allOptions.length > j ? j : 0;
+      this.optionSelection(allOptions[j]);
+    }
+  }
+
+  generateDropdown() {
+    const optionElement = this.optionElementAr.map((item) =>
+      div(
+        {
+          className: "mbd-dropdown__option",
+          onclick: (e) => this.optionSelection(e.target),
+        },
+        this.bioSelectOptionLabel(item)
+      )
+    );
+
+    const singleValue = div(
+      {
+        className: "mbd-dropdown__single-value",
+      },
+      "Select your option"
+    );
+    const inputContainer = div(
+      {
+        className: "mbd-dropdown__input-container",
+        "data-value": "",
+      },
+      input({
+        className: "mbd-dropdown__input",
+        autocapitalize: "none",
+        autocomplete: "off",
+        autocorrect: "off",
+        id: "react-select-5-input",
+        spellcheck: "false",
+        tabindex: "0",
+        type: "text",
+        "aria-autocomplete": "list",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "aria-label": "Modality Device Select",
+        role: "combobox",
+        value: "",
+      })
+    );
+    const valuContainer = div(
+      {
+        className: "mbd-dropdown__value-container",
+      },
+      singleValue,
+      inputContainer
+    );
+
+    const indicators = div(
+      {
+        className: "mbd-dropdown__indicators",
+        onclick: () => this.selectBtnActive(),
+      },
+      span({ className: "mbd-dropdown__indicator-separator" }),
+      div(
+        {
+          className: "mbd-dropdown__indicator-container",
+          "aria-hidden": "true",
+        },
+        svg(
+          {
+            class: "mbd-dropdown__indicator-svg",
+            height: "20",
+            width: "20",
+            viewBox: "0 0 20 20",
+            "aria-hidden": "true",
+            focusable: "false",
+          },
+          path({
+            d: "M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z",
+          })
+        )
+      )
+    );
+
+    const dropdownControl = div(
+      {
+        className: "mbd-dropdown__control",
+      },
+      [valuContainer, indicators]
+    );
+
+    const dropdownMenu = div(
+      {
+        className: "mbd-dropdown__menu",
+      },
+      div({ className: "mbd-dropdown__menu-list" }, optionElement)
+    );
+
+    const dropdownContainer = div(
       {
         className:
-          "select-menu mdb-block rounded mdb-bg-white mdb-shadow mdb-w-full mdb-mr-2 ",
+          "mbd-dropdown__container mbd-block rounded mbd-bg-white mbd-shadow mbd-w-full mbd-mr-2 ",
         name: "modality_device",
         id: "modality_device",
         "aria-label": "Modality Device Select",
       },
-      [selectDropdown, allOptions]
+      [dropdownControl, dropdownMenu]
     );
 
-    return selectMenu;
+    return dropdownContainer;
   }
 
   generateVerifyButton() {
     const verifyButtonClass =
-      "mdb-cursor-pointer mdb-block mdb-w-full mdb-font-medium mdb-rounded-lg mdb-text-sm mdb-px-5 mdb-py-2 mdb-text-center mdb-border mdb-border-2 mdb-bg-gradient mdb-text-white ";
+      "mbd-cursor-pointer mbd-block mbd-w-full mbd-font-medium mbd-rounded-lg mbd-text-sm mbd-px-5 mbd-py-2 mbd-text-center mbd-border mbd-border-2 mbd-bg-gradient mbd-text-white ";
 
     const verifyButton = button(
       { className: verifyButtonClass, onclick: () => this.scanAndVerify() },
@@ -81,7 +219,7 @@ class MosipBioDevice {
 
   generateRefreshButton() {
     const refreshButtonClass =
-      "mdb-cursor-pointer mdb-flex mdb-items-center mdb-ml-auto mdb-text-gray-900 mdb-bg-white mdb-shadow border mdb-border-gray-300 mdb-hover:bg-gray-100 mdb-font-medium mdb-rounded-lg mdb-text-lg mdb-px-3 mdb-py-1 mdb-ml-1";
+      "mbd-cursor-pointer mbd-flex mbd-items-center mbd-ml-auto mbd-text-gray-900 mbd-bg-white mbd-shadow border mbd-border-gray-300 mbd-hover:bg-gray-100 mbd-font-medium mbd-rounded-lg mbd-text-lg mbd-px-3 mbd-py-1 mbd-ml-1";
 
     const refreshButton = button(
       {
@@ -97,12 +235,12 @@ class MosipBioDevice {
 
   generateSekeleton() {
     return div(
-      { className: "mdb-flex mdb-flex-col", dir: "ltr" },
+      { className: "mbd-flex mbd-flex-col", dir: "ltr" },
 
       div(
         {
           className:
-            "mdb-flex mdb-flex-col mdb-justify-center mdb-w-full mdb-mb-4",
+            "mbd-flex mbd-flex-col mbd-justify-center mbd-w-full mbd-mb-4",
         },
         label(
           {
@@ -114,13 +252,13 @@ class MosipBioDevice {
         ),
         div(
           {
-            className: "mdb-flex mdb-items-stretch",
+            className: "mbd-flex mbd-items-stretch",
           },
           this.generateDropdown(),
           this.generateRefreshButton()
         )
       ),
-      div({ className: "mdb-flex mdb-py-2" }, this.generateVerifyButton())
+      div({ className: "mbd-flex mbd-py-2" }, this.generateVerifyButton())
     );
   }
 }
@@ -128,6 +266,7 @@ class MosipBioDevice {
 const mosipBioDeviceHelper = ({ container, ...args }) => {
   const myDevice = new MosipBioDevice(container);
   myDevice.start();
+  myDevice.selectOptionElement(0);
 };
 
 export { mosipBioDeviceHelper };

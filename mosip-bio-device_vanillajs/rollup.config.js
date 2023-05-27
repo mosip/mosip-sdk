@@ -1,5 +1,6 @@
 import pkg from "./package.json";
 import postcss from "rollup-plugin-postcss";
+import image from "@rollup/plugin-image";
 
 // The banner to add to the top of each file
 // Pulls details from the package.json file
@@ -27,6 +28,7 @@ export default formats.map(function (format) {
       postcss({
         extensions: [".css"],
       }),
+      image()
     ],
   };
 });
