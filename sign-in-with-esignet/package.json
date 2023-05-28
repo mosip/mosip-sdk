@@ -70,7 +70,7 @@
       "patterns": [
         "src/lib"
       ],
-      "extensions": "ts,tsx"
+      "extensions": "ts,tsx,css"
     }
   }
 }
