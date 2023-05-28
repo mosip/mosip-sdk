@@ -121,53 +121,59 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
     };
   }
 
+  //theme based styling
+  switch (buttonConfig.theme) {
+    case defaultThemes.outline:
+      outerDivClasses = styles.standardOutline;
+      break;
+    case defaultThemes.filledOrange:
+      outerDivClasses = styles.filledOrange;
+      break;
+    case defaultThemes.filledBlack:
+      outerDivClasses = styles.filledBlack;
+      break;
+    default: //default theme outline
+      outerDivClasses = styles.standardOutline;
+  }
+
+  //shaped based styling
   switch (buttonConfig.shape) {
     case defaultShapes.sharpEdges:
-      //default button type is standard
-      outerDivClasses =
-        buttonConfig.type == buttonTypes.icon
+      //default button type is standard. Setting shape based on button type
+      outerDivClasses +=
+        " " +
+        (buttonConfig.type == buttonTypes.icon
           ? styles.sharpRectIcon
-          : styles.sharpRectBox;
+          : styles.sharpRectBox);
       logoDivClasses = styles.sharpLogoBox;
       logoImgClasses = styles.sharpLogo;
       break;
     case defaultShapes.softEdges:
-      outerDivClasses =
-        buttonConfig.type == buttonTypes.icon
+      outerDivClasses +=
+        " " +
+        (buttonConfig.type == buttonTypes.icon
           ? styles.softRectIcon
-          : styles.softRectBox;
+          : styles.softRectBox);
       logoDivClasses = styles.softLogoBox;
       logoImgClasses = styles.softLogo;
       break;
     case defaultShapes.roundedEdges:
-      outerDivClasses =
-        buttonConfig.type == buttonTypes.icon
+      outerDivClasses +=
+        " " +
+        (buttonConfig.type == buttonTypes.icon
           ? styles.roundedRectIcon
-          : styles.roundedRectBox;
+          : styles.roundedRectBox);
       logoDivClasses = styles.roundedLogoBox;
       logoImgClasses = styles.roundedLogo;
       break;
     default: //default shaped SharpEdges
-      outerDivClasses =
-        buttonConfig.type == buttonTypes.icon
+      outerDivClasses +=
+        " " +
+        (buttonConfig.type == buttonTypes.icon
           ? styles.sharpRectIcon
-          : styles.sharpRectBox;
+          : styles.sharpRectBox);
       logoDivClasses = styles.sharpLogoBox;
       logoImgClasses = styles.sharpLogo;
-  }
-
-  switch (buttonConfig.theme) {
-    case defaultThemes.outline:
-      outerDivClasses += " " + styles.standardOutline;
-      break;
-    case defaultThemes.filledOrange:
-      outerDivClasses += " " + styles.filledOrange;
-      break;
-    case defaultThemes.filledBlack:
-      outerDivClasses += " " + styles.filledBlack;
-      break;
-    default: //default theme outline
-      outerDivClasses += " " + styles.standardOutline;
   }
 
   return {
@@ -243,14 +249,15 @@ const setStyleAttribute = (
   }
 };
 
-const createButtonWithClasses = (
+const createButton = (
   buttonLabel: string,
   urlToNavigate: string,
   buttonCustomStyle: customStyle | null,
   buttonClasses: styleClasses | null,
   buttonStyle: any,
   logoPath: string,
-  errorMsg: string
+  errorMsg: string,
+  type: string
 ) => {
   //Div Container
   var container = document.createElement("div");
@@ -258,6 +265,7 @@ const createButtonWithClasses = (
   //Button
   var anchor = document.createElement("a");
   anchor.href = urlToNavigate;
+  anchor.style.textDecoration = "none";
 
   var outerDiv = document.createElement("div");
 
@@ -286,7 +294,12 @@ const createButtonWithClasses = (
 
   logoDiv.appendChild(logoImg);
   outerDiv.appendChild(logoDiv);
-  outerDiv.appendChild(labelSpan);
+
+  //Do not add label span for icon button
+  if (type != buttonTypes.icon) {
+    outerDiv.appendChild(labelSpan);
+  }
+
   anchor.appendChild(outerDiv);
 
   if (errorMsg) {
@@ -343,14 +356,15 @@ const SignInWithEsignet = ({ ...props }) => {
     buttonStyle = buildButtonStyles(buttonStyle, buttonConfig);
   }
 
-  var button = createButtonWithClasses(
+  var button = createButton(
     label,
     urlToNavigate,
     buttonCustomStyle,
     buttonClasses,
     buttonStyle,
     logoPath,
-    errorMsg
+    errorMsg,
+    buttonConfig.type
   );
   signInElement.innerHTML = "";
   signInElement.appendChild(button);

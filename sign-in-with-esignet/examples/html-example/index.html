@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="Daniel Dietrich" />
-    <link rel="stylesheet" href="./main.css" />
+    <link rel="stylesheet" href="./main_soft_orange.css" />
   </head>
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
@@ -32,8 +32,9 @@
         SignInWithEsignet({
           oidcConfig: oidcConfig,
           buttonConfig: {
+            // type: "icon",
             shape: "soft_edges",
-            theme: "filled_orange",
+            theme: "custom",
             labelText: "Sign in With Esignet",
           },
           signInElement: document.getElementById("sign-in-with-esignet"),

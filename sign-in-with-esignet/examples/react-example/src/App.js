@@ -25,7 +25,7 @@ function App() {
       oidcConfig: oidcConfig,
       buttonConfig: {
         shape: "soft_edges",
-        theme: "filled_orange",
+        theme: "filled_black",
         labelText: "Sign in With Esignet",
       },
       signInElement: document.getElementById("sign-in-with-esignet"),
