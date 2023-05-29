@@ -1,38 +1,123 @@
-import {
-  // ul,
-  // li,
-  div,
-  span,
-  button,
-  // i,
-  label,
-  svg,
-  path,
-  input,
-  img,
-} from "./../utility/elements";
 
 import faceIcon from "../assets/face_sign_in.png";
 import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
 
-import "./../mbd.min.css";
-import "./style.css";
-import "./select-dropdown.css";
+import "./mbd.min.css";
 
+import {
+  loadingIndicator,
+  localStorageService,
+  SbiService,
+  div,
+  span,
+  button,
+  label,
+  svg,
+  path,
+  input,
+  img,
+  appendArray,
+} from "./../utility";
+
+const states = {
+  LOADING: "LOADING",
+  LOADED: "LOADED",
+  ERROR: "ERROR",
+  AUTHENTICATING: "AUTHENTICATING",
+};
+
+const DeviceStateStatus = {
+  Ready: "READY",
+  "Not Ready": "NOTREADY",
+  Busy: "BUSY",
+  "Not Registered": "NOTREGISTERED",
+};
+
+const DeviceState = {
+  READY: {
+    value: "READY",
+    name: "Ready",
+    class: "ready",
+    symbol: "\u25CF",
+  },
+  NOTREADY: {
+    value: "NOTREADY",
+    name: "Not Ready",
+    class: "not-ready",
+    symbol: "\u25CF",
+  },
+  BUSY: {
+    value: "BUSY",
+    name: "Busy",
+    class: "busy",
+    symbol: "\u25CF",
+  },
+  NOTREGISTERED: {
+    value: "NOTREGISTERED",
+    name: "Not Registered",
+    class: "not-registered",
+    symbol: "\u25CE",
+  },
+};
+
+const DEFAULT_PROPS = {
+  buttonLabel: "Scan & Verify",
+  disable: false,
+  biometricEnv: {
+    env: "Staging",
+    captureTimeout: 30,
+    irisBioSubtypes: "UNKNOWN",
+    fingerBioSubtypes: "UNKNOWN",
+    faceCaptureCount: 1,
+    faceCaptureScore: 70,
+    fingerCaptureCount: 1,
+    fingerCaptureScore: 70,
+    irisCaptureCount: 1,
+    irisCaptureScore: 70,
+    portRange: "4501-4600",
+    discTimeout: 15,
+    dinfoTimeout: 30,
+    domainUri: `${window.origin}`,
+  },
+  customStyle: {
+    selectBoxStyle: {
+      borderColor: "#cccccc",
+      borderColorActive: "#2684ff",
+      borderColorHover: "#b3b3b3",
+      panelBgColor: "#fff",
+      panelBgColorHover: "#deebff",
+      panelBgColorActive: "#2684ff",
+    },
+    refreshButtonStyle: {
+      iconUniCode: "\u21bb",
+    },
+  },
+};
 class MosipBioDevice {
   /**
    * The class constructor object
    */
-  constructor(container) {
+  constructor(container, props) {
     this.container = container;
-    this.isRtl = false;
+    this.props = { ...DEFAULT_PROPS, ...props };
 
-    this.optionElementAr = [
-      { icon: faceIcon, text: "MOSIP-FACE01" },
-      { icon: fingerIcon, text: "MOSIP-SINGLE01" },
-      { icon: irisIcon, text: "MOSIP-IRIS02" },
-    ];
+    this.sbiService = new SbiService(props?.biometricEnv ?? undefined);
+    this.modalityIconPath = {
+      Face: faceIcon,
+      Finger: fingerIcon,
+      Iris: irisIcon,
+    };
+    this.isRtl = false;
+    this.status = "";
+    this.statusMsg = "";
+    this.timer = "";
+    this.errorState = null;
+    this.modalityDevices = [];
+    this.selectedDevice = null;
+    this.host = "http://127.0.0.1";
+
+    this.scanDevices();
   }
 
   start() {
@@ -51,24 +136,43 @@ class MosipBioDevice {
     }
   };
 
+  setPlaceholder(data) {
+    if (this.container.querySelector(".mbd-dropdown__single-value")) {
+      this.container.querySelector(".mbd-dropdown__single-value").innerHTML =
+        data;
+    }
+  }
+
   optionSelection = (el) => {
     this.removeSelect();
     const mbdOption = el.closest(".mbd-dropdown__option");
+    if (mbdOption.dataset.deviceid !== this.selectedDevice.deviceId) {
+      this.selectedDevice = this.modalityDevices.find(
+        (_) => _.deviceId === mbdOption.dataset.deviceid
+      );
+    }
     mbdOption.classList.add("selected");
-    this.container.querySelector(".mbd-dropdown__single-value").innerHTML =
-      mbdOption.innerHTML;
+    this.setPlaceholder(mbdOption.innerHTML);
     this.container
       .querySelector(".mbd-dropdown__container")
       .classList.remove("active");
+    if (this.selectedDevice.status !== DeviceStateStatus.Ready) {
+      this.verifyButton.innerHTML = "";
+      this.verifyButton.appendChild(
+        this.errorStateDiv(
+          `${this.selectedDevice.text} device is ${
+            DeviceState[this.selectedDevice.status].name
+          }`
+        )
+      );
+    }
   };
 
   handleScan = () => {
-    console.log("************** Scan Button Clicked **************");
+    this.scanDevices(true);
   };
 
-  scanAndVerify = () => {
-    console.log("************** Scan & Verify Button Clicked **************");
-  };
+  scanAndVerify = () => this.startCapture();
 
   bioSelectOptionLabel = (e) =>
     div(
@@ -89,7 +193,7 @@ class MosipBioDevice {
         ),
         span({
           className:
-            "ready" +
+            DeviceState[e.status].class +
             (this.isRtl ? " mbd-mr-auto mbd-ml-2" : " mbd-ml-auto mbd-mr-2"),
         }),
       ]
@@ -104,22 +208,32 @@ class MosipBioDevice {
     }
   }
 
+  generateOptionElement(arr) {
+    if (arr?.length) {
+      return arr.map((item) =>
+        div(
+          {
+            id: "deviceOption" + item.deviceId,
+            "data-deviceid": item.deviceId,
+            className: "mbd-dropdown__option",
+            onclick: (e) => this.optionSelection(e.target),
+          },
+          this.bioSelectOptionLabel(item)
+        )
+      );
+    }
+    this.setPlaceholder("Device Not Found");
+    return div({ className: "mbd-dropdown__option disabled" }, "No Options");
+  }
+
   generateDropdown() {
-    const optionElement = this.optionElementAr.map((item) =>
-      div(
-        {
-          className: "mbd-dropdown__option",
-          onclick: (e) => this.optionSelection(e.target),
-        },
-        this.bioSelectOptionLabel(item)
-      )
-    );
+    const optionElement = this.generateOptionElement(this.modalityDevices);
 
     const singleValue = div(
       {
         className: "mbd-dropdown__single-value",
       },
-      "Select your option"
+      this.modalityDevices.length ? "Select your option" : "Device Not Found"
     );
     const inputContainer = div(
       {
@@ -164,7 +278,7 @@ class MosipBioDevice {
         },
         svg(
           {
-            class: "mbd-dropdown__indicator-svg",
+            className: "mbd-dropdown__indicator-svg",
             height: "20",
             width: "20",
             viewBox: "0 0 20 20",
@@ -185,11 +299,16 @@ class MosipBioDevice {
       [valuContainer, indicators]
     );
 
+    this.dropdownMenuList = div(
+      { className: "mbd-dropdown__menu-list" },
+      optionElement
+    );
+
     const dropdownMenu = div(
       {
         className: "mbd-dropdown__menu",
       },
-      div({ className: "mbd-dropdown__menu-list" }, optionElement)
+      this.dropdownMenuList
     );
 
     const dropdownContainer = div(
@@ -208,13 +327,20 @@ class MosipBioDevice {
 
   generateVerifyButton() {
     const verifyButtonClass =
-      "mbd-cursor-pointer mbd-block mbd-w-full mbd-font-medium mbd-rounded-lg mbd-text-sm mbd-px-5 mbd-py-2 mbd-text-center mbd-border mbd-border-2 mbd-bg-gradient mbd-text-white ";
+      "mbd-cursor-pointer mbd-block mbd-w-full mbd-font-medium mbd-rounded-lg mbd-text-sm mbd-px-5 mbd-py-2 mbd-text-center mbd-border mbd-border-2";
 
-    const verifyButton = button(
-      { className: verifyButtonClass, onclick: () => this.scanAndVerify() },
-      "Scan & Verify"
+    return button(
+      {
+        className:
+          verifyButtonClass +
+          (this.props.disable
+            ? " mbd-text-slate-400 mbd-cursor-disable"
+            : " mbd-bg-gradient mbd-text-white"),
+        onclick: () => this.scanAndVerify(),
+        disabled: this.props.disable,
+      },
+      this.props.buttonLabel
     );
-    return verifyButton;
   }
 
   generateRefreshButton() {
@@ -233,40 +359,257 @@ class MosipBioDevice {
     return refreshButton;
   }
 
-  generateSekeleton() {
+  generateDropdownDiv() {
     return div(
-      { className: "mbd-flex mbd-flex-col", dir: "ltr" },
-
+      {
+        className:
+          "mbd-flex mbd-flex-col mbd-justify-center mbd-w-full mbd-mb-4",
+      },
+      label(
+        {
+          htmlFor: "modality_device",
+          className:
+            "block mb-2 text-xs font-medium text-gray-900 text-opacity-70",
+        },
+        "Select a Device"
+      ),
       div(
         {
-          className:
-            "mbd-flex mbd-flex-col mbd-justify-center mbd-w-full mbd-mb-4",
+          className: "mbd-flex mbd-items-stretch",
         },
-        label(
-          {
-            htmlFor: "modality_device",
-            className:
-              "block mb-2 text-xs font-medium text-gray-900 text-opacity-70",
-          },
-          "Select a Device"
-        ),
-        div(
-          {
-            className: "mbd-flex mbd-items-stretch",
-          },
-          this.generateDropdown(),
-          this.generateRefreshButton()
-        )
-      ),
-      div({ className: "mbd-flex mbd-py-2" }, this.generateVerifyButton())
+        this.generateDropdown(),
+        this.generateRefreshButton()
+      )
+    );
+  }
+
+  generateVerifyButtonDiv() {
+    this.verifyButton = div(
+      { className: "mbd-flex mbd-py-2" },
+      this.errorState === null
+        ? this.generateVerifyButton()
+        : this.errorStateDiv(this.errorState)
+    );
+
+    return this.verifyButton;
+  }
+
+  generateMosipBioDeviceComponent() {
+    return [this.generateDropdownDiv(), this.generateVerifyButtonDiv()];
+  }
+
+  generateSekeleton() {
+    this.exoskeleton = div(
+      { className: "mbd-flex mbd-flex-col", dir: "ltr" },
+
+      this.status === states.LOADED
+        ? this.generateMosipBioDeviceComponent()
+        : this.generateLoadingIndicator(this.statusMsg)
+    );
+    return this.exoskeleton;
+  }
+
+  generateLoadingIndicator(msg) {
+    return loadingIndicator(msg);
+  }
+
+  errorStateDiv(msg) {
+    return div(
+      {
+        className:
+          "mbd-p-2 mbd-mt-1 mbd-mb-1 mbd-w-full mbd-text-center mbd-text-sm mbd-rounded-lg mbd-text-red-700 mbd-bg-red-100 ",
+        role: "alert",
+      },
+      msg
+    );
+  }
+
+  statusChanged({ status, msg }) {
+    this.status = status;
+    this.statusMsg = msg;
+    if (this.exoskeleton) {
+      this.exoskeleton.innerHTML = "";
+      if (status === states.LOADED) {
+        appendArray(this.exoskeleton, this.generateMosipBioDeviceComponent());
+        if (this.selectedDevice) {
+          this.optionSelection(
+            this.container.querySelector(
+              "#deviceOption" + this.selectedDevice.deviceId
+            )
+          );
+        }
+      } else {
+        this.exoskeleton.appendChild(this.generateLoadingIndicator(msg));
+      }
+    }
+  }
+
+  errorStateChanged(error) {
+    this.errorState = error;
+    this.verifyButton.innerHTML =
+      this.errorState === null
+        ? this.generateVerifyButton()
+        : this.errorStateDiv(this.errorState);
+  }
+
+  /**
+   * to capture the biometric details
+   */
+  async startCapture() {
+    this.errorState = null;
+    const selectedDevice = this.selectedDevice;
+    if (selectedDevice === null || selectedDevice === undefined) {
+      this.errorStateChanged("Device Not Found");
+      return;
+    }
+
+    let biometricResponse = null;
+
+    try {
+      this.statusChanged({
+        status: states.AUTHENTICATING,
+        msg: `${selectedDevice.type} capture initiated on ${selectedDevice.model}`,
+      });
+
+      biometricResponse = await this.sbiService.capture_Auth(
+        this.host,
+        selectedDevice.port,
+        this.props.transactionId,
+        selectedDevice.specVersion,
+        selectedDevice.type,
+        selectedDevice.deviceId
+      );
+
+      this.statusChanged({
+        status: states.LOADED,
+        msg: "",
+      });
+    } catch (error) {
+      this.errorStateChanged("Biometric Capture Failed");
+      return;
+    }
+
+    this.props.onCapture(biometricResponse);
+  }
+
+  scanDevices(forceScan = false) {
+    if (!forceScan && this.modalityDevices?.length && this.selectedDevice) {
+      return;
+    }
+
+    this.errorState = null;
+
+    try {
+      this.statusChanged({
+        status: states.LOADING,
+        msg: "Scanning Devices. Please Wait...",
+      });
+      this.discoverDeviceAsync(this.host);
+    } catch (e) {
+      this.errorState = "Device discovery failed";
+      this.errorStateChanged("Device discovery failed");
+    }
+  }
+
+  async discoverDeviceAsync(host) {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+
+    let timePassed = 0;
+    let dicoverTimeout = this.props.biometricEnv.discTimeout;
+
+    this.modalityDevices = [];
+    const intervalId = setInterval(async () => {
+      timePassed += 2;
+
+      await this.sbiService.mosipdisc_DiscoverDevicesAsync(host);
+      let timeLeft = dicoverTimeout - timePassed;
+      if (timeLeft <= 0) {
+        clearInterval(intervalId);
+        this.errorState = "Device discovery failed";
+        this.statusChanged({ status: states.LOADED, msg: "" });
+      } else if (
+        localStorageService.getDeviceInfos() &&
+        Object.keys(localStorageService.getDeviceInfos()).length > 0
+      ) {
+        this.errorState = null;
+        clearInterval(intervalId);
+        this.statusChanged({ status: states.LOADED, msg: "" });
+        this.refreshDeviceList();
+      }
+    }, 3000);
+
+    this.timer = intervalId;
+  }
+
+  refreshDeviceList() {
+    let deviceInfosPortsWise = localStorageService.getDeviceInfos();
+
+    if (!deviceInfosPortsWise) {
+      this.modalityDevices = [];
+      this.errorState = "Device not found";
+      this.errorStateChanged("Device not found");
+      return;
+    }
+
+    let modalityDevices = [];
+
+    Object.keys(deviceInfosPortsWise).map((port) => {
+      let deviceInfos = deviceInfosPortsWise[port];
+
+      deviceInfos?.forEach((deviceInfo) => {
+        if (typeof deviceInfo.digitalId !== "string") {
+          let deviceDetail = {
+            port: port,
+            specVersion: deviceInfo?.specVersion[0],
+            type: deviceInfo?.digitalId.type,
+            deviceId: deviceInfo?.deviceId,
+            model: deviceInfo?.digitalId.model,
+            serialNo: deviceInfo?.digitalId.serialNo,
+            text:
+              deviceInfo?.digitalId.make + "-" + deviceInfo?.digitalId.model,
+            value: deviceInfo?.digitalId.serialNo,
+            icon: this.modalityIconPath[deviceInfo?.digitalId.type],
+            status: DeviceStateStatus[deviceInfo?.deviceStatus],
+          };
+          modalityDevices.push(deviceDetail);
+        }
+      });
+    });
+
+    this.modalityDevices = modalityDevices;
+
+    if (modalityDevices.length === 0) {
+      this.errorState = "Device not found";
+      this.errorStateChanged("Device not found");
+      return;
+    }
+
+    this.selectedDevice =
+      modalityDevices?.find((_) => _.status === DeviceState.READY.value) ??
+      modalityDevices[0];
+
+    this.populateDropdownOption();
+  }
+
+  populateDropdownOption() {
+    this.dropdownMenuList.innerHTML = "";
+    appendArray(
+      this.dropdownMenuList,
+      this.generateOptionElement(this.modalityDevices)
+    );
+    this.optionSelection(
+      this.container.querySelector(
+        "#deviceOption" + this.selectedDevice.deviceId
+      )
     );
   }
 }
 
 const mosipBioDeviceHelper = ({ container, ...args }) => {
-  const myDevice = new MosipBioDevice(container);
+  const myDevice = new MosipBioDevice(container, { ...args });
   myDevice.start();
-  myDevice.selectOptionElement(0);
 };
 
 export { mosipBioDeviceHelper };

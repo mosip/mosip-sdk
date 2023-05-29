@@ -274,10 +274,11 @@ const decodeAndValidateDeviceInfo = async (deviceInfoList) => {
  * @returns {boolean}
  */
 const validateDeviceInfo = (deviceInfo) => {
+  // TODO: check if not registered devices has certification or not
   if (
     deviceInfo.certification === certification &&
-    deviceInfo.purpose === purpose &&
-    deviceInfo.deviceStatus === DeviceStatusReady
+    deviceInfo.purpose === purpose
+    // && deviceInfo.deviceStatus === DeviceStatusReady
   ) {
     return true;
   }

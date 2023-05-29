@@ -11,6 +11,20 @@ const attributeExceptions = [
   `fill`,
 ];
 
+const customExceptions = [
+  `autocorrect`,
+  `tabindex`,
+  `aria-autocomplete`,
+  `aria-expanded`,
+  `aria-haspopup`,
+  `aria-label`,
+  `aria-hidden`,
+  `data-deviceid`,
+  `data-value`,
+  `focusable`,
+  `name`,
+];
+
 const SVG_NAMESPACE = `http://www.w3.org/2000/svg`;
 
 const appendText = (el, text) => {
@@ -72,13 +86,19 @@ const makeElement = (type, textOrPropsOrChild, ...otherChildren) => {
     appendText(el, textOrPropsOrChild);
   } else if (typeof textOrPropsOrChild === `object`) {
     Object.keys(textOrPropsOrChild).forEach((propName) => {
-      if (propName in el || attributeExceptions.includes(propName)) {
+      if (
+        propName in el ||
+        attributeExceptions.includes(propName) ||
+        customExceptions.includes(propName)
+      ) {
         const value = textOrPropsOrChild[propName];
 
         if (propName === `style`) {
           setStyles(el, value);
         } else if (propName === `dataset`) {
           setDataAttributes(el, value);
+        } else if (isSvg(type) && propName === `className`) {
+          el.className.baseVal = value; // for adding class in svg
         } else if (typeof value === `function` || propName === `className`) {
           el[propName] = value; // e.g. onclick
         } else if (value) {
@@ -130,5 +150,6 @@ export {
   circle,
   input,
   label,
-  img
+  img,
+  appendArray,
 };

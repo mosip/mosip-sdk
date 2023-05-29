@@ -11,7 +11,6 @@
   display: none;
 }
 
-
 .mbd-dropdown__control {
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -108,7 +107,7 @@
   box-sizing: border-box;
 }
 
-.mbd-dropdown__input{
+.mbd-dropdown__input {
   content: attr(data-value) " ";
   visibility: hidden;
   white-space: pre;
@@ -223,6 +222,12 @@
   color: hsl(0, 0%, 100%);
 }
 
+.disabled.mbd-dropdown__option,
+.disabled.mbd-dropdown__option:hover {
+  background-color: #fff;
+  color: gray;
+}
+
 .mbd-dropdown__option:hover {
   background-color: #deebff;
 }
@@ -242,29 +247,3 @@
   padding: 0;
   white-space: nowrap;
 }
-
-/* <div class="mbd-dropdown__menu-list css-1n6sfyn-MenuList">
-    <div class="mbd-dropdown__option mbd-dropdown__option--is-focused mbd-dropdown__option--is-selected css-1tf6gho-option" aria-disabled="false" id="react-select-3-option-0" tabindex="-1">
-      <div class="mdb-flex mdb-items-center h-7">
-        <img class="w-7" src="static/media/src/lib/assets/fingerprint_sign_in.png">
-        <span class="mdb-text-xs mdb-ml-2">MOSIP-SINGLE01</span>
-        <span class="ready mdb-ml-auto"></span>
-      </div>
-    </div>
-    
-    <div class="mbd-dropdown__option css-xplumr-option" aria-disabled="false" id="react-select-3-option-1" tabindex="-1">
-      <div class="mdb-flex mdb-items-center h-7">
-        <img class="w-7" src="static/media/src/lib/assets/face_sign_in.png">
-        <span class="mdb-text-xs mdb-ml-2">MOSIP-FACE01</span>
-        <span class="ready mdb-ml-auto"></span>
-      </div>
-    </div>
-    
-    <div class="mbd-dropdown__option css-xplumr-option" aria-disabled="false" id="react-select-3-option-2" tabindex="-1">
-      <div class="mdb-flex mdb-items-center h-7">
-        <img class="w-7" src="static/media/src/lib/assets/iris_sign_in.png">
-        <span class="mdb-text-xs mdb-ml-2">MOSIP-IRIS02</span>
-        <span class="ready mdb-ml-auto"></span>
-      </div>
-    </div>
-  </div> */

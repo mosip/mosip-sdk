@@ -1,0 +1,38 @@
+.mdb-mr-2 {
+    margin-right: 0.5rem;
+}
+.mdb-w-8 {
+    width: 2rem;
+}
+.mdb-h-8 {
+    height: 2rem;
+}
+.mdb-text-gray-200 {
+    --text-opacity: 1;
+    color: #edf2f7;
+    color: rgba(229, 231, 235, var);
+}
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+   }
+}
+.mdb-animate-spin {
+    animation: spin 1s linear infinite;
+}
+.mdb-dark\:text-gray-600 {
+    --text-opacity: 1;
+    color: #718096;
+    color: rgba(75, 85, 99, var(--text-opacity));
+}
+.mdb-fill-blue-600 {
+    fill: #2563eb;
+}
+.mdb-sr-only {
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}

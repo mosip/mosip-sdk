@@ -1,6 +1,10 @@
 import pkg from "./package.json";
 import postcss from "rollup-plugin-postcss";
 import image from "@rollup/plugin-image";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import nodePolyfills from "rollup-plugin-polyfill-node";
 
 // The banner to add to the top of each file
 // Pulls details from the package.json file
@@ -28,7 +32,15 @@ export default formats.map(function (format) {
       postcss({
         extensions: [".css"],
       }),
-      image()
+      image(),
+      resolve({
+        preferBuiltins: true,
+        mainFields: ["browser"]
+      }),
+      commonjs(),
+      nodePolyfills(),
+      json()
     ],
+    // external: ["axios", "jose"],
   };
 });
