@@ -210,6 +210,29 @@ function App() {
       })
     );
 
+    SignInWithEsignet({
+      oidcConfig: oidcConfig,
+      buttonConfig: {
+        logoPath: "long_logo.png",
+        theme: "custom",
+        labelText: "Sign in with Custom",
+      },
+      signInElement: document.getElementById("sign-in-with-esignet_custom_std"),
+    });
+
+    SignInWithEsignet({
+      oidcConfig: oidcConfig,
+      buttonConfig: {
+        logoPath: "long_logo.png",
+        theme: "custom",
+        labelText: "Sign in with Custom",
+        type: "icon",
+      },
+      signInElement: document.getElementById(
+        "sign-in-with-esignet_custom_icon"
+      ),
+    });
+
     standardInputsOrange.map((input, idx) =>
       SignInWithEsignet({
         oidcConfig: oidcConfig,
@@ -239,6 +262,33 @@ function App() {
         ),
       })
     );
+
+    SignInWithEsignet({
+      oidcConfig: {
+        authorizeUri: "https://esignet.dev.mosip.net/authorize",
+        redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
+        client_id: "88Vjt34c5Twz1oJ",
+        scope: "openid profile",
+        response_type: "hello",
+      },
+      buttonConfig: {
+        logoPath: "long_logo.png",
+        shape: "soft_edges",
+        theme: "filled_orange",
+        background: "lightblue url('long_logo.png')",
+        textColor: "red",
+        borderColor: "green",
+        borderWidth: "2px",
+        width:"300px"
+      },
+      signInElement: document.getElementById("sign-in-with-esignet_invalid"),
+      style: {
+        fontFamily: "'Lucida Console', 'Courier New', 'monospace'",
+        font: "normal normal 600 20px Inter",
+        color: "blue",
+        marginTop: "1.5rem",
+      },
+    });
 
     standardInputsOutline.map((input, idx) =>
       SignInWithEsignet({
@@ -273,95 +323,51 @@ function App() {
     SignInWithEsignet({
       oidcConfig: oidcConfig,
       buttonConfig: {
-        logoPath: "long_logo.png",
-        theme: "custom",
-        labelText: "Sign in with Custom",
-      },
-      signInElement: document.getElementById("sign-in-with-esignet_custom_std"),
-    });
-
-    SignInWithEsignet({
-      oidcConfig: oidcConfig,
-      buttonConfig: {
-        logoPath: "long_logo.png",
-        theme: "custom",
-        labelText: "Sign in with Custom",
-        type: "icon",
-      },
-      signInElement: document.getElementById(
-        "sign-in-with-esignet_custom_icon"
-      ),
-    });
-
-    SignInWithEsignet({
-      oidcConfig: {
-        authorizeUri: "https://esignet.dev.mosip.net/authorize",
-        redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
-        client_id: "88Vjt34c5Twz1oJ",
-        scope: "openid profile",
-        response_type: "hello",
-      },
-      buttonConfig: {
-        logoPath: "long_logo.png",
-        shape: "soft_edges",
-        theme: "filled_orange",
-        background: "lightblue url('long_logo.png')",
-        textColor: "red",
-        borderColor: "green",
-        borderWidth: "2px",
-      },
-      signInElement: document.getElementById("sign-in-with-esignet_invalid"),
-      style: {
-        fontFamily: "'Lucida Console', 'Courier New', 'monospace'",
-        font: "normal normal 600 20px Inter",
-        color: "blue",
-        marginTop: "1.5rem",
-      },
-    });
-
-    SignInWithEsignet({
-      oidcConfig: oidcConfig,
-      buttonConfig: {
         logoPath: "philsys_logo2.png",
         labelText: "Sign in with Philippine Id System",
         customStyle: {
           outerDivStyleStandard: {
             position: "relative",
             width: "100%",
-            borderWidth: "1px",
-            borderColor: "rgb(203 213 225)",
-            backgroundColor: "#0E3572",
+            border: "1px solid #0E3572",
+            background: "#0E3572",
             padding: "0.625rem 1.25rem",
             display: "flex",
-            borderRadius: "0.375rem",
-            textDecoration: "none",
+            "border-radius": "0.375rem",
+            "text-decoration": "none",
             color: "white",
-            alignItems: "center",
+            "align-items": "center",
           },
           logoDivStyle: {
-            borderRadius: "0.375rem",
+            border: "1px solid #0E3572",
+            "border-radius": "0.375rem",
             background: "white",
             position: "absolute",
             display: "inline-block",
-            alignItems: "center",
-            verticalAlign: "middle",
-            width: "1.8rem",
-            height: "1.8rem",
-            right: "1rem",
+            "align-items": "center",
+            "vertical-align": "middle",
+            width: "38px",
+            height: "38px",
+            right: "2px",
+          },
+          logoImgStyle: {
+            width: "38px",
+            height: "38px",
+            "object-fit": "contain",
           },
           labelSpanStyle: {
             display: "inline-block",
-            verticalAlign: "middle",
-            fontWeight: "600",
-            fontSize: "0.875rem",
-            lineHeight: "1.25rem",
+            "vertical-align": "middle",
+            "font-weight": "600",
+            "font-size": "0.875rem",
+            "line-height": "1.25rem",
           },
+        },
+        style: {
+          "font-family": "'Cera Pro Bold', Arial, sans-serif",
         },
       },
       signInElement: document.getElementById("sign-in-with-esignet_style_std"),
-      style: {
-        fontFamily: "'Cera Pro Bold', Arial, sans-serif",
-      },
     });
 
     SignInWithEsignet({
@@ -371,24 +377,23 @@ function App() {
         labelText: "Sign in with Custom Style",
         customStyle: {
           outerDivStyleIcon: {
-            borderWidth: "2px",
+            border: "2px solid orange",
             display: "inline-block",
-            borderRadius: "15px",
-            borderColor: "orange",
+            "border-radius": "15px",
           },
           logoDivStyle: {
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            "justify-content": "center",
+            "align-items": "center",
             width: "38px",
             height: "38px",
-            backgroundColor: "white",
-            borderRadius: "36px",
+            "background-color": "white",
+            "border-radius": "36px",
           },
           logoImgStyle: {
             width: "28px",
             height: "28px",
-            objectFit: "contain",
+            "object-fit": "contain",
           },
         },
         type: "icon",
@@ -401,7 +406,16 @@ function App() {
   }, []);
 
   return (
-    <div style={{ height: "100vh", width: "100%", background: "#F6F6F2" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        width: "100%",
+        background: "#F6F6F2",
+      }}
+    >
       <div style={{ display: "flex", flexDirection: "row" }}>
         <div style={{ marginLeft: "1.5rem" }}>
           <div>Theme Black</div>

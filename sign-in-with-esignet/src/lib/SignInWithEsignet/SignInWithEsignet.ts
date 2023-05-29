@@ -281,7 +281,7 @@ const createButton = (
     //apply custom style
     setStyleAttribute(outerDiv, buttonCustomStyle.outerDivStyle);
     setStyleAttribute(logoDiv, buttonCustomStyle.logoDivStyle);
-    setStyleAttribute(logoImg, buttonCustomStyle.logoDivStyle);
+    setStyleAttribute(logoImg, buttonCustomStyle.logoImgStyle);
     setStyleAttribute(labelSpan, buttonCustomStyle.labelSpanStyle);
   } else if (buttonClasses) {
     //or apply classes
@@ -342,18 +342,17 @@ const SignInWithEsignet = ({ ...props }) => {
   const label = buttonConfig.labelText ?? defaultButtonLabel;
   const logoPath = buttonConfig.logoPath ?? esignetLogo;
 
+  const baseStyle = {};
   let buttonCustomStyle: customStyle | null = null;
   let buttonClasses: styleClasses | null = null;
   let buttonStyle: any = {};
 
-  buttonClasses = buildButtonClasses(buttonConfig);
-
   // customStyle has precedence over buttonClasses
   if (buttonConfig.customStyle) {
-    buttonCustomStyle = buildButtonCustomStyles(buttonStyle, buttonConfig);
+    buttonCustomStyle = buildButtonCustomStyles({}, buttonConfig);
   } else {
     buttonClasses = buildButtonClasses(buttonConfig);
-    buttonStyle = buildButtonStyles(buttonStyle, buttonConfig);
+    buttonStyle = buildButtonStyles({}, buttonConfig);
   }
 
   var button = createButton(
