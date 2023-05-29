@@ -15,7 +15,6 @@ interface OidcConfigProp {
   prompt?: string;
 }
 
-//TODO change the type of style
 interface ButtonConfigProp {
   type?: string;
   theme?: string;
@@ -28,11 +27,11 @@ interface ButtonConfigProp {
   borderColor?: string;
   borderWidth?: string;
   customStyle?: {
-    outerDivStyleStandard: any;
-    outerDivStyleIcon: any;
-    logoDivStyle: any;
-    logoImgStyle: any;
-    labelSpanStyle: any;
+    outerDivStyleStandard: { [key: string]: string };
+    outerDivStyleIcon: { [key: string]: string };
+    logoDivStyle: { [key: string]: string };
+    logoImgStyle: { [key: string]: string };
+    labelSpanStyle: { [key: string]: string };
   };
 }
 

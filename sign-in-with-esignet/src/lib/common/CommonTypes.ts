@@ -6,10 +6,10 @@
 // }
 
 interface customStyle {
-  outerDivStyle?: any;
-  logoDivStyle?: any;
-  logoImgStyle?: any;
-  labelSpanStyle?: any;
+  outerDivStyle?: { [key: string]: string };
+  logoDivStyle?: { [key: string]: string };
+  logoImgStyle?: { [key: string]: string };
+  labelSpanStyle?: { [key: string]: string };
 }
 
 interface styleClasses {

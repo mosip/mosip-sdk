@@ -192,16 +192,17 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
  * @returns style
  */
 function buildButtonStyles(
-  baseStyle: any,
+  baseStyle: { [key: string]: string },
   buttonConfig: ButtonConfigProp
-): any {
-  if (buttonConfig?.width) baseStyle.width = buttonConfig.width;
-  if (buttonConfig?.background) baseStyle.background = buttonConfig.background;
-  if (buttonConfig?.textColor) baseStyle.color = buttonConfig.textColor;
+): { [key: string]: string } {
+  if (buttonConfig?.width) baseStyle["width"] = buttonConfig.width.toString();
+  if (buttonConfig?.background)
+    baseStyle["background"] = buttonConfig.background;
+  if (buttonConfig?.textColor) baseStyle["color"] = buttonConfig.textColor;
   if (buttonConfig?.borderWidth)
-    baseStyle.borderWidth = buttonConfig.borderWidth;
+    baseStyle["border-width"] = buttonConfig.borderWidth;
   if (buttonConfig?.borderColor)
-    baseStyle.borderColor = buttonConfig.borderColor;
+    baseStyle["border-color"] = buttonConfig.borderColor;
 
   return baseStyle;
 }
@@ -216,7 +217,7 @@ function buildButtonStyles(
  * @returns
  */
 function buildButtonCustomStyles(
-  baseStyle: any,
+  baseStyle: { [key: string]: string },
   buttonConfig: ButtonConfigProp
 ): customStyle {
   if (!buttonConfig.customStyle) {
@@ -240,7 +241,7 @@ function buildButtonCustomStyles(
 
 const setStyleAttribute = (
   element: HTMLElement,
-  attrs: { [key: string]: string }
+  attrs: { [key: string]: string } | undefined
 ): void => {
   if (attrs !== undefined) {
     Object.keys(attrs).forEach((key: string) => {
@@ -254,7 +255,7 @@ const createButton = (
   urlToNavigate: string,
   buttonCustomStyle: customStyle | null,
   buttonClasses: styleClasses | null,
-  buttonStyle: any,
+  buttonStyle: { [key: string]: string },
   logoPath: string,
   errorMsg: string,
   type: string
@@ -345,7 +346,7 @@ const SignInWithEsignet = ({ ...props }) => {
   const baseStyle = {};
   let buttonCustomStyle: customStyle | null = null;
   let buttonClasses: styleClasses | null = null;
-  let buttonStyle: any = {};
+  let buttonStyle: { [key: string]: string } = {};
 
   // customStyle has precedence over buttonClasses
   if (buttonConfig.customStyle) {

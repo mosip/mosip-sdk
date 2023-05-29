@@ -278,7 +278,7 @@ function App() {
         background: "lightblue url('long_logo.png')",
         textColor: "red",
         borderColor: "green",
-        borderWidth: "2px",
+        borderWidth: "4px",
         width:"300px"
       },
       signInElement: document.getElementById("sign-in-with-esignet_invalid"),
