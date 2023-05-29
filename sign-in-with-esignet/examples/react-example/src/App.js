@@ -320,8 +320,8 @@ function App() {
     SignInWithEsignet({
       oidcConfig: oidcConfig,
       buttonConfig: {
-        logoPath: "philsys_logo2.png",
-        labelText: "Sign in with Philippine Id System",
+        logoPath: "phil_logo.png",
+        labelText: "Sign in with Phily Id System",
         customStyle: {
           outerDivStyleStandard: {
             position: "relative",
@@ -337,7 +337,7 @@ function App() {
           },
           logoDivStyle: {
             border: "1px solid #0E3572",
-            "border-radius": "0.375rem",
+            "border-radius": "18px",
             background: "white",
             position: "absolute",
             display: "inline-block",
