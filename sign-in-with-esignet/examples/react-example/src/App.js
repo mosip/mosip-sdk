@@ -279,15 +279,12 @@ function App() {
         textColor: "red",
         borderColor: "green",
         borderWidth: "4px",
-        width:"300px"
+        width: "300px",
+        fontFamily:
+          "'Cera Pro Bold', Arial, 'Lucida Console', 'Courier New', 'monospace'",
+        font: "normal normal 600 20px Inter",
       },
       signInElement: document.getElementById("sign-in-with-esignet_invalid"),
-      style: {
-        fontFamily: "'Lucida Console', 'Courier New', 'monospace'",
-        font: "normal normal 600 20px Inter",
-        color: "blue",
-        marginTop: "1.5rem",
-      },
     });
 
     standardInputsOutline.map((input, idx) =>
@@ -328,7 +325,7 @@ function App() {
         customStyle: {
           outerDivStyleStandard: {
             position: "relative",
-            width: "100%",
+            width: "250px",
             border: "1px solid #0E3572",
             background: "#0E3572",
             padding: "0.625rem 1.25rem",

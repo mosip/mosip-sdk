@@ -203,6 +203,9 @@ function buildButtonStyles(
     baseStyle["border-width"] = buttonConfig.borderWidth;
   if (buttonConfig?.borderColor)
     baseStyle["border-color"] = buttonConfig.borderColor;
+  if (buttonConfig?.font) baseStyle["font"] = buttonConfig.font;
+  if (buttonConfig?.fontFamily)
+    baseStyle["font-family"] = buttonConfig.fontFamily;
 
   return baseStyle;
 }
@@ -318,7 +321,7 @@ const createButton = (
 
 //TODO add option for custom styling
 const SignInWithEsignet = ({ ...props }) => {
-  let { oidcConfig, buttonConfig, signInElement } = props;
+  let { oidcConfig, buttonConfig, signInElement, style } = props;
 
   if (signInElement == null) {
     return;
@@ -343,17 +346,17 @@ const SignInWithEsignet = ({ ...props }) => {
   const label = buttonConfig.labelText ?? defaultButtonLabel;
   const logoPath = buttonConfig.logoPath ?? esignetLogo;
 
-  const baseStyle = {};
+  const baseStyle: { [key: string]: string } = style || {};
   let buttonCustomStyle: customStyle | null = null;
   let buttonClasses: styleClasses | null = null;
   let buttonStyle: { [key: string]: string } = {};
 
   // customStyle has precedence over buttonClasses
   if (buttonConfig.customStyle) {
-    buttonCustomStyle = buildButtonCustomStyles({}, buttonConfig);
+    buttonCustomStyle = buildButtonCustomStyles(baseStyle, buttonConfig);
   } else {
     buttonClasses = buildButtonClasses(buttonConfig);
-    buttonStyle = buildButtonStyles({}, buttonConfig);
+    buttonStyle = buildButtonStyles(baseStyle, buttonConfig);
   }
 
   var button = createButton(

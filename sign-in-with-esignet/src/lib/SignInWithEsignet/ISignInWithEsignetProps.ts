@@ -26,6 +26,8 @@ interface ButtonConfigProp {
   textColor?: string;
   borderColor?: string;
   borderWidth?: string;
+  font?: string;
+  fontFamily?: string;
   customStyle?: {
     outerDivStyleStandard: { [key: string]: string };
     outerDivStyleIcon: { [key: string]: string };
