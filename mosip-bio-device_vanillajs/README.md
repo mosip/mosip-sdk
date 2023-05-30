@@ -42,7 +42,7 @@ mosip-bio-device_vanilajs
 └─── example
      └─── html
           │─── index.html
-          │─── mbd.js
+          └─── mbd.js
 ```
 
 How are we implement the library in vanilla javascript, checkout the `mbd.js` file (see above path), below you can see the snippet also.
@@ -59,6 +59,44 @@ MosipBioDevice.mosipBioDeviceHelper({
 })
 ```
 
+### In React
+
+For running our library in react, first of all build the mosip-bio-device library and bundle up as a pakcage
+
+```bash
+npm run package
+```
+
+After that you can go to our react example of the project, install the node_modules and run as a react app
+```
+mosip-bio-device_vanilajs
+└─── example
+     └─── react
+          │─── public
+          │─── src
+          |    │─── App.js
+          |    └─── index.js
+          └─── package.json
+```
+
+Code snippet of using mosip-bio-device library in react is given below ( you can also find it in `App.js` file of src folder)
+
+```js
+// import the library first
+import { mosipBioDeviceHelper } from "mosip-bio-device-js";
+
+// call the library method
+mosipBioDeviceHelper({
+    container: document.getElementById("mosip-bio-device"),
+    biometricEnv: BIOMETRIC_ENV_OBJECT,
+    buttonLabel: BUTTON_LABEL,
+    disable: DISABLE_OR_NOT,
+    transactionId: TRANSACTION_ID,
+    onCapture: SUCCESS_CALLBACK_METHOD,
+    onErrored: ERROR_CALLBACK_METHOD
+});
+
+```
 
 ## Props
 
