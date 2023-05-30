@@ -7,7 +7,7 @@
   "homepage": "https://docs.esignet.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/esignet-plugins/sign-in-with-esignet"
+    "url": "git+https://github.com/mosip/esignet-plugins/react-sign-in-with-esignet"
   },
   "files": [
     "dist",
@@ -23,7 +23,7 @@
     "openidconnect",
     "esignet"
   ],
-  "license": "MPL 2.0",
+  "license": "MIT",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@babel/core": "^7.19.3",

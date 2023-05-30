@@ -24,7 +24,7 @@
     "openidconnect",
     "esignet"
   ],
-  "license": "MPL 2.0",
+  "license": "MIT",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",

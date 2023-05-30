@@ -52,6 +52,9 @@ yarn add sign-in-with-esignet
 | `textColor`   | `string` |                                                      |                        | Color of label text                        |
 | `borderColor` | `string` |                                                      |                        | Border color of esignet button             |
 | `borderWidth` | `string` |                                                      |                        | Border width of esignet button             |
+| `font`        | `string` |                                                      |                        | font of the label text                     |
+| `fontFamily`  | `string` |                                                      |                        | font family of the label text              |
+| `customStyle` | `string` |                                                      |                        | Custom styling option                      |
 
 ## Usage
 
@@ -62,17 +65,65 @@ import { SignInWithEsignet } from "sign-in-with-esignet";
 
 ## Example
 
+React JS
+
 ```js
-<SignInWithEsignet
-  oidcConfig={{
-    authorizeUri: "https://esignet.dev.mosip.net/authorize",
-    redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
-    client_id: "88Vjt34c5Twz1oJ",
-    scope: "openid profile",
-  }}
-  buttonConfig={{
-    shape: "soft_edges",
-    theme: "filled_orange",
-  }}
-/>
+//configuration for Open id connect
+useEffect(() => {
+  SignInWithEsignet({
+    oidcConfig: {
+      authorizeUri: "https://esignet.dev.mosip.net/authorize",
+      redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
+      client_id: "88Vjt34c5Twz1oJ",
+      scope: "openid profile",
+    },
+    buttonConfig: {
+      shape: "soft_edges",
+      theme: "filled_orange",
+    },
+    signInElement: document.getElementById("sign-in-with-esignet"),
+  });
+}, []);
+
+
+export default function MyComponent() {
+
+return (
+      <div id="sign-in-with-esignet"></div>
+  );
+}
+
+/>;
+```
+
+HTML
+
+```HTML
+
+<!DOCTYPE html>
+<html>
+  <body>
+    <script type="module">
+      import { SignInWithEsignet } from "<signin button JS url>";
+      window.onload = function () {
+        SignInWithEsignet({
+          oidcConfig: {
+            authorizeUri: "https://esignet.dev.mosip.net/authorize",
+            redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
+            client_id: "88Vjt34c5Twz1oJ",
+            scope: "openid profile",
+          },
+          buttonConfig: {
+            shape: "soft_edges",
+            theme: "filled_orange",
+          },
+          signInElement: document.getElementById("sign-in-with-esignet"),
+        });
+      };
+    </script>
+    <div id="sign-in-with-esignet"></div>
+  </body>
+</html>
+
+/>;
 ```
