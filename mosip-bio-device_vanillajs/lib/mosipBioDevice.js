@@ -199,15 +199,6 @@ class MosipBioDevice {
       ]
     );
 
-  selectOptionElement(i) {
-    let j = i === null || i === undefined || i < 0 ? 0 : i;
-    const allOptions = this.container.querySelectorAll(".mbd-dropdown__option");
-    if (allOptions.length > 0) {
-      j = allOptions.length > j ? j : 0;
-      this.optionSelection(allOptions[j]);
-    }
-  }
-
   generateOptionElement(arr) {
     if (arr?.length) {
       return arr.map((item) =>
@@ -520,6 +511,7 @@ class MosipBioDevice {
     let dicoverTimeout = this.props.biometricEnv.discTimeout;
 
     this.modalityDevices = [];
+    this.selectedDevice = null;
     const intervalId = setInterval(async () => {
       timePassed += 2;
 
