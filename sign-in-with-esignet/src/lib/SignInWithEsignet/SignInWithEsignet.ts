@@ -195,7 +195,7 @@ function buildButtonStyles(
   baseStyle: { [key: string]: string },
   buttonConfig: ButtonConfigProp
 ): { [key: string]: string } {
-  if (buttonConfig?.width) baseStyle["width"] = buttonConfig.width.toString();
+  if (buttonConfig?.width) baseStyle["width"] = buttonConfig.width;
   if (buttonConfig?.background)
     baseStyle["background"] = buttonConfig.background;
   if (buttonConfig?.textColor) baseStyle["color"] = buttonConfig.textColor;
@@ -204,9 +204,14 @@ function buildButtonStyles(
   if (buttonConfig?.borderColor)
     baseStyle["border-color"] = buttonConfig.borderColor;
   if (buttonConfig?.font) baseStyle["font"] = buttonConfig.font;
-  if (buttonConfig?.fontFamily)
-    baseStyle["font-family"] = buttonConfig.fontFamily;
 
+  if (buttonConfig?.fontFamily) {
+    baseStyle["font-family"] = buttonConfig.fontFamily;
+  } else {
+    //default font-family
+    baseStyle["font-family"] =
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen','Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',sans-serif";
+  }
   return baseStyle;
 }
 

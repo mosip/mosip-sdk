@@ -20,7 +20,7 @@ interface ButtonConfigProp {
   theme?: string;
   labelText?: string;
   shape?: string;
-  width?: number;
+  width?: string;
   logoPath?: string;
   background?: string;
   textColor?: string;
