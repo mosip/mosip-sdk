@@ -1,7 +1,7 @@
 import { div, span, svg, path } from "./elements";
 import "./loading.css";
 
-export function loadingIndicator(msg) {
+export function loadingIndicator(msg, isRtl = false) {
   return div(
     {
       role: "status",
@@ -31,7 +31,7 @@ export function loadingIndicator(msg) {
     msg
       ? span(
           {
-            className: "mbd-sr-only",
+            className: "mbd-sr-only" + (isRtl ? " mbd-mr-2" : ""),
           },
           msg
         )

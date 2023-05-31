@@ -1,4 +1,5 @@
-MosipBioDevice.mosipBioDeviceHelper({
+var lang = "en";
+MosipBioDevice.init({
   container: document.getElementById("mosip-bio-device"),
   biometricEnv: {
     env: "Staging",
@@ -16,9 +17,9 @@ MosipBioDevice.mosipBioDeviceHelper({
     dinfoTimeout: 30,
     domainUri: `${window.origin}`,
   },
-  buttonLabel: "Scan & Verify",
-  // customStyle?: IBioCompStyle;
-  // langCode?: string;
+  buttonLabel: "scan_and_verify",
+  // customStyle?: IBioCompStyle,
+  langCode: lang,
   disable: false,
   transactionId: "123456789",
   onCapture: (e) => {
@@ -28,5 +29,12 @@ MosipBioDevice.mosipBioDeviceHelper({
   onErrored: (e) => {
     console.log("**********getting error from mosip bio device");
     console.log(e);
-  }
+  },
 });
+
+document
+  .getElementById("deviceLanguageChange")
+  .addEventListener("click", () => {
+    lang = lang === "en" ? "ar" : "en";
+    MosipBioDevice.deviceLanguageChange(lang);
+  });

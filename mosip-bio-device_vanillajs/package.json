@@ -24,6 +24,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "axios": "^1.4.0",
+    "i18next": "^22.5.0",
     "jose": "^4.14.3"
   }
 }
