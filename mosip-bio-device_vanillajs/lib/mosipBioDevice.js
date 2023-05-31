@@ -164,11 +164,26 @@ class MosipBioDevice {
 
   generateOptionElement(arr) {
     if (arr?.length) {
+      const optionStyle = {
+        ...(this.props.customStyle?.selectBoxStyle?.panelBgColor && {
+          "--mbd-dropdown__option_panelbg_normal":
+            this.props.customStyle?.selectBoxStyle?.panelBgColor,
+        }),
+        ...(this.props.customStyle?.selectBoxStyle?.panelBgColorHover && {
+          "--mbd-dropdown__option_panelbg_hover":
+            this.props.customStyle?.selectBoxStyle?.panelBgColorHover,
+        }),
+        ...(this.props.customStyle?.selectBoxStyle?.panelBgColorActive && {
+          "--mbd-dropdown__option_panelbg_selected":
+            this.props.customStyle?.selectBoxStyle?.panelBgColorActive,
+        }),
+      };
       return arr.map((item) =>
         div(
           {
             id: "deviceOption" + item.deviceId,
             className: "mbd-dropdown__option",
+            style: optionStyle,
             onclick: () => this.optionSelection(item.deviceId),
           },
           this.bioSelectOptionLabel(item)
@@ -260,9 +275,25 @@ class MosipBioDevice {
       )
     );
 
+    const controlStyle = {
+      ...(this.props.customStyle?.selectBoxStyle?.borderColor && {
+        "--mbd-dropdown__control_bordercolor_normal":
+          this.props.customStyle?.selectBoxStyle?.borderColor,
+      }),
+      ...(this.props.customStyle?.selectBoxStyle?.borderColorHover && {
+        "--mbd-dropdown__control_bordercolor_hover":
+          this.props.customStyle?.selectBoxStyle?.borderColorHover,
+      }),
+      ...(this.props.customStyle?.selectBoxStyle?.borderColorActive && {
+        "--mbd-dropdown__control_bordercolor_selected":
+          this.props.customStyle?.selectBoxStyle?.borderColorActive,
+      }),
+    };
+    
     const dropdownControl = div(
       {
         className: "mbd-dropdown__control",
+        style: controlStyle,
       },
       [valueContainer, indicators]
     );
@@ -291,6 +322,14 @@ class MosipBioDevice {
     const verifyButtonClass =
       "mbd-cursor-pointer mbd-block mbd-w-full mbd-font-medium mbd-rounded-lg mbd-text-sm mbd-px-5 mbd-py-2 mbd-text-center mbd-border mbd-border-2";
 
+    const buttonStyle = {
+      ...(this.props.customStyle?.verifyButtonStyle?.background && {
+        background: this.props.customStyle?.verifyButtonStyle?.background,
+      }),
+      ...(this.props.customStyle?.verifyButtonStyle?.color && {
+        color: this.props.customStyle?.verifyButtonStyle?.color,
+      }),
+    };
     return button(
       {
         className:
@@ -298,6 +337,7 @@ class MosipBioDevice {
           (this.props.disable
             ? " mbd-text-slate-400 mbd-cursor-disable"
             : " mbd-bg-gradient mbd-text-white"),
+        style: this.props.disable ? null : buttonStyle,
         onclick: () => this.scanAndVerify(),
         disabled: this.props.disable,
       },
@@ -314,7 +354,7 @@ class MosipBioDevice {
         className: refreshButtonClass,
         onclick: () => this.handleScan(),
       },
-      "\u21bb"
+      this.props.customStyle?.refreshButtonStyle?.iconUniCode ?? "\u21bb"
     );
   }
 
@@ -559,7 +599,7 @@ const allowedProperties = [
   "biometricEnv",
   "disable",
   "onCapture",
-  "onErrored"
+  "onErrored",
 ];
 
 const init = ({ container, ...args }) => {

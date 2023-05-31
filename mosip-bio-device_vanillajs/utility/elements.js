@@ -25,6 +25,15 @@ const customExceptions = [
   `name`,
 ];
 
+const styleVarExceptions = [
+  "--mbd-dropdown__option_panelbg_normal",
+  "--mbd-dropdown__option_panelbg_hover",
+  "--mbd-dropdown__option_panelbg_selected",
+  "--mbd-dropdown__control_bordercolor_normal",
+  "--mbd-dropdown__control_bordercolor_hover",
+  "--mbd-dropdown__control_bordercolor_selected",
+];
+
 const SVG_NAMESPACE = `http://www.w3.org/2000/svg`;
 
 const appendText = (el, text) => {
@@ -53,6 +62,9 @@ const setStyles = (el, styles) => {
   Object.keys(styles).forEach((styleName) => {
     if (styleName in el.style) {
       el.style[styleName] = styles[styleName]; // eslint-disable-line no-param-reassign
+    } else if (styleVarExceptions.includes(styleName)) {
+      // setting css variable for custom styling
+      el.style.setProperty(styleName, styles[styleName]);
     } else {
       console.warn(
         `${styleName} is not a valid style for a <${el.tagName.toLowerCase()}>`

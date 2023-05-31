@@ -12,13 +12,29 @@ MosipBioDevice.init({
     fingerCaptureScore: 70,
     irisCaptureCount: 1,
     irisCaptureScore: 70,
-    portRange: "4501-4510",
-    discTimeout: 30,
+    portRange: "4501-4502",
+    discTimeout: 6,
     dinfoTimeout: 30,
     domainUri: `${window.origin}`,
   },
   buttonLabel: "scan_and_verify",
-  // customStyle?: IBioCompStyle,
+  customStyle: {
+    refreshButtonStyle: {
+      iconUniCode: "\u21b3",
+    },
+    verifyButtonStyle: {
+      background: "green",
+      color: "yellow",
+    },
+    selectBoxStyle: {
+      // borderColorHover: "yellow",
+      // borderColorActive: "red",
+      // borderColor: "green",
+      // panelBgColor: "yellow",
+      // panelBgColorHover: "red",
+      // panelBgColorActive: "green",
+    },
+  },
   langCode: lang,
   disable: false,
   transactionId: "123456789",
@@ -60,9 +76,8 @@ const myObject = {
   onErrored: (e) => {
     console.log("****************new errored message");
     console.log(e);
-  }
-}
-
+  },
+};
 
 document
   .getElementById("deviceLanguageChange")
