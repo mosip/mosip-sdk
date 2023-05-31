@@ -42,6 +42,7 @@ const DeviceState = {
 const DEFAULT_PROPS = {
   buttonLabel: "Scan & Verify",
   disable: false,
+  langCode: "en",
   biometricEnv: {
     env: "Staging",
     captureTimeout: 30,

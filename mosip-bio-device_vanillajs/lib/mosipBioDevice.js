@@ -28,27 +28,29 @@ import {
 } from "./standardConstant";
 
 class MosipBioDevice {
+  modalityIconPath = {
+    Face: faceIcon,
+    Finger: fingerIcon,
+    Iris: irisIcon,
+  };
+  status = "";
+  timer = "";
+  errorState = null;
+  modalityDevices = [];
+  selectedDevice = null;
+  host = "http://127.0.0.1";
+
   /**
    * The class constructor object
    */
   constructor(container, props) {
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };
-    i18n.changeLanguage(this.props.langCode);
 
     this.sbiService = new SbiService(props?.biometricEnv ?? undefined);
-    this.modalityIconPath = {
-      Face: faceIcon,
-      Finger: fingerIcon,
-      Iris: irisIcon,
-    };
+
+    i18n.changeLanguage(this.props.langCode);
     this.isRtl = i18n.dir(this.props.langCode) === "rtl";
-    this.status = "";
-    this.timer = "";
-    this.errorState = null;
-    this.modalityDevices = [];
-    this.selectedDevice = null;
-    this.host = "http://127.0.0.1";
 
     this.scanDevices();
   }
@@ -525,8 +527,7 @@ class MosipBioDevice {
               deviceInfo?.digitalId.make + "-" + deviceInfo?.digitalId.model,
             value: deviceInfo?.digitalId.serialNo,
             icon: this.modalityIconPath[deviceInfo?.digitalId.type],
-            status: DeviceStateStatus.Busy,
-            // status: DeviceStateStatus[deviceInfo?.deviceStatus],
+            status: DeviceStateStatus[deviceInfo?.deviceStatus],
           };
           modalityDevices.push(deviceDetail);
         }
@@ -549,18 +550,43 @@ class MosipBioDevice {
 }
 
 let myDevice = null;
+
+const allowedProperties = [
+  "buttonLabel",
+  "transactionId",
+  "customStyle",
+  "langCode",
+  "biometricEnv",
+  "disable",
+  "onCapture",
+  "onErrored"
+];
+
 const init = ({ container, ...args }) => {
   myDevice = new MosipBioDevice(container, { ...args });
   myDevice.renderComponent();
 };
 
-const deviceLanguageChange = (lang) => {
-  if (lang !== i18n.language) {
-    i18n.changeLanguage(lang);
-    myDevice.isRtl = i18n.dir(lang) === "rtl";
-    myDevice.renderComponent();
-    myDevice.optionSelection();
-  }
+const propChange = (props) => {
+  let flag = false;
+  Object.keys(props).forEach((key) => {
+    if (allowedProperties.includes(key)) {
+      myDevice.props[key] = props[key];
+      flag = true;
+
+      if (key === "biometricEnv") {
+        myDevice.sbiService = new SbiService(props[key]);
+      }
+      if (key === "langCode" && props[key] !== i18n.language) {
+        i18n.changeLanguage(props[key]);
+        myDevice.isRtl = i18n.dir(props[key]) === "rtl";
+      }
+    }
+  });
+  if (!flag) return;
+
+  myDevice.renderComponent();
+  myDevice.optionSelection();
 };
 
-export { init, deviceLanguageChange };
+export { init, propChange };
