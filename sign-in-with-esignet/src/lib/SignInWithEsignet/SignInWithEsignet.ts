@@ -1,4 +1,8 @@
-import { ButtonConfigProp, OidcConfigProp } from "./ISignInWithEsignetProps";
+import {
+  ButtonConfigProp,
+  ISignInWithEsignetProps,
+  OidcConfigProp,
+} from "./ISignInWithEsignetProps";
 import esignetLogo from "../assets/esignet_logo.png";
 import {
   buttonTypes,
@@ -266,8 +270,8 @@ const createButton = (
   buttonStyle: { [key: string]: string },
   logoPath: string,
   errorMsg: string,
-  type: string
-) => {
+  type: string | undefined
+): HTMLElement => {
   //Div Container
   var container = document.createElement("div");
 
@@ -325,11 +329,13 @@ const createButton = (
 };
 
 //TODO add option for custom styling
-const SignInWithEsignet = ({ ...props }) => {
+const SignInWithEsignet = ({
+  ...props
+}: ISignInWithEsignetProps): HTMLElement => {
   let { oidcConfig, buttonConfig, signInElement, style } = props;
 
   if (signInElement == null) {
-    return;
+    return signInElement;
   }
 
   //validate input
@@ -376,6 +382,7 @@ const SignInWithEsignet = ({ ...props }) => {
   );
   signInElement.innerHTML = "";
   signInElement.appendChild(button);
+  return signInElement;
 };
 
 export default SignInWithEsignet;

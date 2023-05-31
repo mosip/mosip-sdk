@@ -37,9 +37,11 @@ interface ButtonConfigProp {
   };
 }
 
-// interface ISignInWithEsignetProps {
-//   oidcConfig: OidcConfigProp;
-//   buttonConfig: ButtonConfigProp;
-// }
+interface ISignInWithEsignetProps {
+  oidcConfig: OidcConfigProp;
+  buttonConfig: ButtonConfigProp;
+  signInElement: HTMLElement;
+  style: { [key: string]: string };
+}
 
-export { OidcConfigProp, ButtonConfigProp };
+export { OidcConfigProp, ButtonConfigProp, ISignInWithEsignetProps };
