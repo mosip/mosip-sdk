@@ -1,16 +1,15 @@
 import { div, span, svg, path } from "./elements";
-import "./loading.css";
 
 export function loadingIndicator(msg, isRtl = false) {
   return div(
     {
       role: "status",
-      className: "mbd-flex mbd-justify-center mbd-items-center",
+      className: "sbd-flex sbd-justify-center sbd-items-center",
     },
     svg(
       {
         className:
-          "mdb-mr-2 mdb-w-8 mdb-h-8 mdb-text-gray-200 mdb-animate-spin mdb-dark:text-gray-600 mdb-fill-blue-600",
+          "sbd-mr-2 sbd-w-8 sbd-h-8 sbd-text-gray-200 sbd-animate-spin sbd-dark:text-gray-600 sbd-fill-blue-600",
         viewBox: "0 0 100 101",
         fill: "none",
         "aria-hidden": "true",
@@ -31,7 +30,7 @@ export function loadingIndicator(msg, isRtl = false) {
     msg
       ? span(
           {
-            className: "mbd-sr-only" + (isRtl ? " mbd-mr-2" : ""),
+            className: "sbd-sr-only" + (isRtl ? " sbd-mr-2" : ""),
           },
           msg
         )

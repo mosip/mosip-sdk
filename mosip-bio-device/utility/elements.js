@@ -26,12 +26,12 @@ const customExceptions = [
 ];
 
 const styleVarExceptions = [
-  "--mbd-dropdown__option_panelbg_normal",
-  "--mbd-dropdown__option_panelbg_hover",
-  "--mbd-dropdown__option_panelbg_selected",
-  "--mbd-dropdown__control_bordercolor_normal",
-  "--mbd-dropdown__control_bordercolor_hover",
-  "--mbd-dropdown__control_bordercolor_selected",
+  "--sbd-dropdown__option_panelbg_normal",
+  "--sbd-dropdown__option_panelbg_hover",
+  "--sbd-dropdown__option_panelbg_selected",
+  "--sbd-dropdown__control_bordercolor_normal",
+  "--sbd-dropdown__control_bordercolor_hover",
+  "--sbd-dropdown__control_bordercolor_selected",
 ];
 
 const SVG_NAMESPACE = `http://www.w3.org/2000/svg`;
