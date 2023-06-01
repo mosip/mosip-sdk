@@ -1,8 +1,15 @@
+// interface customStyle {
+//   outerDivStyle?: React.CSSProperties;
+//   logoDivStyle?: React.CSSProperties;
+//   logoImgStyle?: React.CSSProperties;
+//   labelSpanStyle?: React.CSSProperties;
+// }
+
 interface customStyle {
-  outerDivStyle?: React.CSSProperties;
-  logoDivStyle?: React.CSSProperties;
-  logoImgStyle?: React.CSSProperties;
-  labelSpanStyle?: React.CSSProperties;
+  outerDivStyle?: { [key: string]: string };
+  logoDivStyle?: { [key: string]: string };
+  logoImgStyle?: { [key: string]: string };
+  labelSpanStyle?: { [key: string]: string };
 }
 
 interface styleClasses {

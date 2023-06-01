@@ -20,28 +20,28 @@ interface ButtonConfigProp {
   theme?: string;
   labelText?: string;
   shape?: string;
-  width?: string;
+  width?: number;
   logoPath?: string;
   background?: string;
   textColor?: string;
   borderColor?: string;
   borderWidth?: string;
-  font?: string;
-  fontFamily?: string;
   customStyle?: {
-    outerDivStyleStandard: { [key: string]: string };
-    outerDivStyleIcon: { [key: string]: string };
-    logoDivStyle: { [key: string]: string };
-    logoImgStyle: { [key: string]: string };
-    labelSpanStyle: { [key: string]: string };
+    outerDivStyleStandard: React.CSSProperties;
+    outerDivStyleIcon: React.CSSProperties;
+    logoDivStyle: React.CSSProperties;
+    logoImgStyle: React.CSSProperties;
+    labelSpanStyle: React.CSSProperties;
   };
 }
 
-interface ISignInWithEsignetProps {
+interface ISignInWithEsignetProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
   oidcConfig: OidcConfigProp;
   buttonConfig: ButtonConfigProp;
-  signInElement: HTMLElement;
-  style: { [key: string]: string };
 }
 
 export { OidcConfigProp, ButtonConfigProp, ISignInWithEsignetProps };

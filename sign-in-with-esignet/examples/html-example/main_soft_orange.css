@@ -1,0 +1,52 @@
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* signinbutton theme specific css */
+.sign-in-outer-div-container-standard {
+  border: 2px solid #eb6f2d;
+  background: #eb6f2d 0% 0% no-repeat padding-box;
+  color: white;
+  width: 400px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.sign-in-outer-div-container-icon {
+  display: inline-block;
+  border-radius: 46px;
+}
+
+.sign-in-logo-div-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border-radius: 6px;
+}
+
+.sign-in-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.sign-in-label-span {
+  text-align: left;
+  font: normal normal 600 14px/17px Inter;
+  padding-left: 16px;
+  padding-right: 16px;
+  letter-spacing: 0px;
+}

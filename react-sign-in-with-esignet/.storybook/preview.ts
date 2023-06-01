@@ -1,4 +1,4 @@
-import type { Preview } from "@storybook/web-components";
+import type { Preview } from "@storybook/react";
 
 const preview: Preview = {
   parameters: {
