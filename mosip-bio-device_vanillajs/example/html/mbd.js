@@ -1,40 +1,7 @@
 var lang = "en";
 MosipBioDevice.init({
   container: document.getElementById("mosip-bio-device"),
-  biometricEnv: {
-    env: "Staging",
-    captureTimeout: 30,
-    irisBioSubtypes: "UNKNOWN",
-    fingerBioSubtypes: "UNKNOWN",
-    faceCaptureCount: 1,
-    faceCaptureScore: 70,
-    fingerCaptureCount: 1,
-    fingerCaptureScore: 70,
-    irisCaptureCount: 1,
-    irisCaptureScore: 70,
-    portRange: "4501-4502",
-    discTimeout: 6,
-    dinfoTimeout: 30,
-    domainUri: `${window.origin}`,
-  },
   buttonLabel: "scan_and_verify",
-  customStyle: {
-    refreshButtonStyle: {
-      iconUniCode: "\u21b3",
-    },
-    verifyButtonStyle: {
-      background: "green",
-      color: "yellow",
-    },
-    selectBoxStyle: {
-      // borderColorHover: "yellow",
-      // borderColorActive: "red",
-      // borderColor: "green",
-      // panelBgColor: "yellow",
-      // panelBgColorHover: "red",
-      // panelBgColorActive: "green",
-    },
-  },
   langCode: lang,
   disable: false,
   transactionId: "123456789",

@@ -40,7 +40,7 @@ const DeviceState = {
 };
 
 const DEFAULT_PROPS = {
-  buttonLabel: "Scan & Verify",
+  buttonLabel: "scan_and_verify",
   disable: false,
   langCode: "en",
   biometricEnv: {

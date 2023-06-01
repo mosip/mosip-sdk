@@ -1,4 +1,4 @@
-# Mosip Bio dEVICE Dropdown
+# Mosip Bio Device Dropdown
 
 A standalone vanillajs library component for interacting with SBI devices and auth capture Face, Finger & Iris detail.
 
@@ -48,7 +48,7 @@ mosip-bio-device_vanilajs
 How are we implement the library in vanilla javascript, checkout the `mbd.js` file (see above path), below you can see the snippet also.
 
 ```js
-MosipBioDevice.mosipBioDeviceHelper({
+MosipBioDevice.init({
   container: document.getElementById("mosip-bio-device"),
   biometricEnv: BIOMETRIC_ENV_OBJECT,
   buttonLabel: BUTTON_LABEL,
@@ -83,10 +83,10 @@ Code snippet of using mosip-bio-device library in react is given below ( you can
 
 ```js
 // import the library first
-import { mosipBioDeviceHelper } from "mosip-bio-device-js";
+import { init } from "mosip-bio-device";
 
 // call the library method
-mosipBioDeviceHelper({
+init({
     container: document.getElementById("mosip-bio-device"),
     biometricEnv: BIOMETRIC_ENV_OBJECT,
     buttonLabel: BUTTON_LABEL,

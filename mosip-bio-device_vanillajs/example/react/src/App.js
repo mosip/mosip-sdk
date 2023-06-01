@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-import { mosipBioDeviceHelper } from "mosip-bio-device-js";
+import { init, propChange } from "mosip-bio-device";
 
 const myChange = (e) => {
   console.log("my changes");
@@ -29,14 +29,17 @@ const biometricEnv = {
 };
 
 function App() {
+
+  init({
+    container: document.getElementById("mosip-bio-device"),
+    biometricEnv,
+    onCapture: myChange,
+    onErrored: myError,
+  });
+  const [langCode, setLangCode] = useState("en");
   useEffect(() => {
-    mosipBioDeviceHelper({
-      container: document.getElementById("mosip-bio-device"),
-      biometricEnv,
-      onCapture: myChange,
-      onErrored: myError,
-    });
-  }, []);
+    propChange({langCode})
+  }, [langCode]);
 
   return (
     <div
@@ -54,6 +57,16 @@ function App() {
         }}
       >
         <div id="mosip-bio-device" style={{ width: "400px" }}></div>
+      </div>
+
+      <div
+        style={{
+          margin: "4rem",
+          border: "solid red 4px",
+          padding: "20px",
+        }}
+      >
+        <button onClick={setLangCode("er")}>Change Language</button>
       </div>
     </div>
   );

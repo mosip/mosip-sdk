@@ -2,7 +2,7 @@ import faceIcon from "../assets/face_sign_in.png";
 import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
 
-import "./mbd.min.css";
+import "./mbd.css";
 
 import {
   i18n,
@@ -289,7 +289,7 @@ class MosipBioDevice {
           this.props.customStyle?.selectBoxStyle?.borderColorActive,
       }),
     };
-    
+
     const dropdownControl = div(
       {
         className: "mbd-dropdown__control",
@@ -596,7 +596,6 @@ const allowedProperties = [
   "transactionId",
   "customStyle",
   "langCode",
-  "biometricEnv",
   "disable",
   "onCapture",
   "onErrored",
@@ -614,9 +613,6 @@ const propChange = (props) => {
       myDevice.props[key] = props[key];
       flag = true;
 
-      if (key === "biometricEnv") {
-        myDevice.sbiService = new SbiService(props[key]);
-      }
       if (key === "langCode" && props[key] !== i18n.language) {
         i18n.changeLanguage(props[key]);
         myDevice.isRtl = i18n.dir(props[key]) === "rtl";

@@ -1,12 +1,21 @@
 {
-  "name": "mosip-bio-device-js",
+  "name": "mosip-bio-device",
   "description": "A vanillaJs library for integrating MOSIP Bio Devices",
-  "version": "1.0.0",
-  "license": "MPL 2.0",
+  "version": "0.1.0",
+  "license": "MIT",
   "main": "dist/cjs/index.js",
   "module": "dist/es/index.js",
   "files": [
     "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosip/esignet-plugins/mosip-bio-device"
+  },
+  "keywords": [
+    "mosip",
+    "sbi",
+    "secure-biometric-interface"
   ],
   "scripts": {
     "start": "rollup -c -w",
@@ -14,15 +23,15 @@
     "package": "rollup -c && npm pack"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-image": "^3.0.2",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
     "rollup": "^2.60.0",
     "rollup-plugin-polyfill-node": "^0.12.0",
     "rollup-plugin-postcss": "^4.0.2"
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-image": "^3.0.2",
-    "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.6",
     "axios": "^1.4.0",
     "i18next": "^22.5.0",
     "jose": "^4.14.3"

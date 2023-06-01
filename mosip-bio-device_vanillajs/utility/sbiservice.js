@@ -278,7 +278,6 @@ const validateDeviceInfo = (deviceInfo) => {
   if (
     deviceInfo.certification === certification &&
     deviceInfo.purpose === purpose
-    // && deviceInfo.deviceStatus === DeviceStatusReady
   ) {
     return true;
   }
