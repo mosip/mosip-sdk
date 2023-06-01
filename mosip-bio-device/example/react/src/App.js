@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { init, propChange } from "mosip-bio-device";
+import { init, propChange } from "secure-biometric-device";
 
 const myChange = (e) => {
   console.log("my changes");
@@ -30,22 +30,27 @@ const biometricEnv = {
 
 function App() {
 
-  init({
-    container: document.getElementById("mosip-bio-device"),
-    biometricEnv,
-    onCapture: myChange,
-    onErrored: myError,
-  });
-  const [langCode, setLangCode] = useState("en");
+  
   useEffect(() => {
-    propChange({langCode})
-  }, [langCode]);
+    init({
+      container: document.getElementById("secure-biometric-device"),
+      biometricEnv,
+      onCapture: myChange,
+      onErrored: myError,
+    });
+  }, []);
+
+  const myPropChange = () => propChange({
+    langCode: "ar",
+    disable: false,
+  })
 
   return (
     <div
       className="App"
       style={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
       }}
     >
@@ -56,7 +61,7 @@ function App() {
           padding: "20px",
         }}
       >
-        <div id="mosip-bio-device" style={{ width: "400px" }}></div>
+        <div id="secure-biometric-device" style={{ width: "400px" }}></div>
       </div>
 
       <div
@@ -64,9 +69,10 @@ function App() {
           margin: "4rem",
           border: "solid red 4px",
           padding: "20px",
+          display: "block"
         }}
       >
-        <button onClick={setLangCode("er")}>Change Language</button>
+        <button onClick={() => myPropChange()}>Change Prop</button>
       </div>
     </div>
   );

@@ -20,11 +20,11 @@ let formats = ["iife", "es", "cjs"];
 // and the settings to use for them
 export default formats.map(function (format) {
   return {
-    input: "lib/mosipBioDevice.js",
+    input: "lib/secureBiometricDevice.js",
     output: {
       file: `dist/${format}/index.js`,
       format: format,
-      name: "MosipBioDevice",
+      name: "SecureBiometricDevice",
       banner: banner,
       exports: "auto",
     },

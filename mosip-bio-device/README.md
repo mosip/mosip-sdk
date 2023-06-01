@@ -1,4 +1,4 @@
-# Mosip Bio Device Dropdown
+# Secure Biometric Device Dropdown
 
 A standalone vanillajs library component for interacting with SBI devices and auth capture Face, Finger & Iris detail.
 
@@ -38,7 +38,7 @@ npm run start
 
 After that you can serve the index.html file from the below folder
 ```
-mosip-bio-device_vanilajs
+secure-biometric-device
 └─── example
      └─── html
           │─── index.html
@@ -48,8 +48,8 @@ mosip-bio-device_vanilajs
 How are we implement the library in vanilla javascript, checkout the `mbd.js` file (see above path), below you can see the snippet also.
 
 ```js
-MosipBioDevice.init({
-  container: document.getElementById("mosip-bio-device"),
+SecureBiometricDevice.init({
+  container: document.getElementById("secure-biometric-device"),
   biometricEnv: BIOMETRIC_ENV_OBJECT,
   buttonLabel: BUTTON_LABEL,
   disable: DISABLE_OR_NOT,
@@ -61,7 +61,7 @@ MosipBioDevice.init({
 
 ### In React
 
-For running our library in react, first of all build the mosip-bio-device library and bundle up as a pakcage
+For running our library in react, first of all build the secure-biometric-device library and bundle up as a pakcage
 
 ```bash
 npm run package
@@ -69,7 +69,7 @@ npm run package
 
 After that you can go to our react example of the project, install the node_modules and run as a react app
 ```
-mosip-bio-device_vanilajs
+secure-biometric-device
 └─── example
      └─── react
           │─── public
@@ -79,15 +79,15 @@ mosip-bio-device_vanilajs
           └─── package.json
 ```
 
-Code snippet of using mosip-bio-device library in react is given below ( you can also find it in `App.js` file of src folder)
+Code snippet of using secure-biometric-device library in react is given below ( you can also find it in `App.js` file of src folder)
 
 ```js
 // import the library first
-import { init } from "mosip-bio-device";
+import { init } from "secure-biometric-device";
 
 // call the library method
 init({
-    container: document.getElementById("mosip-bio-device"),
+    container: document.getElementById("secure-biometric-device"),
     biometricEnv: BIOMETRIC_ENV_OBJECT,
     buttonLabel: BUTTON_LABEL,
     disable: DISABLE_OR_NOT,
@@ -104,7 +104,7 @@ Common props you may want to specify include:
 
 | prop           | type     | default value   | note                                                                                                                                                                     |
 | -------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `container` | `HTMLElement` | | an html div element from where we will inject `mosip-bio-device` UI |
+| `container` | `HTMLElement` | | an html div element from where we will inject `secure-biometric-device` UI |
 | `buttonLabel`   | `string` | Scan & Verify | Capture button label                                                                                                                                                     |
 | `transactionId`| `string` | | Transaction id of the current biometric authorization |
 | `onCapture`    | `func`   |                 | The function to be called on a successful capture with [Biometric response](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification#capture-response). |

@@ -18,7 +18,7 @@ import {
   input,
   img,
   appendArray,
-} from "./../utility";
+} from "../utility";
 
 import {
   states,
@@ -27,7 +27,7 @@ import {
   DEFAULT_PROPS,
 } from "./standardConstant";
 
-class MosipBioDevice {
+class SecureBiometricDevice {
   modalityIconPath = {
     Face: faceIcon,
     Finger: fingerIcon,
@@ -402,7 +402,7 @@ class MosipBioDevice {
     );
   }
 
-  generateMosipBioDeviceComponent() {
+  generateSecureBiometricDeviceComponent() {
     return [this.generateDropdownDiv(), this.generateVerifyButtonDiv()];
   }
 
@@ -426,7 +426,7 @@ class MosipBioDevice {
         dir: this.isRtl ? "rtl" : "ltr",
       },
       this.status === states.LOADED
-        ? this.generateMosipBioDeviceComponent()
+        ? this.generateSecureBiometricDeviceComponent()
         : this.generateLoadingIndicator(this.generateStatusMessage())
     );
 
@@ -436,7 +436,7 @@ class MosipBioDevice {
     if (exoskeleton) {
       exoskeleton.innerHTML = "";
       if (status === states.LOADED) {
-        appendArray(exoskeleton, this.generateMosipBioDeviceComponent());
+        appendArray(exoskeleton, this.generateSecureBiometricDeviceComponent());
         if (this.selectedDevice) {
           this.optionSelection();
         }
@@ -602,7 +602,7 @@ const allowedProperties = [
 ];
 
 const init = ({ container, ...args }) => {
-  myDevice = new MosipBioDevice(container, { ...args });
+  myDevice = new SecureBiometricDevice(container, { ...args });
   myDevice.renderComponent();
 };
 
