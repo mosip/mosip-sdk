@@ -448,8 +448,16 @@ class SecureBiometricDevice {
     }
   }
 
-  errorStateChanged(error) {
-    this.errorState = error;
+  sendErrorMsg(error) {
+    if (this.props.onErrored && typeof this.props.onErrored === "function") {
+      this.props.onErrored(error);
+    }
+  }
+
+  errorStateChanged(error, render = true) {
+    this.sendErrorMsg(error);
+    this.errorState = error?.defaultMsg;
+    if (error === null || !render) return;
     this.generateVerifyButtonDiv();
   }
 
@@ -462,10 +470,13 @@ class SecureBiometricDevice {
    * to capture the biometric details
    */
   async startCapture() {
-    this.errorState = null;
+    this.errorStateChanged(null);
     const selectedDevice = this.selectedDevice;
     if (selectedDevice === null || selectedDevice === undefined) {
-      this.errorStateChanged("device_not_found_msg");
+      this.errorStateChanged({
+        errorCode: "device_not_found_msg",
+        defaultMsg: "device_not_found_msg",
+      });
       return;
     }
 
@@ -485,7 +496,10 @@ class SecureBiometricDevice {
 
       this.statusChanged(states.LOADED);
     } catch (error) {
-      this.errorStateChanged("biometric_capture_failed_msg");
+      this.errorStateChanged({
+        errorCode: "biometric_capture_failed_msg",
+        defaultMsg: "biometric_capture_failed_msg",
+      });
       return;
     }
 
@@ -497,13 +511,16 @@ class SecureBiometricDevice {
       return;
     }
 
-    this.errorState = null;
+    this.errorStateChanged(null);
 
     try {
       this.statusChanged(states.LOADING);
       this.discoverDeviceAsync(this.host);
-    } catch (e) {
-      this.errorStateChanged("device_disc_failed");
+    } catch (error) {
+      this.errorStateChanged({
+        errorCode: "device_disc_failed",
+        defaultMsg: "device_disc_failed",
+      });
     }
   }
 
@@ -524,13 +541,19 @@ class SecureBiometricDevice {
       let timeLeft = dicoverTimeout - timePassed;
       if (timeLeft <= 0) {
         clearInterval(intervalId);
-        this.errorState = "device_disc_failed";
+        this.errorStateChanged(
+          {
+            errorCode: "device_not_found_msg",
+            defaultMsg: "device_not_found_msg",
+          },
+          false
+        );
         this.statusChanged(states.LOADED);
       } else if (
         localStorageService.getDeviceInfos() &&
         Object.keys(localStorageService.getDeviceInfos()).length > 0
       ) {
-        this.errorState = null;
+        this.errorStateChanged(null);
         clearInterval(intervalId);
         this.statusChanged(states.LOADED);
         this.refreshDeviceList();
@@ -545,7 +568,10 @@ class SecureBiometricDevice {
 
     if (!deviceInfosPortsWise) {
       this.modalityDevices = [];
-      this.errorStateChanged("device_not_found_msg");
+      this.errorStateChanged({
+        errorCode: "no_devices_found_msg",
+        defaultMsg: "no_devices_found_msg",
+      });
       return;
     }
 
@@ -577,7 +603,10 @@ class SecureBiometricDevice {
     this.modalityDevices = modalityDevices;
 
     if (modalityDevices.length === 0) {
-      this.errorStateChanged("device_not_found_msg");
+      this.errorStateChanged({
+        errorCode: "no_devices_found_msg",
+        defaultMsg: "no_devices_found_msg",
+      });
       return;
     }
 
