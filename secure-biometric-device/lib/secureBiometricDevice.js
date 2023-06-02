@@ -44,6 +44,10 @@ class SecureBiometricDevice {
    * The class constructor object
    */
   constructor(container, props) {
+    if (!container) {
+      document.body.appendChild(div({ id: "secure-biometric-device" }));
+      container = document.querySelector("#secure-biometric-device");
+    }
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };
 
@@ -456,7 +460,7 @@ class SecureBiometricDevice {
 
   errorStateChanged(error, render = true) {
     this.sendErrorMsg(error);
-    this.errorState = error?.defaultMsg;
+    this.errorState = error?.defaultMsg ?? null;
     if (error === null || !render) return;
     this.generateVerifyButtonDiv();
   }
@@ -633,6 +637,7 @@ const allowedProperties = [
 const init = ({ container, ...args }) => {
   myDevice = new SecureBiometricDevice(container, { ...args });
   myDevice.renderComponent();
+  return myDevice.container;
 };
 
 const propChange = (props) => {
