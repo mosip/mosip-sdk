@@ -1,4 +1,4 @@
-# Secure Biometric Device Dropdown
+# Secure Biometric Device
 
 A standalone vanillajs library component for interacting with SBI devices and auth capture Face, Finger & Iris detail.
 
@@ -142,3 +142,4 @@ For more information check [MDS Specification](https://docs.mosip.io/1.1.5/biome
 - `@rollup/plugin-image` - A Rollup plugin which imports JPG, PNG, GIF, SVG, and WebP files, licensed under MIT
 - `@rollup/plugin-json` -  A Rollup plugin which Converts .json files to ES6 modules, licensed under MIT
 - `@rollup/plugin-node-resolve` - a Rollup plugin which locates modules using the Node resolution algorithm, for using third party modules in `node_modules`, licensed under MIT
+- `@rollup/plugin-terser` - a Rollup plugin to compress the output code, licensed under MIT

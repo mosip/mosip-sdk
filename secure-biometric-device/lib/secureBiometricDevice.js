@@ -460,7 +460,7 @@ class SecureBiometricDevice {
 
   errorStateChanged(error, render = true) {
     this.sendErrorMsg(error);
-    this.errorState = error?.defaultMsg ?? null;
+    this.errorState = error?.errorCode ?? null;
     if (error === null || !render) return;
     this.generateVerifyButtonDiv();
   }
@@ -479,7 +479,7 @@ class SecureBiometricDevice {
     if (selectedDevice === null || selectedDevice === undefined) {
       this.errorStateChanged({
         errorCode: "device_not_found_msg",
-        defaultMsg: "device_not_found_msg",
+        defaultMsg: "Device not found",
       });
       return;
     }
@@ -502,7 +502,7 @@ class SecureBiometricDevice {
     } catch (error) {
       this.errorStateChanged({
         errorCode: "biometric_capture_failed_msg",
-        defaultMsg: "biometric_capture_failed_msg",
+        defaultMsg: "Biometric capture failed",
       });
       return;
     }
@@ -523,7 +523,7 @@ class SecureBiometricDevice {
     } catch (error) {
       this.errorStateChanged({
         errorCode: "device_disc_failed",
-        defaultMsg: "device_disc_failed",
+        defaultMsg: "Device discovery failed",
       });
     }
   }
@@ -548,7 +548,7 @@ class SecureBiometricDevice {
         this.errorStateChanged(
           {
             errorCode: "device_not_found_msg",
-            defaultMsg: "device_not_found_msg",
+            defaultMsg: "Device not found",
           },
           false
         );
@@ -574,7 +574,7 @@ class SecureBiometricDevice {
       this.modalityDevices = [];
       this.errorStateChanged({
         errorCode: "no_devices_found_msg",
-        defaultMsg: "no_devices_found_msg",
+        defaultMsg: "No devices found",
       });
       return;
     }
@@ -609,7 +609,7 @@ class SecureBiometricDevice {
     if (modalityDevices.length === 0) {
       this.errorStateChanged({
         errorCode: "no_devices_found_msg",
-        defaultMsg: "no_devices_found_msg",
+        defaultMsg: "No devices found",
       });
       return;
     }
