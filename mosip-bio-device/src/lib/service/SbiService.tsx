@@ -5,7 +5,7 @@
  */
 
 import axios from "axios";
-import { localStorageService } from "./";
+import { localStorageService } from ".";
 import * as jose from "jose";
 import { BioType, IBiometricEnv, IDeviceInfo } from "../models";
 
