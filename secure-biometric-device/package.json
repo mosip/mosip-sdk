@@ -1,0 +1,51 @@
+{
+  "name": "secure-biometric-device",
+  "description": "A vanillaJs library for integrating Secure Biometric Devices",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es/index.js",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosip/esignet-plugins/secure-biometric-device"
+  },
+  "keywords": [
+    "mosip",
+    "sbi",
+    "secure-biometric-device-interface"
+  ],
+  "scripts": {
+    "start": "rollup -c -w",
+    "build": "rollup -c",
+    "package": "rollup -c && npm pack",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.22.4",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-image": "^3.0.2",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@storybook/addon-essentials": "^7.0.18",
+    "@storybook/addon-interactions": "^7.0.18",
+    "@storybook/addon-links": "^7.0.18",
+    "@storybook/blocks": "^7.0.18",
+    "@storybook/html": "^7.0.18",
+    "@storybook/html-webpack5": "^7.0.18",
+    "@storybook/testing-library": "^0.0.14-next.2",
+    "rollup": "^2.60.0",
+    "rollup-plugin-polyfill-node": "^0.12.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "storybook": "^7.0.18"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "i18next": "^22.5.0",
+    "jose": "^4.14.3"
+  }
+}
