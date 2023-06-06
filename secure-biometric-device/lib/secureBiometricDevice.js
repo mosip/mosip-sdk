@@ -59,15 +59,24 @@ class SecureBiometricDevice {
     this.scanDevices();
   }
 
+  /**
+   * Render the dropdown component and add it to the container
+   */
   renderComponent() {
     this.container.replaceChildren(this.generateSekeleton());
   }
 
+  /**
+   * Open/Close the dropdown
+   */
   selectBtnActive = () =>
     this.container
       .querySelector(".sbd-dropdown__container")
       .classList.toggle("active");
 
+  /**
+   * Remove  the selected option
+   */
   removeSelect = () => {
     const rEl = this.container.querySelector(".sbd-dropdown__option.selected");
     if (rEl) {
@@ -75,6 +84,11 @@ class SecureBiometricDevice {
     }
   };
 
+  /**
+   * Setting placeholder for the dropdown
+   * @param {string | null} data string to be set as placeholder
+   * @returns HTMLElement placeholder element
+   */
   setPlaceholder(data = null) {
     if (data === null) {
       data = this.modalityDevices.length
@@ -96,8 +110,18 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Calling loader indicator
+   * @param {string} msg message to be shown in the loader
+   * @returns HTMLElement loader indicator
+   */
   generateLoadingIndicator = (msg) => loadingIndicator(msg, this.isRtl);
 
+  /**
+   * Generate error state div
+   * @param {string} msg error message to be shown
+   * @returns HTMLElement error message div
+   */
   generateErrorStateDiv = (msg) =>
     div(
       {
@@ -108,6 +132,10 @@ class SecureBiometricDevice {
       i18n.t(msg)
     );
 
+  /**
+   * Select the option from the dropdown by deviceId
+   * @param {string} [deviceId] deviceId of the device to be selected, default is the current selected device
+   */
   optionSelection = (deviceId = this.selectedDevice?.deviceId ?? "") => {
     const el = this.container.querySelector(
       "[id^='deviceOption" + deviceId + "']"
@@ -137,10 +165,21 @@ class SecureBiometricDevice {
     }
   };
 
+  /**
+   * Call scanDevices method with true as a param
+   */
   handleScan = () => this.scanDevices(true);
 
+  /**
+   * Call startCapture method
+   */
   scanAndVerify = () => this.startCapture();
 
+  /**
+   * Array of option elements div
+   * @param {json Object} e deviceInfo object
+   * @returns HTMLElement option elements
+   */
   bioSelectOptionLabel = (e) =>
     div(
       {
@@ -166,6 +205,11 @@ class SecureBiometricDevice {
       ]
     );
 
+  /**
+   * Generate the dropdown options div
+   * @param {Array<Object>} arr array of deviceInfo objects
+   * @returns HTMLElement array of dropdown options div
+   */
   generateOptionElement(arr) {
     if (arr?.length) {
       const optionStyle = {
@@ -201,6 +245,11 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Generate the dropdown menu list (a div which contain all dropdown option)
+   * @param {HTMLElement} [optionElement=null] dropdown options div
+   * @returns HTMLElement dropdown menu list container
+   */
   generateDropdownMenuList(optionElement = null) {
     if (optionElement === null) {
       optionElement = this.generateOptionElement(this.modalityDevices);
@@ -220,6 +269,10 @@ class SecureBiometricDevice {
     return div({ className: "sbd-dropdown__menu-list" }, optionElement);
   }
 
+  /**
+   * Generate the dropdown menu container
+   * @returns HTMLElement dropdown menu container
+   */
   generateDropdown() {
     const singleValue = this.setPlaceholder();
     const inputContainer = div(
@@ -322,6 +375,10 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Generate Verify button
+   * @returns HTMLElement verify button
+   */
   generateVerifyButton() {
     const verifyButtonClass =
       "sbd-cursor-pointer sbd-block sbd-w-full sbd-font-medium sbd-rounded-lg sbd-text-sm sbd-px-5 sbd-py-2 sbd-text-center sbd-border sbd-border-2";
@@ -349,6 +406,10 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Generate Refresh button
+   * @returns HTMLElement refresh button
+   */
   generateRefreshButton() {
     const refreshButtonClass =
       "sbd-cursor-pointer sbd-flex sbd-items-center sbd-ml-auto sbd-text-gray-900 sbd-bg-white sbd-shadow border sbd-border-gray-300 sbd-hover:bg-gray-100 sbd-font-medium sbd-rounded-lg sbd-text-lg sbd-px-3 sbd-py-1 sbd-ml-1";
@@ -362,6 +423,10 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Generate whole dropdown div containing label, dropdown, verify and refresh button
+   * @returns HTMLElement conatining label, dropdown, verify and refresh button
+   */
   generateDropdownDiv() {
     return div(
       {
@@ -386,6 +451,11 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Generate Verify Button/Error state div according to the error state
+   * @param {json Object} [onlyErrorState=null] an error object with errorCode and errorMessage
+   * @returns HTMLElement containing verify button or error state div according to the error state
+   */
   generateVerifyButtonDiv(onlyErrorState = null) {
     const verifyButtonData =
       !onlyErrorState && this.errorState === null
@@ -406,10 +476,18 @@ class SecureBiometricDevice {
     );
   }
 
+  /**
+   * Generate dropdown div & verify button div
+   * @returns HTMLElement containing the whole secure biometric device component
+   */
   generateSecureBiometricDeviceComponent() {
     return [this.generateDropdownDiv(), this.generateVerifyButtonDiv()];
   }
 
+  /**
+   * Generate status message according to the status
+   * @returns status message according to the status
+   */
   generateStatusMessage = () => {
     let statusMsg = "";
     if (this.status === states.AUTHENTICATING) {
@@ -423,6 +501,10 @@ class SecureBiometricDevice {
     return statusMsg;
   };
 
+  /**
+   * Generate the component or loading indicator
+   * @returns HTMLElement having dropdown component or loading indicator
+   */
   generateSekeleton = () =>
     div(
       {
@@ -434,6 +516,10 @@ class SecureBiometricDevice {
         : this.generateLoadingIndicator(this.generateStatusMessage())
     );
 
+  /**
+   * Rerender the component according to status or show loading indicator
+   * @param {string} status current status of the component
+   */
   statusChanged(status) {
     this.status = status;
     const exoskeleton = this.container.querySelector(".sbd-exosekeleton");
@@ -452,12 +538,21 @@ class SecureBiometricDevice {
     }
   }
 
+  /**
+   * Send error callback to the parent component
+   * @param {json Object} error an error object with errorCode and errorMessage
+   */
   sendErrorMsg(error) {
     if (this.props.onErrored && typeof this.props.onErrored === "function") {
       this.props.onErrored(error);
     }
   }
 
+  /**
+   * Change error state and rerender the verify button div if render is true
+   * @param {json Object} error an error object with errorCode and errorMessage
+   * @param {boolean} [render=true] if true it will render, otherwise it will not render
+   */
   errorStateChanged(error, render = true) {
     this.sendErrorMsg(error);
     this.errorState = error?.errorCode ?? null;
@@ -465,13 +560,17 @@ class SecureBiometricDevice {
     this.generateVerifyButtonDiv();
   }
 
+  /**
+   * Populate dropdown option according to the current device list
+   */
   populateDropdownOption() {
     this.generateDropdownMenuList();
     this.optionSelection();
   }
 
   /**
-   * to capture the biometric details
+   * Start capturing the biometric detail & send the response to the parent component if success
+   * if error occur it will call errorStateChanged
    */
   async startCapture() {
     this.errorStateChanged(null);
@@ -510,6 +609,10 @@ class SecureBiometricDevice {
     this.props.onCapture(biometricResponse);
   }
 
+  /**
+   * Start scanning the device by calling dicoverDeviceAsync method, if error occur it will call errorStateChanged
+   * @param {boolean} [forceScan=false] if true it will force scan the device, otherwise it will return previously scanned data
+   */
   scanDevices(forceScan = false) {
     if (!forceScan && this.modalityDevices?.length && this.selectedDevice) {
       return;
@@ -528,6 +631,10 @@ class SecureBiometricDevice {
     }
   }
 
+  /**
+   * Discover the device through api and store it in modalityDevices, if error occur it will call errorStateChanged
+   * @param {url} host host url from where it find the device
+   */
   async discoverDeviceAsync(host) {
     if (this.timer) {
       clearInterval(this.timer);
@@ -567,6 +674,9 @@ class SecureBiometricDevice {
     this.timer = intervalId;
   }
 
+  /**
+   * Modify the modality devices data, set selectedDevice and call populateDropdownOption (to populate dropdown option)
+   */
   refreshDeviceList() {
     let deviceInfosPortsWise = localStorageService.getDeviceInfos();
 
@@ -624,6 +734,9 @@ class SecureBiometricDevice {
 
 let myDevice = null;
 
+/**
+ * Allowed custom properties to be set by user/developer
+ */
 const allowedProperties = [
   "buttonLabel",
   "transactionId",
@@ -634,12 +747,23 @@ const allowedProperties = [
   "onErrored",
 ];
 
+/**
+ * Initialization method, it will create the whole component and attach it with the html tag
+ * @param {HTMLElement} param0 container in which the whole component has to be attached
+ * @param {json Object} args other arguments containing {buttonLabel, biometricEnv, transactionId, disable, customStyle, langCode, onCapture, onErrored}
+ * @returns SecureBiometricDevice object
+ */
 const init = ({ container, ...args }) => {
   myDevice = new SecureBiometricDevice(container, { ...args });
   myDevice.renderComponent();
   return myDevice.container;
 };
 
+
+/**
+ * To change the property of the compoenent, to get the real time hanges
+ * @param {json Object} props property of the component for any change {buttonLabel, transactionId, disable, langCode, onCapture, onErrored}
+ */
 const propChange = (props) => {
   let flag = false;
   Object.keys(props).forEach((key) => {

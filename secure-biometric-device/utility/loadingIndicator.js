@@ -1,5 +1,11 @@
 import { div, span, svg, path } from "./elements";
 
+/**
+ *
+ * @param {string} msg loading messages
+ * @param {boolean} [isRtl=false] if flase then it will be ltr other wise the loading indicator will be rtl
+ * @returns HTMLElement loading indicator
+ */
 export function loadingIndicator(msg, isRtl = false) {
   return div(
     {
