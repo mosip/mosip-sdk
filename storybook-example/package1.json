@@ -1,0 +1,38 @@
+{
+  "name": "storybook-example",
+  "description": "Storybook stories for component",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosip/esignet-plugins/storybook-example"
+  },
+  "keywords": [
+    "mosip",
+    "sbi",
+    "storybook-example-interface"
+  ],
+  "scripts": {
+    "start": "storybook dev -p 6006",
+    "build": "storybook build"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.22.4",
+    "@babel/preset-typescript": "^7.21.5",
+    "@storybook/addon-essentials": "^7.0.18",
+    "@storybook/addon-interactions": "^7.0.18",
+    "@storybook/addon-links": "^7.0.18",
+    "@storybook/blocks": "^7.0.18",
+    "@storybook/html": "^7.0.18",
+    "@storybook/html-webpack5": "^7.0.18",
+    "@storybook/testing-library": "^0.0.14-next.2",
+    "@storybook/web-components": "^7.0.18",
+    "@storybook/web-components-webpack5": "^7.0.18",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.25",
+    "lit": "^2.7.4",
+    "storybook": "^7.0.18",
+    "typescript": "^4.9.5",
+    "typescript-plugin-css-modules": "^5.0.1"
+  }
+}
