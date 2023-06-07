@@ -251,6 +251,11 @@ function buildButtonCustomStyles(
   };
 }
 
+/**
+ * style attrs applied on the element
+ * @param element
+ * @param attrs
+ */
 const setStyleAttribute = (
   element: HTMLElement,
   attrs: { [key: string]: string } | undefined
@@ -262,6 +267,32 @@ const setStyleAttribute = (
   }
 };
 
+/**
+ *
+ * Builds button while adding styles and classes on individual element
+ *
+ * In case of buttonClasses, the button should render like this.
+ * <span> --conditional
+ *   {errorObj + ". Please report to site admin"}
+ * </span>
+ * <a href={urlToNavigate}>
+ *   <div className={buttonClasses.outerDivClasses} style={buttonStyle}>
+ *     <div className={buttonClasses.logoDivClasses}>
+ *       <img className={buttonClasses.logoImgClasses} src={logoPath} />
+ *     </div>
+ *      <span className={buttonClasses.labelSpanClasses} >{buttonLabel}</span> --conditional
+ *   </div>
+ * </a>
+ * @param buttonLabel
+ * @param urlToNavigate
+ * @param buttonCustomStyle
+ * @param buttonClasses
+ * @param buttonStyle
+ * @param logoPath
+ * @param errorMsg
+ * @param type
+ * @returns
+ */
 const createButton = (
   buttonLabel: string,
   urlToNavigate: string,
@@ -328,7 +359,6 @@ const createButton = (
   return container;
 };
 
-//TODO add option for custom styling
 const SignInWithEsignet = ({
   ...props
 }: ISignInWithEsignetProps): HTMLElement => {
@@ -385,4 +415,8 @@ const SignInWithEsignet = ({
   return signInElement;
 };
 
-export default SignInWithEsignet;
+const init = ({ ...props }: ISignInWithEsignetProps): HTMLElement => {
+  return SignInWithEsignet(props);
+};
+
+export default init;

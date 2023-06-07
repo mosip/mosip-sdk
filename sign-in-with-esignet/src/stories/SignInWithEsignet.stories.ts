@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
-import { SignInWithEsignet } from "../lib";
+import { init } from "../lib";
 import { ISignInWithEsignetProps } from "../lib/SignInWithEsignet/ISignInWithEsignetProps";
 import { html } from "lit";
 
@@ -8,7 +8,6 @@ const SignInWithEsignetMeta = {
   title: "Eample/SignInWithEsignet",
   tags: ["autodocs"],
   render: (args) => renderSignInButton(args),
-  // component: SignInWithEsignet,
   argTypes: {
     oidcConfig: {
       control: "object",
@@ -35,11 +34,11 @@ const renderSignInButton = (args: ISignInWithEsignetProps) => {
       justify-content: center;
     "
     >
-      ${SignInWithEsignet(args)}
+      ${init(args)}
     </div>
   </div>`;
 };
-type Story = StoryObj<typeof SignInWithEsignet>;
+type Story = StoryObj<typeof init>;
 
 export const SignInWithEsignetStory: Story = {
   args: {

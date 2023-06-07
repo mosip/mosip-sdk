@@ -1,1 +1,1 @@
-export { default as SignInWithEsignet } from "./SignInWithEsignet";
+export { default as init } from "./SignInWithEsignet";

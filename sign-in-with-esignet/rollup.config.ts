@@ -9,6 +9,16 @@ import image from "@rollup/plugin-image";
 
 const packageJson = require("./package.json");
 
+// The banner to add to the top of each file
+// Pulls details from the package.json file
+let banner = `/******************************************************************************
+${new Date()}
+${packageJson.name} v${packageJson.version}
+${packageJson.description}
+Copyright ${new Date().getFullYear()}
+${packageJson.license} license 
+******************************************************************************/`;
+
 export default [
   {
     input: "src/index.ts",
@@ -17,11 +27,22 @@ export default [
         file: packageJson.main,
         format: "cjs",
         sourcemap: false,
+        banner: banner,
+        name: "SignInWithEsignetButton",
       },
       {
         file: packageJson.module,
         format: "esm",
         sourcemap: false,
+        banner: banner,
+        name: "SignInWithEsignetButton",
+      },
+      {
+        file: packageJson.bundle,
+        format: "iife",
+        sourcemap: false,
+        banner: banner,
+        name: "SignInWithEsignetButton",
       },
     ],
     plugins: [

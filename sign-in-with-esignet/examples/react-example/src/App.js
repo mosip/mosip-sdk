@@ -1,5 +1,4 @@
 import "./App.css";
-import { SignInWithEsignet } from "sign-in-with-esignet";
 import { useEffect } from "react";
 
 function App() {
@@ -182,7 +181,7 @@ function App() {
 
   useEffect(() => {
     standardInputsBlack.map((input, idx) =>
-      SignInWithEsignet({
+      window.SignInWithEsignetButton.init({
         oidcConfig: oidcConfig,
         buttonConfig: {
           logoPath: input.logoPath,
@@ -196,7 +195,7 @@ function App() {
     );
 
     iconInputsBlack.map((input, idx) =>
-      SignInWithEsignet({
+      window.SignInWithEsignetButton.init({
         oidcConfig: oidcConfig,
         buttonConfig: {
           logoPath: input.logoPath,
@@ -210,7 +209,7 @@ function App() {
       })
     );
 
-    SignInWithEsignet({
+    window.SignInWithEsignetButton.init({
       oidcConfig: oidcConfig,
       buttonConfig: {
         logoPath: "long_logo.png",
@@ -220,7 +219,7 @@ function App() {
       signInElement: document.getElementById("sign-in-with-esignet_custom_std"),
     });
 
-    SignInWithEsignet({
+    window.SignInWithEsignetButton.init({
       oidcConfig: oidcConfig,
       buttonConfig: {
         logoPath: "long_logo.png",
@@ -234,7 +233,7 @@ function App() {
     });
 
     standardInputsOrange.map((input, idx) =>
-      SignInWithEsignet({
+      window.SignInWithEsignetButton.init({
         oidcConfig: oidcConfig,
         buttonConfig: {
           logoPath: input.logoPath,
@@ -249,7 +248,7 @@ function App() {
     );
 
     iconInputsOrange.map((input, idx) =>
-      SignInWithEsignet({
+      window.SignInWithEsignetButton.init({
         oidcConfig: oidcConfig,
         buttonConfig: {
           logoPath: input.logoPath,
@@ -263,7 +262,7 @@ function App() {
       })
     );
 
-    SignInWithEsignet({
+    window.SignInWithEsignetButton.init({
       oidcConfig: {
         authorizeUri: "https://esignet.dev.mosip.net/authorize",
         redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
@@ -288,7 +287,7 @@ function App() {
     });
 
     standardInputsOutline.map((input, idx) =>
-      SignInWithEsignet({
+      window.SignInWithEsignetButton.init({
         oidcConfig: oidcConfig,
         buttonConfig: {
           logoPath: input.logoPath,
@@ -303,7 +302,7 @@ function App() {
     );
 
     iconInputsOutline.map((input, idx) =>
-      SignInWithEsignet({
+      window.SignInWithEsignetButton.init({
         oidcConfig: oidcConfig,
         buttonConfig: {
           logoPath: input.logoPath,
@@ -317,7 +316,7 @@ function App() {
       })
     );
 
-    SignInWithEsignet({
+    window.SignInWithEsignetButton.init({
       oidcConfig: oidcConfig,
       buttonConfig: {
         logoPath: "phil_logo.png",
@@ -367,7 +366,7 @@ function App() {
       signInElement: document.getElementById("sign-in-with-esignet_style_std"),
     });
 
-    SignInWithEsignet({
+    window.SignInWithEsignetButton.init({
       oidcConfig: oidcConfig,
       buttonConfig: {
         logoPath: "long_logo.png",
