@@ -6,7 +6,8 @@
   "main": "dist/cjs/index.js",
   "module": "dist/es/index.js",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "repository": {
     "type": "git",
