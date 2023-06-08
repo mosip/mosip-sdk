@@ -1,0 +1,43 @@
+{
+  "name": "storybook-example",
+  "description": "Storybook stories for component",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosip/esignet-plugins/storybook-example"
+  },
+  "keywords": [
+    "mosip",
+    "sbi",
+    "storybook-example-interface"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "storybook dev -p 6006",
+    "build": "storybook build"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-env": "^7.22.4",
+    "@babel/preset-typescript": "^7.21.5",
+    "@storybook/addon-essentials": "^7.0.18",
+    "@storybook/addon-interactions": "^7.0.18",
+    "@storybook/addon-links": "^7.0.18",
+    "@storybook/blocks": "^7.0.18",
+    "@storybook/web-components": "^7.0.18",
+    "@storybook/web-components-webpack5": "^7.0.18",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.25",
+    "lit": "^2.7.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.0.18",
+    "ts-loader": "^9.4.3",
+    "typescript": "^4.9.5",
+    "typescript-plugin-css-modules": "^5.0.1"
+  }
+}
