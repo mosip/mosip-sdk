@@ -1,4 +1,4 @@
-import { init, div } from "./";
+import { init, div } from ".";
 import { action } from "@storybook/addon-actions";
 
 const customStyle = {
