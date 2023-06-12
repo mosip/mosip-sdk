@@ -43,7 +43,7 @@ const DEFAULT_PROPS = {
   buttonLabel: "scan_and_verify",
   disable: false,
   langCode: "en",
-  biometricEnv: {
+  sbiEnv: {
     env: "Staging",
     captureTimeout: 30,
     irisBioSubtypes: "UNKNOWN",

@@ -50,7 +50,7 @@ How are we implement the library in vanilla javascript, checkout the `mbd.js` fi
 ```js
 SecureBiometricDevice.init({
   container: document.getElementById("secure-biometric-device"),
-  biometricEnv: BIOMETRIC_ENV_OBJECT,
+  sbiEnv: BIOMETRIC_ENV_OBJECT,
   buttonLabel: BUTTON_LABEL,
   disable: DISABLE_OR_NOT,
   transactionId: TRANSACTION_ID,
@@ -88,7 +88,7 @@ import { init } from "secure-biometric-device";
 // call the library method
 init({
     container: document.getElementById("secure-biometric-device"),
-    biometricEnv: BIOMETRIC_ENV_OBJECT,
+    sbiEnv: BIOMETRIC_ENV_OBJECT,
     buttonLabel: BUTTON_LABEL,
     disable: DISABLE_OR_NOT,
     transactionId: TRANSACTION_ID,
@@ -109,10 +109,10 @@ Common props you may want to specify include:
 | `transactionId`| `string` | | Transaction id of the current biometric authorization |
 | `onCapture`    | `func`   |                 | The function to be called on a successful capture with [Biometric response](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification#capture-response). |
 | `onErrored`    | `func`   |                 | optional callback function on capture failure with error msg string.                                                                                                     |
-| `biometricEnv` | `Object` | See below       | Biometric environment detail                                                                                                                                             |
+| `sbiEnv` | `Object` | See below       | Biometric environment detail                                                                                                                                             |
 | `disable` | `boolean` | false | To disable verify button |
 
-### Prop biometricEnv
+### Prop sbiEnv
 For more information check [MDS Specification](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification)
 
 | field                | type     | valid values                                                                                                                                                                                                   | default value | note                                                                             |

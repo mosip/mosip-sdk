@@ -17,7 +17,7 @@ const customStyle = {
   },
 };
 
-const biometricEnv = {
+const sbiEnv = {
   env: "Staging",
   captureTimeout: 30,
   irisBioSubtypes: "UNKNOWN",
@@ -88,12 +88,12 @@ export default {
         },
       },
     },
-    biometricEnv: {
+    sbiEnv: {
       control: "object",
       description: "For customization of SBI environment.",
       table: {
         // category: "Settings",
-        defaultValue: { summary: JSON.stringify(biometricEnv) },
+        defaultValue: { summary: JSON.stringify(sbiEnv) },
       },
     },
     onCapture: {
@@ -148,7 +148,7 @@ export const Primary = {
     buttonLabel: "scan_and_verify",
     disable: false,
     langCode: "en",
-    biometricEnv,
+    sbiEnv,
     customStyle,
     onCapture: (e) => action("onCapture")(e),
     onErrored: (e) => action("onErrored")(e),
@@ -165,7 +165,7 @@ Primary.parameters = {
       SecureBiometricDevice.init({
         container: document.getElementById("secure-biometric-device"),
         buttonLabel: "scan_and_verify",
-        biometricEnv: {
+        sbiEnv: {
           env: "Staging",
           captureTimeout: 30,
           irisBioSubtypes: "UNKNOWN",

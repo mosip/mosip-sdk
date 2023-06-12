@@ -43,10 +43,10 @@ const BioType = {
 };
 
 class SbiService {
-  esignetConfig;
+  sbiConfig;
 
   constructor(
-    esignetConfig = {
+    sbiConfig = {
       env: "Staging",
       captureTimeout: 30,
       irisBioSubtypes: "UNKNOWN",
@@ -63,14 +63,14 @@ class SbiService {
       domainUri: `${window.origin}`,
     }
   ) {
-    this.esignetConfig = esignetConfig;
+    this.sbiConfig = sbiConfig;
   }
 
   /**
    * Triggers capture request of SBI for auth capture
    * @param {url} host SBI is hosted on given host
    * @param {int} port port on which SBI is listening to.
-   * @param {string} transactionId same as Esignet transactionId
+   * @param {string} transactionId same as Biometric transactionId
    * @param {string} specVersion supported spec version
    * @param {string} type modality type
    * @param {string} deviceId
@@ -89,33 +89,33 @@ class SbiService {
     let bioSubType = ["UNKNOWN"];
     switch (type) {
       case BioType.FACE:
-        count = this.esignetConfig.faceCaptureCount;
-        requestedScore = this.esignetConfig.faceCaptureScore;
+        count = this.sbiConfig.faceCaptureCount;
+        requestedScore = this.sbiConfig.faceCaptureScore;
         bioSubType = null; //For Face: No bioSubType
         break;
       case BioType.FINGER:
-        count = this.esignetConfig.fingerCaptureCount;
-        requestedScore = this.esignetConfig.fingerCaptureScore;
-        bioSubType = this.esignetConfig.fingerBioSubtypes
+        count = this.sbiConfig.fingerCaptureCount;
+        requestedScore = this.sbiConfig.fingerCaptureScore;
+        bioSubType = this.sbiConfig.fingerBioSubtypes
           .split(",")
           .map((x) => x.trim());
         break;
       case BioType.IRIS:
-        count = this.esignetConfig.irisCaptureCount;
-        requestedScore = this.esignetConfig.irisCaptureScore;
-        bioSubType = this.esignetConfig.irisBioSubtypes
+        count = this.sbiConfig.irisCaptureCount;
+        requestedScore = this.sbiConfig.irisCaptureScore;
+        bioSubType = this.sbiConfig.irisBioSubtypes
           .split(",")
           .map((x) => x.trim());
         break;
     }
 
     let request = {
-      env: this.esignetConfig.env,
+      env: this.sbiConfig.env,
       purpose,
       specVersion,
-      timeout: this.esignetConfig.captureTimeout * 1000,
+      timeout: this.sbiConfig.captureTimeout * 1000,
       captureTime: new Date().toISOString(),
-      domainUri: this.esignetConfig.domainUri,
+      domainUri: this.sbiConfig.domainUri,
       transactionId,
       bio: [
         {
@@ -140,7 +140,7 @@ class SbiService {
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: this.esignetConfig.captureTimeout * 1000,
+      timeout: this.sbiConfig.captureTimeout * 1000,
     });
 
     return response?.data;
@@ -155,7 +155,7 @@ class SbiService {
     clearDiscoveredDevices();
     clearDeviceInfos();
 
-    let [fromPort, tillPort] = this.esignetConfig?.portRange
+    let [fromPort, tillPort] = this.sbiConfig?.portRange
       ?.split("-")
       ?.map((x) => Number(x.trim()));
 
@@ -176,8 +176,8 @@ class SbiService {
         discoverRequestBuilder(
           host,
           i,
-          this.esignetConfig.discTimeout,
-          this.esignetConfig.dinfoTimeout
+          this.sbiConfig.discTimeout,
+          this.sbiConfig.dinfoTimeout
         )
       );
     }

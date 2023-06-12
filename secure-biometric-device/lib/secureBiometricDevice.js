@@ -51,7 +51,7 @@ class SecureBiometricDevice {
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };
 
-    this.sbiService = new SbiService(props?.biometricEnv ?? undefined);
+    this.sbiService = new SbiService(props?.sbiEnv ?? undefined);
 
     i18n.changeLanguage(this.props.langCode);
     this.isRtl = i18n.dir(this.props.langCode) === "rtl";
@@ -641,7 +641,7 @@ class SecureBiometricDevice {
     }
 
     let timePassed = 0;
-    let dicoverTimeout = this.props.biometricEnv.discTimeout;
+    let dicoverTimeout = this.props.sbiEnv.discTimeout;
 
     this.modalityDevices = [];
     this.selectedDevice = null;
@@ -750,7 +750,7 @@ const allowedProperties = [
 /**
  * Initialization method, it will create the whole component and attach it with the html tag
  * @param {HTMLElement} param0 container in which the whole component has to be attached
- * @param {json Object} args other arguments containing {buttonLabel, biometricEnv, transactionId, disable, customStyle, langCode, onCapture, onErrored}
+ * @param {json Object} args other arguments containing {buttonLabel, sbiEnv, transactionId, disable, customStyle, langCode, onCapture, onErrored}
  * @returns SecureBiometricDevice object
  */
 const init = ({ container, ...args }) => {

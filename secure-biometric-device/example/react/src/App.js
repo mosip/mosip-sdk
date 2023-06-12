@@ -12,7 +12,7 @@ const myError = (e) => {
   console.log(e);
 };
 
-const biometricEnv = {
+const sbiEnv = {
   env: "Staging",
   captureTimeout: 30,
   irisBioSubtypes: "UNKNOWN",
@@ -34,7 +34,7 @@ function App() {
   useEffect(() => {
     init({
       container: document.getElementById("secure-biometric-device"),
-      biometricEnv,
+      sbiEnv,
       onCapture: myChange,
       onErrored: myError,
     });

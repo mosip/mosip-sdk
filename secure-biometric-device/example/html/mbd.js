@@ -2,7 +2,7 @@ var lang = "en";
 SecureBiometricDevice.init({
   container: document.getElementById("secure-biometric-device"),
   buttonLabel: "scan_and_verify",
-  biometricEnv: {
+  sbiEnv: {
     env: "Staging",
     captureTimeout: 30,
     irisBioSubtypes: "UNKNOWN",
@@ -32,7 +32,7 @@ SecureBiometricDevice.init({
 });
 
 const myObject = {
-  biometricEnv: {
+  sbiEnv: {
     env: "Staging",
     captureTimeout: 30,
     irisBioSubtypes: "UNKNOWN",
