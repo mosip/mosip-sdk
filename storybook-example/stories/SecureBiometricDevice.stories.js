@@ -106,7 +106,7 @@ export default {
 
 const renderComponent = (args) => {
   const container = document.createElement("div");
-  container.setAttribute("id", "secure-biometric-device");
+  container.setAttribute("id", "secure-biometric-interface-integrator");
   args.container = container;
   return div(
     {
@@ -148,11 +148,11 @@ SecureBiometricInterfaceStory.parameters = {
   docs: {
     source: {
       code: `
-      <div id="secure-biometric-device"></div>
+      <div id="secure-biometric-interface-integrator"></div>
 
       // in javascript
       SecureBiometricInterface.init({
-        container: document.getElementById("secure-biometric-device"),
+        container: document.getElementById("secure-biometric-interface-integrator"),
         buttonLabel: "scan_and_verify",
         sbiEnv: {
           env: "Staging",

@@ -1,6 +1,6 @@
 var lang = "en";
 SecureBiometricInterface.init({
-  container: document.getElementById("secure-biometric-device"),
+  container: document.getElementById("secure-biometric-interface-integrator"),
   buttonLabel: "scan_and_verify",
   sbiEnv: {
     env: "Staging",

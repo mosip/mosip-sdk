@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { init, propChange } from "secure-biometric-device";
+import { init, propChange } from "secure-biometric-interface-integrator";
 
 const myChange = (e) => {
   console.log("my changes");
@@ -33,7 +33,7 @@ function App() {
   
   useEffect(() => {
     init({
-      container: document.getElementById("secure-biometric-device"),
+      container: document.getElementById("secure-biometric-interface-integrator"),
       sbiEnv,
       onCapture: myChange,
       onErrored: myError,
@@ -61,7 +61,7 @@ function App() {
           padding: "20px",
         }}
       >
-        <div id="secure-biometric-device" style={{ width: "400px" }}></div>
+        <div id="secure-biometric-interface-integrator" style={{ width: "400px" }}></div>
       </div>
 
       <div

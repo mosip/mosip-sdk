@@ -1,5 +1,5 @@
 {
-  "name": "secure-biometric-device",
+  "name": "secure-biometric-interface-integrator",
   "description": "A vanillaJs library for integrating Secure Biometric Devices",
   "version": "0.1.0",
   "license": "MIT",
@@ -11,12 +11,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/esignet-plugins/secure-biometric-device"
+    "url": "git+https://github.com/mosip/esignet-plugins/secure-biometric-interface-integrator"
   },
   "keywords": [
     "mosip",
     "sbi",
-    "secure-biometric-device-interface"
+    "secure-biometric-interface-integrator"
   ],
   "scripts": {
     "start": "rollup -c -w",

@@ -38,7 +38,7 @@ npm run start
 
 After that you can serve the index.html file from the below folder
 ```
-secure-biometric-device
+secure-biometric-interface-integrator
 └─── example
      └─── html
           │─── index.html
@@ -49,7 +49,7 @@ How are we implement the library in vanilla javascript, checkout the `mbd.js` fi
 
 ```js
 SecureBiometricInterface.init({
-  container: document.getElementById("secure-biometric-device"),
+  container: document.getElementById("secure-biometric-interface-integrator"),
   sbiEnv: BIOMETRIC_ENV_OBJECT,
   buttonLabel: BUTTON_LABEL,
   disable: DISABLE_OR_NOT,
@@ -61,7 +61,7 @@ SecureBiometricInterface.init({
 
 ### In React
 
-For running our library in react, first of all build the secure-biometric-device library and bundle up as a pakcage
+For running our library in react, first of all build the secure-biometric-interface-integrator library and bundle up as a pakcage
 
 ```bash
 npm run package
@@ -69,7 +69,7 @@ npm run package
 
 After that you can go to our react example of the project, install the node_modules and run as a react app
 ```
-secure-biometric-device
+secure-biometric-interface-integrator
 └─── example
      └─── react
           │─── public
@@ -79,15 +79,15 @@ secure-biometric-device
           └─── package.json
 ```
 
-Code snippet of using secure-biometric-device library in react is given below ( you can also find it in `App.js` file of src folder)
+Code snippet of using secure-biometric-interface-integrator library in react is given below ( you can also find it in `App.js` file of src folder)
 
 ```js
 // import the library first
-import { init } from "secure-biometric-device";
+import { init } from "secure-biometric-interface-integrator";
 
 // call the library method
 init({
-    container: document.getElementById("secure-biometric-device"),
+    container: document.getElementById("secure-biometric-interface-integrator"),
     sbiEnv: BIOMETRIC_ENV_OBJECT,
     buttonLabel: BUTTON_LABEL,
     disable: DISABLE_OR_NOT,
@@ -104,7 +104,7 @@ Common props you may want to specify include:
 
 | prop           | type     | default value   | note                                                                                                                                                                     |
 | -------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `container` | `HTMLElement` | | an html div element from where we will inject `secure-biometric-device` UI |
+| `container` | `HTMLElement` | | an html div element from where we will inject `secure-biometric-interface-integrator` UI |
 | `buttonLabel`   | `string` | Scan & Verify | Capture button label                                                                                                                                                     |
 | `transactionId`| `string` | | Transaction id of the current biometric authorization |
 | `onCapture`    | `func`   |                 | The function to be called on a successful capture with [Biometric response](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification#capture-response). |

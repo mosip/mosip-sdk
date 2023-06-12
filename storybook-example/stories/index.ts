@@ -4,8 +4,8 @@ import {
   ISignInWithEsignetProps,
   OidcConfigProp,
 } from "../../sign-in-with-esignet/src/lib/SignInWithEsignet/ISignInWithEsignetProps";
-import { init } from "./../../secure-biometric-device/lib/secureBiometricInterface";
-import { div } from "../../secure-biometric-device/utility";
+import { init } from "./../../secure-biometric-interface-integrator/lib/secureBiometricInterface";
+import { div } from "../../secure-biometric-interface-integrator/utility";
 
 export {
   init,

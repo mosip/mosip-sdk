@@ -45,8 +45,8 @@ class SecureBiometricInterface {
    */
   constructor(container, props) {
     if (!container) {
-      document.body.appendChild(div({ id: "secure-biometric-device" }));
-      container = document.querySelector("#secure-biometric-device");
+      document.body.appendChild(div({ id: "secure-biometric-interface-integrator" }));
+      container = document.querySelector("#secure-biometric-interface-integrator");
     }
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };

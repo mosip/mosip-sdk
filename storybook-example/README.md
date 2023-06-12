@@ -1,6 +1,6 @@
 # Storybook Example
 
-Storybook example for sign-in-with-esignet & secure-biometric-device library and how to show the in one place.
+Storybook example for sign-in-with-esignet & secure-biometric-interface-integrator library and how to show the in one place.
 
 
 ## Creating Stories in this Storybook
