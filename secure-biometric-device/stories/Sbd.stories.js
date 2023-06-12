@@ -1,4 +1,4 @@
-import { init } from "./../lib/secureBiometricDevice";
+import { init } from "./../lib/secureBiometricInterface";
 import { div } from "../utility";
 
 import { action } from "@storybook/addon-actions";
@@ -35,7 +35,7 @@ const sbiEnv = {
 };
 
 export default {
-  title: "Secure Biometric Device",
+  title: "Secure Biometric Interface",
   tags: ["autodocs"],
   render: (args) => renderComponent(args),
   argTypes: {
@@ -162,7 +162,7 @@ Primary.parameters = {
       <div id="secure-biometric-device"></div>
 
       // in javascript
-      SecureBiometricDevice.init({
+      SecureBiometricInterface.init({
         container: document.getElementById("secure-biometric-device"),
         buttonLabel: "scan_and_verify",
         sbiEnv: {

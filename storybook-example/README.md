@@ -40,7 +40,7 @@ const renderComponent = (args) => {
 Now create a specific story for the component
 
 ```js
-export const SecureBiometricDeviceStory = {
+export const SecureBiometricInterfaceStory = {
   args: ARGS_OBJECT, // passing all necessary inputs
 };
 ```

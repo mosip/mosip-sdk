@@ -1,5 +1,5 @@
 var lang = "en";
-SecureBiometricDevice.init({
+SecureBiometricInterface.init({
   container: document.getElementById("secure-biometric-device"),
   buttonLabel: "scan_and_verify",
   sbiEnv: {
@@ -65,5 +65,5 @@ const myObject = {
 document
   .getElementById("deviceLanguageChange")
   .addEventListener("click", () => {
-    SecureBiometricDevice.propChange(myObject);
+    SecureBiometricInterface.propChange(myObject);
   });

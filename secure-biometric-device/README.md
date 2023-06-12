@@ -1,4 +1,4 @@
-# Secure Biometric Device
+# Secure Biometric Interface
 
 A standalone vanillajs library component for interacting with SBI devices and auth capture Face, Finger & Iris detail.
 
@@ -48,7 +48,7 @@ secure-biometric-device
 How are we implement the library in vanilla javascript, checkout the `mbd.js` file (see above path), below you can see the snippet also.
 
 ```js
-SecureBiometricDevice.init({
+SecureBiometricInterface.init({
   container: document.getElementById("secure-biometric-device"),
   sbiEnv: BIOMETRIC_ENV_OBJECT,
   buttonLabel: BUTTON_LABEL,

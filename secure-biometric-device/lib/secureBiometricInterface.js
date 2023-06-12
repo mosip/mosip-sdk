@@ -27,7 +27,7 @@ import {
   DEFAULT_PROPS,
 } from "./standardConstant";
 
-class SecureBiometricDevice {
+class SecureBiometricInterface {
   modalityIconPath = {
     Face: faceIcon,
     Finger: fingerIcon,
@@ -480,7 +480,7 @@ class SecureBiometricDevice {
    * Generate dropdown div & verify button div
    * @returns HTMLElement containing the whole secure biometric device component
    */
-  generateSecureBiometricDeviceComponent() {
+  generateSecureBiometricInterfaceComponent() {
     return [this.generateDropdownDiv(), this.generateVerifyButtonDiv()];
   }
 
@@ -512,7 +512,7 @@ class SecureBiometricDevice {
         dir: this.isRtl ? "rtl" : "ltr",
       },
       this.status === states.LOADED
-        ? this.generateSecureBiometricDeviceComponent()
+        ? this.generateSecureBiometricInterfaceComponent()
         : this.generateLoadingIndicator(this.generateStatusMessage())
     );
 
@@ -526,7 +526,7 @@ class SecureBiometricDevice {
     if (exoskeleton) {
       exoskeleton.innerHTML = "";
       if (status === states.LOADED) {
-        appendArray(exoskeleton, this.generateSecureBiometricDeviceComponent());
+        appendArray(exoskeleton, this.generateSecureBiometricInterfaceComponent());
         if (this.selectedDevice) {
           this.optionSelection();
         }
@@ -751,10 +751,10 @@ const allowedProperties = [
  * Initialization method, it will create the whole component and attach it with the html tag
  * @param {HTMLElement} param0 container in which the whole component has to be attached
  * @param {json Object} args other arguments containing {buttonLabel, sbiEnv, transactionId, disable, customStyle, langCode, onCapture, onErrored}
- * @returns SecureBiometricDevice object
+ * @returns SecureBiometricInterface object
  */
 const init = ({ container, ...args }) => {
-  myDevice = new SecureBiometricDevice(container, { ...args });
+  myDevice = new SecureBiometricInterface(container, { ...args });
   myDevice.renderComponent();
   return myDevice.container;
 };
