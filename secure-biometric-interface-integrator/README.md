@@ -49,7 +49,7 @@ How are we implement the library in vanilla javascript, checkout the `mbd.js` fi
 
 ```js
 SecureBiometricInterface.init({
-  container: document.getElementById("secure-biometric-interface-integrator"),
+  container: document.getElementById("secure-biometric-interface-integration"),
   sbiEnv: BIOMETRIC_ENV_OBJECT,
   buttonLabel: BUTTON_LABEL,
   disable: DISABLE_OR_NOT,
@@ -87,7 +87,7 @@ import { init } from "secure-biometric-interface-integrator";
 
 // call the library method
 init({
-    container: document.getElementById("secure-biometric-interface-integrator"),
+    container: document.getElementById("secure-biometric-interface-integration"),
     sbiEnv: BIOMETRIC_ENV_OBJECT,
     buttonLabel: BUTTON_LABEL,
     disable: DISABLE_OR_NOT,

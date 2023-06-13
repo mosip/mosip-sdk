@@ -33,7 +33,7 @@ function App() {
   
   useEffect(() => {
     init({
-      container: document.getElementById("secure-biometric-interface-integrator"),
+      container: document.getElementById("secure-biometric-interface-integration"),
       sbiEnv,
       onCapture: myChange,
       onErrored: myError,
@@ -61,7 +61,7 @@ function App() {
           padding: "20px",
         }}
       >
-        <div id="secure-biometric-interface-integrator" style={{ width: "400px" }}></div>
+        <div id="secure-biometric-interface-integration" style={{ width: "400px" }}></div>
       </div>
 
       <div
