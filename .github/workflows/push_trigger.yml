@@ -45,7 +45,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
         with:
           source_folder: esignet-plugins
-          destination_repo: Rakshithb1/artifactory-ref-impl
+          destination_repo: mosip/artifactory-ref-impl
           destination_folder: artifacts/src/esignet-plugins
           destination_branch: develop
-          user_name: Rakshithb1
+          user_name: mosip
