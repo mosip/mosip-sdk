@@ -55,7 +55,7 @@ export const SignInWithEsignetStory: Story = {
 ```
 
 
-## Storybook Example Setup
+# Storybook Example Setup
 
 ```cmd
 npx storybook@latest init -t web_components
@@ -64,7 +64,7 @@ npx storybook@latest init -t web_components
 after that select `webpack 5` as a builder for your project
 
 
-### Typescript
+## Typescript
 
 If you have your library written in typescript then you also have to add `ts-loader`
 
@@ -112,4 +112,24 @@ Also add this snippet in `.babelrc.json`
 }
 ```
 
+# Storybook Deployment
 
+## Github Pages
+
+First of all you have to change `homepage` value in  `package.json` file, according to your need where you want to deploy it (in which repo)
+
+After that you just have to run below command
+
+```cmd
+npm run publish
+```
+
+## Deploy static folder
+
+For deploying static folder, you need to build storybook by running the below command
+
+```cmd
+npm run build
+```
+
+Above command create a folder name `storybook-static`, you can copy paste this folder anywhere and serve it as a static folder website.

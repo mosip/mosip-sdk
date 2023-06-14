@@ -7,6 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/mosip/esignet-plugins/storybook-example"
   },
+  "homepage": "http://mosip.github.io/esignet-plugins",
   "keywords": [
     "mosip",
     "sbi",
@@ -15,7 +16,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "storybook dev -p 6006",
-    "build": "storybook build"
+    "build": "storybook build",
+    "deploy": "gh-pages -d storybook-static",
+    "publish": "npm run build && npm run deploy"
   },
   "author": "",
   "license": "MIT",
@@ -32,6 +35,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.25",
+    "gh-pages": "^5.0.0",
     "lit": "^2.7.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
