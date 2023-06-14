@@ -251,6 +251,11 @@ function buildButtonCustomStyles(
   };
 }
 
+/**
+ * style attrs applied on the element
+ * @param element
+ * @param attrs
+ */
 const setStyleAttribute = (
   element: HTMLElement,
   attrs: { [key: string]: string } | undefined
@@ -262,6 +267,32 @@ const setStyleAttribute = (
   }
 };
 
+/**
+ *
+ * Builds button while adding styles and classes on individual element
+ *
+ * In case of buttonClasses, the button should render like this.
+ * <span> --conditional
+ *   {errorObj + ". Please report to site admin"}
+ * </span>
+ * <a href={urlToNavigate}>
+ *   <div className={buttonClasses.outerDivClasses} style={buttonStyle}>
+ *     <div className={buttonClasses.logoDivClasses}>
+ *       <img className={buttonClasses.logoImgClasses} src={logoPath} />
+ *     </div>
+ *      <span className={buttonClasses.labelSpanClasses} >{buttonLabel}</span> --conditional
+ *   </div>
+ * </a>
+ * @param buttonLabel
+ * @param urlToNavigate
+ * @param buttonCustomStyle
+ * @param buttonClasses
+ * @param buttonStyle
+ * @param logoPath
+ * @param errorMsg
+ * @param type
+ * @returns
+ */
 const createButton = (
   buttonLabel: string,
   urlToNavigate: string,
@@ -272,9 +303,6 @@ const createButton = (
   errorMsg: string,
   type: string | undefined
 ): HTMLElement => {
-  //Div Container
-  var container = document.createElement("div");
-
   //Button
   var anchor = document.createElement("a");
   anchor.href = urlToNavigate;
@@ -292,13 +320,19 @@ const createButton = (
 
   if (buttonCustomStyle) {
     //apply custom style
+    if (buttonCustomStyle.outerDivStyle)
+      anchor.style.width = buttonCustomStyle.outerDivStyle["width"];
+
     setStyleAttribute(outerDiv, buttonCustomStyle.outerDivStyle);
     setStyleAttribute(logoDiv, buttonCustomStyle.logoDivStyle);
     setStyleAttribute(logoImg, buttonCustomStyle.logoImgStyle);
     setStyleAttribute(labelSpan, buttonCustomStyle.labelSpanStyle);
   } else if (buttonClasses) {
     //or apply classes
+    if (buttonStyle) anchor.style.width = buttonStyle["width"];
+
     setStyleAttribute(outerDiv, buttonStyle);
+
     outerDiv.classList.add(...buttonClasses.outerDivClasses.split(" "));
     logoDiv.classList.add(...buttonClasses.logoDivClasses.split(" "));
     logoImg.classList.add(...buttonClasses.logoImgClasses.split(" "));
@@ -313,22 +347,19 @@ const createButton = (
     outerDiv.appendChild(labelSpan);
   }
 
-  anchor.appendChild(outerDiv);
-
   if (errorMsg) {
     //adding error span
     var errorSpan = document.createElement("span");
     errorSpan.style.color = "red";
     errorSpan.style.color = "14px";
     errorSpan.innerHTML = errorMsg + ". Please report to site admin";
-    container.appendChild(errorSpan);
+    anchor.appendChild(errorSpan);
   }
 
-  container.appendChild(anchor);
-  return container;
+  anchor.appendChild(outerDiv);
+  return anchor;
 };
 
-//TODO add option for custom styling
 const SignInWithEsignet = ({
   ...props
 }: ISignInWithEsignetProps): HTMLElement => {
@@ -385,4 +416,8 @@ const SignInWithEsignet = ({
   return signInElement;
 };
 
-export default SignInWithEsignet;
+const init = ({ ...props }: ISignInWithEsignetProps): HTMLElement => {
+  return SignInWithEsignet(props);
+};
+
+export default init;
