@@ -303,9 +303,6 @@ const createButton = (
   errorMsg: string,
   type: string | undefined
 ): HTMLElement => {
-  //Div Container
-  var container = document.createElement("div");
-
   //Button
   var anchor = document.createElement("a");
   anchor.href = urlToNavigate;
@@ -323,13 +320,19 @@ const createButton = (
 
   if (buttonCustomStyle) {
     //apply custom style
+    if (buttonCustomStyle.outerDivStyle)
+      anchor.style.width = buttonCustomStyle.outerDivStyle["width"];
+
     setStyleAttribute(outerDiv, buttonCustomStyle.outerDivStyle);
     setStyleAttribute(logoDiv, buttonCustomStyle.logoDivStyle);
     setStyleAttribute(logoImg, buttonCustomStyle.logoImgStyle);
     setStyleAttribute(labelSpan, buttonCustomStyle.labelSpanStyle);
   } else if (buttonClasses) {
     //or apply classes
+    if (buttonStyle) anchor.style.width = buttonStyle["width"];
+
     setStyleAttribute(outerDiv, buttonStyle);
+
     outerDiv.classList.add(...buttonClasses.outerDivClasses.split(" "));
     logoDiv.classList.add(...buttonClasses.logoDivClasses.split(" "));
     logoImg.classList.add(...buttonClasses.logoImgClasses.split(" "));
@@ -344,19 +347,17 @@ const createButton = (
     outerDiv.appendChild(labelSpan);
   }
 
-  anchor.appendChild(outerDiv);
-
   if (errorMsg) {
     //adding error span
     var errorSpan = document.createElement("span");
     errorSpan.style.color = "red";
     errorSpan.style.color = "14px";
     errorSpan.innerHTML = errorMsg + ". Please report to site admin";
-    container.appendChild(errorSpan);
+    anchor.appendChild(errorSpan);
   }
 
-  container.appendChild(anchor);
-  return container;
+  anchor.appendChild(outerDiv);
+  return anchor;
 };
 
 const SignInWithEsignet = ({
