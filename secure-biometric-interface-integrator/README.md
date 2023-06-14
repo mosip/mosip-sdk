@@ -106,6 +106,7 @@ Common props you may want to specify include:
 | -------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `container` | `HTMLElement` | | an html div element from where we will inject `secure-biometric-interface-integrator` UI |
 | `buttonLabel`   | `string` | Scan & Verify | Capture button label                                                                                                                                                     |
+| `langCode` | `string` | en | Language for the component, available language are `en`, `eng`, `hi`, `hin`, `ta`, `tam`, `ka`, `kar`, `ar`, `ara`|
 | `transactionId`| `string` | | Transaction id of the current biometric authorization |
 | `onCapture`    | `func`   |                 | The function to be called on a successful capture with [Biometric response](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification#capture-response). |
 | `onErrored`    | `func`   |                 | optional callback function on capture failure with error msg string.                                                                                                     |

@@ -17,25 +17,25 @@ const DeviceState = {
     value: "READY",
     name: "Ready",
     class: "ready",
-    symbol: "\u25CF",
+    symbol: "\u25CF", //black circle symbol
   },
   NOTREADY: {
     value: "NOTREADY",
     name: "Not Ready",
     class: "not-ready",
-    symbol: "\u25CF",
+    symbol: "\u25CF", //black circle symbol
   },
   BUSY: {
     value: "BUSY",
     name: "Busy",
     class: "busy",
-    symbol: "\u25CF",
+    symbol: "\u25CF", //black circle symbol
   },
   NOTREGISTERED: {
     value: "NOTREGISTERED",
     name: "Not Registered",
     class: "not-registered",
-    symbol: "\u25CE",
+    symbol: "\u25CE", //bullseye symbol
   },
 };
 
@@ -69,7 +69,7 @@ const DEFAULT_PROPS = {
       panelBgColorActive: "#2684ff",
     },
     refreshButtonStyle: {
-      iconUniCode: "\u21bb",
+      iconUniCode: "\u21bb", //clockwise open circle arrow
     },
   },
 };

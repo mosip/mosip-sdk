@@ -29,21 +29,22 @@ const sbiEnv = {
 };
 
 function App() {
-
-  
   useEffect(() => {
     init({
-      container: document.getElementById("secure-biometric-interface-integration"),
+      container: document.getElementById(
+        "secure-biometric-interface-integration"
+      ),
       sbiEnv,
       onCapture: myChange,
       onErrored: myError,
     });
   }, []);
 
-  const myPropChange = () => propChange({
-    langCode: "ar",
-    disable: false,
-  })
+  const myPropChange = () =>
+    propChange({
+      langCode: "ar",
+      disable: false,
+    });
 
   return (
     <div
@@ -56,22 +57,24 @@ function App() {
     >
       <div
         style={{
-          margin: "4rem",
-          border: "solid red 4px",
-          padding: "20px",
+          margin: "auto",
+          width: "50%",
+          border: "3px solid green",
+          padding: "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <div id="secure-biometric-interface-integration" style={{ width: "400px" }}></div>
+        <div
+          id="secure-biometric-interface-integration"
+          style={{
+            width: "60%",
+          }}
+        ></div>
       </div>
 
-      <div
-        style={{
-          margin: "4rem",
-          border: "solid red 4px",
-          padding: "20px",
-          display: "block"
-        }}
-      >
+      <div>
         <button onClick={() => myPropChange()}>Change Prop</button>
       </div>
     </div>

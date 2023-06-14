@@ -185,12 +185,12 @@ Primary.parameters = {
         disable: false,
         transactionId: "123456789",
         onCapture: (e) => {
-          console.log("*******************gettiing the biometric response");
-          console.log(e);
+          console.debug("OnCapture - SBI returned with a response");
+          console.debug(e);
         },
         onErrored: (e) => {
-          console.log("**********getting error from secure bio device");
-          console.log(e);
+          console.debug("Error OnCapture - SBI returned error");
+          console.debug(e);
         },
       });
       `,
