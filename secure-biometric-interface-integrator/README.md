@@ -136,6 +136,7 @@ For more information check [MDS Specification](https://docs.mosip.io/1.1.5/biome
 ## License
 
 - `axios` - is a promised-based HTTP client for JavaScript licensed under MIT
+- `i18next` -  is an internationalization framework for browser or any other javascript environment licensed under MIT
 - `jose` - a JavaScript module for JSON Object Signing and Encryption, providing support for JSON Web Tokens (JWT), JSON Web Signature (JWS), JSON Web Encryption (JWE), JSON Web Key (JWK), JSON Web Key Set (JWKS), licensed under MIT
 - `rollup` - is a module bundler for JavaScript which compiles small pieces of code into something larger and more complex, such as a library or application, licensed under MIT
 - `rollup-plugin-postcss` - used for seamless integration between rollup & postcss , licensed under MIT

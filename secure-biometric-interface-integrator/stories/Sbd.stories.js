@@ -189,8 +189,8 @@ Primary.parameters = {
           console.debug(e);
         },
         onErrored: (e) => {
-          console.debug("Error OnCapture - SBI returned error");
-          console.debug(e);
+          console.warn("Error OnCapture - SBI returned error");
+          console.warn(e);
         },
       });
       `,
