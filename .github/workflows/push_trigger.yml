@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       destination_branch:
-        description: 'provide artifactory branch'
+        description: 'Provide artifactory branch'
         required: true
-        #default: ''
+        default: 'abc'
         type: string
 
 jobs:
