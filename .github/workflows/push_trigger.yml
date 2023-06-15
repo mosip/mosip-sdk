@@ -41,16 +41,7 @@ jobs:
           mkdir -p esignet-plugins
           cp ./sign-in-with-esignet/sign-in-with-esignet.zip  esignet-plugins/
 
-      - name: Pushes esignet-plugin folder
-        uses: datalbry/copy_folder_to_another_repo_action@1.0.1
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
-        with:
-          source_folder: esignet-plugins
-          destination_repo: mosip/artifactory-ref-impl
-          destination_folder: artifacts/src/esignet-plugins
-          destination_branch: develop
-          user_name: mosip
+     
     
       - uses: actions/checkout@v2
       - name: Set up JDK 11
