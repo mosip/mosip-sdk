@@ -5,7 +5,7 @@ on:
     inputs:
       destination_branch:
         description: 'Provide artifactory branch'
-        required: true
+        required: false
         default: ''
         type: string
 
