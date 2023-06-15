@@ -1,1 +1,52 @@
+name: Build and Push
 
+on:
+  workflow_dispatch:
+    inputs:
+      destination_branch:
+        description: 'Provide artifactory branch'
+        required: true
+        type: string
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: npm Install
+        run: |
+          cd sign-in-with-esignet
+          npm i
+      - name: Build APK
+        run: |
+          cd sign-in-with-esignet
+          npm run build
+      - name: Zip dist directory
+        run: |
+          cd sign-in-with-esignet
+          mv dist sign-in-with-esignet
+          zip -r sign-in-with-esignet.zip sign-in-with-esignet/
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sign-in-with-esignet
+          path: sign-in-with-esignet/sign-in-with-esignet.zip
+
+      - name: Copy ZIP file to esignet-plugins directory
+        run:  |
+          mkdir -p esignet-plugins
+          cp ./sign-in-with-esignet/sign-in-with-esignet.zip  esignet-plugins/
+
+      - name: Pushes esignet-plugin folder
+        uses: datalbry/copy_folder_to_another_repo_action@1.0.1
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
+        with:
+          source_folder: esignet-plugins
+          destination_repo: Rakshithb1/artifactory-ref-impl
+          destination_folder: artifacts/src/esignet-plugins
+          destination_branch: ${{ github.event.inputs.destination_branch }}
+          user_name: Rakshithb1
