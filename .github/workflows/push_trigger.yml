@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'sign-in-with-esignet/**'
+    #paths:
+      #- 'sign-in-with-esignet/**'
 
 jobs:
   build-and-push:
