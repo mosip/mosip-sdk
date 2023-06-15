@@ -6,7 +6,7 @@ on:
       destination_branch:
         description: 'Provide artifactory branch'
         required: true
-        default: 'abc'
+        default: ''
         type: string
 
 jobs:
