@@ -1,0 +1,61 @@
+name: Build and Push
+
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    #paths:
+      #- 'sign-in-with-esignet/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: npm Install
+        run: |
+          cd sign-in-with-esignet
+          npm i
+      - name: Build APK
+        run: |
+          cd sign-in-with-esignet
+          npm run build
+      - name: Zip dist directory
+        run: |
+          cd sign-in-with-esignet
+          mv dist sign-in-with-esignet
+          zip -r sign-in-with-esignet.zip sign-in-with-esignet/
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sign-in-with-esignet
+          path: sign-in-with-esignet/sign-in-with-esignet.zip
+
+      - name: Copy ZIP file to esignet-plugins directory
+        run:  |
+          mkdir -p esignet-plugins
+          cp ./sign-in-with-esignet/sign-in-with-esignet.zip  esignet-plugins/
+
+     
+    
+      #- uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          ref: ${{ github.ref }}
+          java-version: 11
+          server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      - name: Setup the settings file for ossrh server
+        run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.RELEASE_USER}}</username> <password>${{secrets.RELEASE_TOKEN}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> </repositories>  </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > $GITHUB_WORKSPACE/settings.xml
+      - name: push to nuxes
+        run: mvn deploy:deploy-file -Durl=${{secrets.OSSRH_SNAPSHOT_URL}} -DrepositoryId=snapshots -Dfile=./sign-in-with-esignet/sign-in-with-esignet.zip -DgroupId=io.mosip.esignet.esignet-plugins -DartifactId=state-flow -Dversion=0.0.1-SNAPSHOT -Dpackaging=zip
+      
+
+  
