@@ -6,7 +6,7 @@ on:
       destination_branch:
         description: 'provide artifactory branch'
         required: true
-        default: ''
+        #default: ''
         type: string
 
 jobs:
@@ -47,7 +47,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
         with:
           source_folder: esignet-plugins
-          destination_repo: Rakshithb1/artifactory-ref-impl
+          destination_repo: /artifactory-ref-impl
           destination_folder: artifacts/src/esignet-plugins
           destination_branch: ${{ github.event.inputs.destination_branch }}
           user_name: Rakshithb1
