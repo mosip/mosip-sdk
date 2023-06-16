@@ -110,3 +110,33 @@ jobs:
           destination_folder: artifacts/src/esignet-plugins/secure-biometric-interface-integrator/
           destination_branch: ${{ github.event.inputs.destination_branch }}
           user_name: mosip
+
+  storybook-example:
+    if: "contains(github.event.inputs.source_directory, 'storybook-example')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: npm Install secure-biometric-interface-integrator
+        run: |
+          cd secure-biometric-interface-integrator
+          npm install
+      
+      - name: npm Install sign-in-with-esignet
+        run: |
+          cd sign-in-with-esignet
+          npm install
+      
+      - name: npm Install and Build storybook-example
+        run: |
+          cd storybook-example
+          npm install
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: storybook-example/storybook-static
+
