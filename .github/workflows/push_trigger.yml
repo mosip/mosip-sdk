@@ -3,13 +3,18 @@ name: Build and Push
 on:
   workflow_dispatch:
     inputs:
+      source_directory:
+        description: 'Provide plugins directory name'
+        required: true
+        type: string
       destination_branch:
         description: 'Provide artifactory branch'
         required: true
         type: string
 
 jobs:
-  build-and-push:
+  sign-in-with-esignet:
+    if: "contains(github.event.inputs.source_directory, 'sign-in-with-esignet')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,6 +52,60 @@ jobs:
         with:
           source_folder: esignet-plugins
           destination_repo: mosip/artifactory-ref-impl
-          destination_folder: artifacts/src/esignet-plugins
+          destination_folder: artifacts/src/esignet-plugins/sign-in-with-esignet/
+          destination_branch: ${{ github.event.inputs.destination_branch }}
+          user_name: mosip
+
+  secure-biometric-interface-integrator:
+    if: "contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: npm Install
+        run: |
+          cd secure-biometric-interface-integrator
+          npm i
+      - name: Build APK
+        run: |
+          cd secure-biometric-interface-integrator
+          npm run build
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          package_path: './secure-biometric-interface-integrator'
+          registry-url: 'https://registry.npmjs.org/'
+      - name: Publish package
+        run: cd secure-biometric-interface-integrator && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Zip dist directory
+        run: |
+          cd secure-biometric-interface-integrator
+          mv dist secure-biometric-interface-integrator
+          zip -r secure-biometric-interface-integrator.zip secure-biometric-interface-integrator/
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: secure-biometric-interface-integrator
+          path: secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip
+
+      - name: Copy ZIP file to esignet-plugins directory
+        run: |
+          mkdir -p esignet-plugins
+          cp ./secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip  esignet-plugins/
+
+      - name: Pushes esignet-plugin folder
+        uses: datalbry/copy_folder_to_another_repo_action@1.0.1
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
+        with:
+          source_folder: esignet-plugins
+          destination_repo: mosip/artifactory-ref-impl
+          destination_folder: artifacts/src/esignet-plugins/secure-biometric-interface-integrator/
           destination_branch: ${{ github.event.inputs.destination_branch }}
           user_name: mosip
