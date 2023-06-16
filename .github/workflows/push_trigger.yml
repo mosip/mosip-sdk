@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       source_directory:
-        description: 'Provide plugins directory name'
+        description: 'Provide esignet plugin utility'
         required: true
         type: string
       destination_branch:
