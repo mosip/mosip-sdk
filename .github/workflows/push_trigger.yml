@@ -51,10 +51,10 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
         with:
           source_folder: esignet-plugins
-          destination_repo: Rakshithb1/artifactory-ref-impl
+          destination_repo: mosip/artifactory-ref-impl
           destination_folder: artifacts/src/esignet-plugins/sign-in-with-esignet/
           destination_branch: ${{ github.event.inputs.destination_branch }}
-          user_name: Rakshithb1
+          user_name: mosip
 
   secure-biometric-interface-integrator:
     if: "contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator')"
@@ -105,7 +105,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
         with:
           source_folder: esignet-plugins
-          destination_repo: Rakshithb1/artifactory-ref-impl
+          destination_repo: mosip/artifactory-ref-impl
           destination_folder: artifacts/src/esignet-plugins/secure-biometric-interface-integrator/
           destination_branch: ${{ github.event.inputs.destination_branch }}
-          user_name: Rakshithb1
+          user_name: mosip
