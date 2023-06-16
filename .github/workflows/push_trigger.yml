@@ -6,6 +6,7 @@ on:
       source_directory:
         description: 'Provide esignet plugin utility'
         required: true
+        default: 'sign-in-with-esignet or secure-biometric-interface-integrator'
         type: string
       destination_branch:
         description: 'Provide artifactory branch'
