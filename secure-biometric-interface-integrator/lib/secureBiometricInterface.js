@@ -93,7 +93,7 @@ class SecureBiometricInterface {
     if (data === null) {
       data = this.modalityDevices.length
         ? "Select your option"
-        : "device_not_found_msg";
+        : "no_options";
     }
     const placeholder = this.container.querySelector(
       ".sbd-dropdown__single-value"
@@ -239,10 +239,7 @@ class SecureBiometricInterface {
       );
     }
     this.setPlaceholder("device_not_found_msg");
-    return div(
-      { className: "sbd-dropdown__option disabled" },
-      i18n.t("no_options")
-    );
+    return null;
   }
 
   /**
@@ -261,7 +258,7 @@ class SecureBiometricInterface {
       dropdownMenuList.innerHTML = "";
       if (Array.isArray(optionElement)) {
         appendArray(dropdownMenuList, optionElement);
-      } else {
+      } else if (optionElement !== null) {
         dropdownMenuList.appendChild(optionElement);
       }
       return dropdownMenuList;
