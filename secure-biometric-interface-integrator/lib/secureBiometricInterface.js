@@ -45,8 +45,12 @@ class SecureBiometricInterface {
    */
   constructor(container, props) {
     if (!container) {
-      document.body.appendChild(div({ id: "secure-biometric-interface-integration" }));
-      container = document.querySelector("#secure-biometric-interface-integration");
+      document.body.appendChild(
+        div({ id: "secure-biometric-interface-integration" })
+      );
+      container = document.querySelector(
+        "#secure-biometric-interface-integration"
+      );
     }
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };
@@ -69,13 +73,10 @@ class SecureBiometricInterface {
   /**
    * Open/Close the dropdown
    */
-  selectBtnActive = () => {
-    if (this.container.querySelector(".sbd-dropdown__option")?.length) {
-      this.container
-        .querySelector(".sbd-dropdown__container")
-        .classList.toggle("active");
-    }
-  };
+  selectBtnActive = () =>
+    this.container
+      .querySelector(".sbd-dropdown__container")
+      .classList.toggle("active");
 
   /**
    * Remove  the selected option
@@ -94,9 +95,7 @@ class SecureBiometricInterface {
    */
   setPlaceholder(data = null) {
     if (data === null) {
-      data = this.modalityDevices.length
-        ? "Select your option"
-        : "no_options";
+      data = this.modalityDevices.length ? "Select your option" : "no_options";
     }
     const placeholder = this.container.querySelector(
       ".sbd-dropdown__single-value"
@@ -526,7 +525,10 @@ class SecureBiometricInterface {
     if (exoskeleton) {
       exoskeleton.innerHTML = "";
       if (status === states.LOADED) {
-        appendArray(exoskeleton, this.generateSecureBiometricInterfaceComponent());
+        appendArray(
+          exoskeleton,
+          this.generateSecureBiometricInterfaceComponent()
+        );
         if (this.selectedDevice) {
           this.optionSelection();
         }
@@ -758,7 +760,6 @@ const init = ({ container, ...args }) => {
   myDevice.renderComponent();
   return myDevice.container;
 };
-
 
 /**
  * To change the property of the compoenent, to get the real time hanges
