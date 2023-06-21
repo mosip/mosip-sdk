@@ -42,3 +42,4 @@ yarn-error.log*
 */storybook-static
 storybook-example/types
 storybook-example/package-lock.json
+**/package-lock.json

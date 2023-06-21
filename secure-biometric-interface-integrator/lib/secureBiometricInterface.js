@@ -69,10 +69,13 @@ class SecureBiometricInterface {
   /**
    * Open/Close the dropdown
    */
-  selectBtnActive = () =>
-    this.container
-      .querySelector(".sbd-dropdown__container")
-      .classList.toggle("active");
+  selectBtnActive = () => {
+    if (this.container.querySelector(".sbd-dropdown__option")?.length) {
+      this.container
+        .querySelector(".sbd-dropdown__container")
+        .classList.toggle("active");
+    }
+  };
 
   /**
    * Remove  the selected option
@@ -159,7 +162,7 @@ class SecureBiometricInterface {
       this.generateVerifyButtonDiv(
         i18n.t("invalid_state_msg", {
           deviceName: this.selectedDevice.text,
-          deviceState: i18n.t(DeviceState[this.selectedDevice.status].name),
+          deviceState: i18n.t(this.selectedDevice.status),
         })
       );
     }
