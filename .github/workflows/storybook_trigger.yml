@@ -1,0 +1,37 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: npm Install secure-biometric-interface-integrator
+        run: |
+          cd secure-biometric-interface-integrator
+          npm install
+
+      - name: npm Install sign-in-with-esignet
+        run: |
+          cd sign-in-with-esignet
+          npm install
+
+      - name: npm Install and Build storybook-example
+        run: |
+          cd storybook-example
+          npm install
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.ACTION_PAT }}
+          publish_dir: storybook-example/storybook-static

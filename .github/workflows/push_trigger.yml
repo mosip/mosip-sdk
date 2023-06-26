@@ -122,12 +122,12 @@ jobs:
         run: |
           cd secure-biometric-interface-integrator
           npm install
-      
+
       - name: npm Install sign-in-with-esignet
         run: |
           cd sign-in-with-esignet
           npm install
-      
+
       - name: npm Install and Build storybook-example
         run: |
           cd storybook-example
@@ -137,6 +137,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUBS_TOKEN }}
+          github_token: ${{ secrets.ACTION_PAT }}
           publish_dir: storybook-example/storybook-static
 
