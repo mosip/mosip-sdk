@@ -1,7 +1,7 @@
 {
   "name": "storybook-example",
   "description": "Storybook stories for component",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "publish": "npm run build && npm run deploy"
   },
   "author": "",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "devDependencies": {
     "@babel/preset-env": "^7.22.4",
     "@babel/preset-typescript": "^7.21.5",
