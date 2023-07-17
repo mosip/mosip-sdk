@@ -6,11 +6,11 @@
 
 import i18n from "i18next";
 
-import en from "../assets/locales/en/en.json";
-import ar from "../assets/locales/ar/ar.json";
-import hi from "../assets/locales/hi/hi.json";
-import kn from "../assets/locales/kn/kn.json";
-import ta from "../assets/locales/ta/ta.json";
+import en from "../assets/locales/en.json";
+import ar from "../assets/locales/ar.json";
+import hi from "../assets/locales/hi.json";
+import kn from "../assets/locales/kn.json";
+import ta from "../assets/locales/ta.json";
 
 const resources = {
   en: { translation: en },

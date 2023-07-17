@@ -1,6 +1,7 @@
 import faceIcon from "../assets/face_sign_in.png";
 import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
+import langDetail from "../assets/locales/default.json";
 
 import "./sbd.css";
 
@@ -54,7 +55,7 @@ class SecureBiometricInterface {
     this.sbiService = new SbiService(props?.sbiEnv ?? undefined);
 
     i18n.changeLanguage(this.props.langCode);
-    this.isRtl = i18n.dir(this.props.langCode) === "rtl";
+    this.isRtl = langDetail.rtlLanguages.includes(this.props.langCode);
 
     this.scanDevices();
   }
@@ -773,7 +774,7 @@ const propChange = (props) => {
 
       if (key === "langCode" && props[key] !== i18n.language) {
         i18n.changeLanguage(props[key]);
-        myDevice.isRtl = i18n.dir(props[key]) === "rtl";
+        myDevice.isRtl = langDetail.rtlLanguages.includes(props[key]);
       }
     }
   });
