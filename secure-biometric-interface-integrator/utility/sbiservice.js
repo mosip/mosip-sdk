@@ -162,12 +162,12 @@ class SbiService {
     if (
       isNaN(fromPort) ||
       isNaN(tillPort) ||
-      !(fromPort > 0) ||
-      !(tillPort > 0) ||
+      !(fromPort > 4500) ||
+      !(tillPort < 4601) ||
       !(fromPort <= tillPort)
     ) {
       // default port
-      [fromPort, tillPort] = [4501, 4510];
+      [fromPort, tillPort] = [4501, 4600];
     }
 
     let discoverRequestList = [];
