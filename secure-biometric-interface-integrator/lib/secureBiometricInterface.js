@@ -40,14 +40,20 @@ class SecureBiometricInterface {
   modalityDevices = [];
   selectedDevice = null;
   host = "http://127.0.0.1";
+  discoveryFlag = true;
+  buffertTime = 4000; // 4 seconds
 
   /**
    * The class constructor object
    */
   constructor(container, props) {
     if (!container) {
-      document.body.appendChild(div({ id: "secure-biometric-interface-integration" }));
-      container = document.querySelector("#secure-biometric-interface-integration");
+      document.body.appendChild(
+        div({ id: "secure-biometric-interface-integration" })
+      );
+      container = document.querySelector(
+        "#secure-biometric-interface-integration"
+      );
     }
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };
@@ -95,9 +101,7 @@ class SecureBiometricInterface {
    */
   setPlaceholder(data = null) {
     if (data === null) {
-      data = this.modalityDevices.length
-        ? "Select your option"
-        : "no_options";
+      data = this.modalityDevices.length ? "Select your option" : "no_options";
     }
     const placeholder = this.container.querySelector(
       ".sbd-dropdown__single-value"
@@ -120,6 +124,28 @@ class SecureBiometricInterface {
    * @returns HTMLElement loader indicator
    */
   generateLoadingIndicator = (msg) => loadingIndicator(msg, this.isRtl);
+
+  /**
+   * Calling loading indicator div with cancel button
+   * @returns HTMLElement loading indicator with cancel button div
+   */
+  generateLoadingIndicatorWithCancel = () =>
+    div({}, [
+      this.generateLoadingIndicator(this.generateStatusMessage()),
+      div(
+        {
+          className: "sbd-mt-2",
+        },
+        button(
+          {
+            className:
+              "sbd-cursor-pointer sbd-block sbd-w-full sbd-font-medium sbd-rounded-lg sbd-text-sm sbd-px-5 sbd-py-2 sbd-text-center sbd-border-2 sbd-border-gray sbd-bg-white sbd-hover:bg-gray-100 sbd-text-gray-900",
+            onclick: () => this.cancelLoadingIndicator(),
+          },
+          i18n.t("cancel")
+        )
+      ),
+    ]);
 
   /**
    * Generate error state div
@@ -514,7 +540,7 @@ class SecureBiometricInterface {
       },
       this.status === states.LOADED
         ? this.generateSecureBiometricInterfaceComponent()
-        : this.generateLoadingIndicator(this.generateStatusMessage())
+        : this.generateLoadingIndicatorWithCancel()
     );
 
   /**
@@ -527,14 +553,15 @@ class SecureBiometricInterface {
     if (exoskeleton) {
       exoskeleton.innerHTML = "";
       if (status === states.LOADED) {
-        appendArray(exoskeleton, this.generateSecureBiometricInterfaceComponent());
+        appendArray(
+          exoskeleton,
+          this.generateSecureBiometricInterfaceComponent()
+        );
         if (this.selectedDevice) {
           this.optionSelection();
         }
       } else {
-        exoskeleton.appendChild(
-          this.generateLoadingIndicator(this.generateStatusMessage())
-        );
+        exoskeleton.appendChild(this.generateLoadingIndicatorWithCancel());
       }
     }
   }
@@ -547,6 +574,21 @@ class SecureBiometricInterface {
     if (this.props.onErrored && typeof this.props.onErrored === "function") {
       this.props.onErrored(error);
     }
+  }
+
+  /**
+   * Cancel loading indicator
+   */
+  cancelLoadingIndicator() {
+    this.discoveryFlag = false;
+    this.errorStateChanged(
+      {
+        errorCode: "device_not_found_msg",
+        defaultMsg: "Device not found",
+      },
+      false
+    );
+    this.statusChanged(states.LOADED);
   }
 
   /**
@@ -620,7 +662,7 @@ class SecureBiometricInterface {
     }
 
     this.errorStateChanged(null);
-
+    this.discoveryFlag = true;
     try {
       this.statusChanged(states.LOADING);
       this.discoverDeviceAsync(this.host);
@@ -637,42 +679,44 @@ class SecureBiometricInterface {
    * @param {url} host host url from where it find the device
    */
   async discoverDeviceAsync(host) {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-
-    let timePassed = 0;
-    let dicoverTimeout = this.props.sbiEnv.discTimeout;
-
+    let discoverTimeout = this.props.sbiEnv.discTimeout;
     this.modalityDevices = [];
     this.selectedDevice = null;
-    const intervalId = setInterval(async () => {
-      timePassed += 2;
 
+    let discoverDeviceTill = new Date().setSeconds(
+      new Date().getSeconds() + discoverTimeout
+    );
+
+    // discoverFlag for cancel ongoing api request call
+    while (this.discoveryFlag && discoverDeviceTill > new Date()) {
       await this.sbiService.mosipdisc_DiscoverDevicesAsync(host);
-      let timeLeft = dicoverTimeout - timePassed;
-      if (timeLeft <= 0) {
-        clearInterval(intervalId);
-        this.errorStateChanged(
-          {
-            errorCode: "device_not_found_msg",
-            defaultMsg: "Device not found",
-          },
-          false
-        );
-        this.statusChanged(states.LOADED);
-      } else if (
+      if (
         localStorageService.getDeviceInfos() &&
         Object.keys(localStorageService.getDeviceInfos()).length > 0
       ) {
-        this.errorStateChanged(null);
-        clearInterval(intervalId);
-        this.statusChanged(states.LOADED);
-        this.refreshDeviceList();
+        break;
       }
-    }, 3000);
+      // delay of 4 second add before the next fetch device api call
+      await new Promise((r) => setTimeout(r, this.buffertTime));
+    }
 
-    this.timer = intervalId;
+    if (
+      localStorageService.getDeviceInfos() ||
+      Object.keys(localStorageService.getDeviceInfos()).length > 0
+    ) {
+      this.errorStateChanged(null);
+      this.statusChanged(states.LOADED);
+      this.refreshDeviceList();
+    } else {
+      this.errorStateChanged(
+        {
+          errorCode: "device_not_found_msg",
+          defaultMsg: "Device not found",
+        },
+        false
+      );
+      this.statusChanged(states.LOADED);
+    }
   }
 
   /**
@@ -684,7 +728,7 @@ class SecureBiometricInterface {
     if (!deviceInfosPortsWise) {
       this.modalityDevices = [];
       this.errorStateChanged({
-        errorCode: "no_devices_found_msg",
+        errorCode: "device_not_found_msg",
         defaultMsg: "No devices found",
       });
       return;
@@ -719,7 +763,7 @@ class SecureBiometricInterface {
 
     if (modalityDevices.length === 0) {
       this.errorStateChanged({
-        errorCode: "no_devices_found_msg",
+        errorCode: "device_not_found_msg",
         defaultMsg: "No devices found",
       });
       return;
@@ -759,7 +803,6 @@ const init = ({ container, ...args }) => {
   myDevice.renderComponent();
   return myDevice.container;
 };
-
 
 /**
  * To change the property of the compoenent, to get the real time hanges

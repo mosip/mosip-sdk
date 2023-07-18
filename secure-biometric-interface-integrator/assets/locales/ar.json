@@ -1,6 +1,7 @@
 {
   "scan_and_verify": "المسح والتحقق",
   "scan": "مسح",
+  "cancel": "يلغي",
   "capture": "يأسر",
   "capture_and_verify": "التقط وتحقق",
   "scanning_devices_msg": "أجهزة المسح. انتظر من فضلك...",

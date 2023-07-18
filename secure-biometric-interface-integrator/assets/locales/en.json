@@ -1,6 +1,7 @@
 {
   "scan_and_verify": "Scan and Verify",
   "scan": "Scan",
+  "cancel": "Cancel",
   "capture": "Capture",
   "capture_and_verify": "Capture and Verify",
   "scanning_devices_msg": "Scanning Devices. Please Wait...",
