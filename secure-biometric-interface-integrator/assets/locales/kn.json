@@ -6,7 +6,7 @@
   "capture_and_verify": "ಸೆರೆಹಿಡಿಯಿರಿ ಮತ್ತು ಪರಿಶೀಲಿಸಿ",
   "scanning_devices_msg": "ಸ್ಕ್ಯಾನಿಂಗ್ ಸಾಧನಗಳು. ದಯಮಾಡಿ ನಿರೀಕ್ಷಿಸಿ...",
   "device_disc_failed": "ಸಾಧನ ಅನ್ವೇಷಣೆ ವಿಫಲವಾಗಿದೆ",
-  "device_not_found_msg": "ಸಾಧನ ಕಂಡುಬಂದಿಲ್ಲ",
+  "device_not_found_msg": "ಸಾಧನ ಕಂಡುಬಂದಿಲ್ಲ ದಯವಿಟ್ಟು ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮರುಪ್ರಯತ್ನಿಸಿ",
   "capture_initiated_msg": "{{modality}} ಕ್ಯಾಪ್ಚರ್ ಅನ್ನು {{deviceModel}} ನಲ್ಲಿ ಪ್ರಾರಂಭಿಸಲಾಗಿದೆ",  
   "Face": "ಮುಖ",
   "Finger": "ಬೆರಳು",

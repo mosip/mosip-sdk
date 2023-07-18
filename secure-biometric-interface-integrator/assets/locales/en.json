@@ -6,7 +6,7 @@
   "capture_and_verify": "Capture and Verify",
   "scanning_devices_msg": "Scanning Devices. Please Wait...",
   "device_disc_failed": "Device discovery failed",
-  "device_not_found_msg": "Device Not Found",
+  "device_not_found_msg": "Device Not Found. Please Check the Connectivity and Retry.",
   "capture_initiated_msg": "{{modality}} capture initiated on {{deviceModel}}",
   "Face": "Face",
   "Finger": "Finger",
