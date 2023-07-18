@@ -26,7 +26,9 @@ import {
   DeviceState,
   DeviceStateStatus,
   DEFAULT_PROPS,
+  ErrorCode,
 } from "./standardConstant";
+import { isAxiosError } from "axios";
 
 class SecureBiometricInterface {
   modalityIconPath = {
@@ -152,11 +154,12 @@ class SecureBiometricInterface {
    * @param {string} msg error message to be shown
    * @returns HTMLElement error message div
    */
-  generateErrorStateDiv = (msg) =>
+  generateErrorStateDiv = (msg, fullWidth = true) =>
     div(
       {
         className:
-          "sbd-p-2 sbd-mt-1 sbd-mb-1 sbd-w-full sbd-text-center sbd-text-sm sbd-rounded-lg sbd-text-red-700 sbd-bg-red-100 ",
+          (fullWidth ? "sbd-w-full " : "") +
+          "sbd-p-2 sbd-mt-1 sbd-mb-2 sbd-text-center sbd-text-sm sbd-rounded-lg sbd-text-red-700 sbd-bg-red-100 ",
         role: "alert",
       },
       i18n.t(msg)
@@ -487,6 +490,15 @@ class SecureBiometricInterface {
     const verifyButtonData =
       !onlyErrorState && this.errorState === null
         ? this.generateVerifyButton()
+        : this.errorState === ErrorCode.BIOMETRIC_CAPTURE_FAILED ||
+          this.errorState === ErrorCode.CAPTURE_TIMEOUT
+        ? div({ className: "sbd-flex sbd-flex-col sbd-w-full" }, [
+            this.generateErrorStateDiv(
+              onlyErrorState ? onlyErrorState : i18n.t(this.errorState),
+              false
+            ),
+            this.generateVerifyButton(),
+          ])
         : this.generateErrorStateDiv(
             onlyErrorState ? onlyErrorState : i18n.t(this.errorState)
           );
@@ -583,7 +595,7 @@ class SecureBiometricInterface {
     this.discoveryFlag = false;
     this.errorStateChanged(
       {
-        errorCode: "device_not_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "Device not found",
       },
       false
@@ -620,7 +632,7 @@ class SecureBiometricInterface {
     const selectedDevice = this.selectedDevice;
     if (selectedDevice === null || selectedDevice === undefined) {
       this.errorStateChanged({
-        errorCode: "device_not_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "Device not found",
       });
       return;
@@ -639,11 +651,31 @@ class SecureBiometricInterface {
         selectedDevice.type,
         selectedDevice.deviceId
       );
-
       this.statusChanged(states.LOADED);
+      // checking if the response has error or not
+      if (isAxiosError(biometricResponse)) {
+        let errorCode = ErrorCode.BIOMETRIC_CAPTURE_FAILED;
+        let defaultMsg = "Biometric capture failed";
+
+        if (biometricResponse.code === "ECONNABORTED") {
+          // error code for timeout situation
+          errorCode = ErrorCode.CAPTURE_TIMEOUT;
+          defaultMsg = "Capture Timeout";
+        } else if (biometricResponse.code === "ERR_NETWORK") {
+          // error code for capture failed
+          errorCode = ErrorCode.BIOMETRIC_CAPTURE_FAILED;
+          defaultMsg = "Biometric capture failed";
+        }
+        this.errorStateChanged({
+          errorCode,
+          defaultMsg,
+        });
+        return;
+      }
     } catch (error) {
+      this.statusChanged(states.LOADED);
       this.errorStateChanged({
-        errorCode: "biometric_capture_failed_msg",
+        errorCode: ErrorCode.BIOMETRIC_CAPTURE_FAILED,
         defaultMsg: "Biometric capture failed",
       });
       return;
@@ -668,7 +700,7 @@ class SecureBiometricInterface {
       this.discoverDeviceAsync(this.host);
     } catch (error) {
       this.errorStateChanged({
-        errorCode: "device_disc_failed",
+        errorCode: ErrorCode.DEVICE_DISCOVERY_FAILED,
         defaultMsg: "Device discovery failed",
       });
     }
@@ -710,7 +742,7 @@ class SecureBiometricInterface {
     } else {
       this.errorStateChanged(
         {
-          errorCode: "device_not_found_msg",
+          errorCode: ErrorCode.DEVICE_NOT_FOUND,
           defaultMsg: "Device not found",
         },
         false
@@ -728,7 +760,7 @@ class SecureBiometricInterface {
     if (!deviceInfosPortsWise) {
       this.modalityDevices = [];
       this.errorStateChanged({
-        errorCode: "device_not_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "No devices found",
       });
       return;
@@ -763,7 +795,7 @@ class SecureBiometricInterface {
 
     if (modalityDevices.length === 0) {
       this.errorStateChanged({
-        errorCode: "device_not_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "No devices found",
       });
       return;

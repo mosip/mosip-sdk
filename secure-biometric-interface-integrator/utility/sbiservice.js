@@ -133,17 +133,20 @@ class SbiService {
 
     let endpoint = host + ":" + port + captureEndPoint;
 
-    let response = await axios({
-      method: mosip_CaptureMethod,
-      url: endpoint,
-      data: request,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      timeout: this.sbiConfig.captureTimeout * 1000,
-    });
-
-    return response?.data;
+    try {
+      let response = await axios({
+        method: mosip_CaptureMethod,
+        url: endpoint,
+        data: request,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: this.sbiConfig.captureTimeout * 1000,
+      });
+      return response?.data;
+    } catch (error) {
+      return error;
+    }
   };
 
   /**

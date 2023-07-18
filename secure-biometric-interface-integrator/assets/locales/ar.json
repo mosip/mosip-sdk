@@ -4,6 +4,7 @@
   "cancel": "يلغي",
   "capture": "يأسر",
   "capture_and_verify": "التقط وتحقق",
+  "capture_timeout": "مهلة الالتقاط",
   "scanning_devices_msg": "أجهزة المسح. انتظر من فضلك...",
   "device_disc_failed": "فشل اكتشاف الجهاز",
   "device_not_found_msg": "لم يتم العثور علي الجهازيرجى التحقق من الاتصال وإعادة المحاولة",
