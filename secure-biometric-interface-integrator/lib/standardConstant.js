@@ -1,5 +1,5 @@
 const states = {
-  LOADING: "LOADING",
+  DISCOVERING: "DISCOVERING",
   LOADED: "LOADED",
   ERROR: "ERROR",
   AUTHENTICATING: "AUTHENTICATING",
@@ -8,7 +8,6 @@ const states = {
 const ErrorCode = {
   DEVICE_NOT_FOUND: "device_not_found_msg",
   BIOMETRIC_CAPTURE_FAILED: "biometric_capture_failed_msg",
-  CAPTURE_TIMEOUT: "capture_timeout",
   DEVICE_DISCOVERY_FAILED: "device_disc_failed",
 };
 

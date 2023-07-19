@@ -28,7 +28,6 @@ import {
   DEFAULT_PROPS,
   ErrorCode,
 } from "./standardConstant";
-import { isAxiosError } from "axios";
 
 class SecureBiometricInterface {
   modalityIconPath = {
@@ -128,7 +127,7 @@ class SecureBiometricInterface {
     const elemArray = [
       loadingIndicator(this.generateStatusMessage(), this.isRtl),
     ];
-    if (this.status === states.LOADING) {
+    if (this.status === states.DISCOVERING) {
       elemArray.push(
         div(
           {
@@ -537,7 +536,7 @@ class SecureBiometricInterface {
         modality: i18n.t(this.selectedDevice.type),
         deviceModel: this.selectedDevice.model,
       });
-    } else if (this.status === states.LOADING) {
+    } else if (this.status === states.DISCOVERING) {
       statusMsg = i18n.t("scanning_devices_msg");
     }
     return statusMsg;
@@ -687,7 +686,7 @@ class SecureBiometricInterface {
     this.errorStateChanged(null);
     this.discoveryCancellationFlag = false;
     try {
-      this.statusChanged(states.LOADING);
+      this.statusChanged(states.DISCOVERING);
       this.discoverDeviceAsync(this.host);
     } catch (error) {
       this.errorStateChanged({
