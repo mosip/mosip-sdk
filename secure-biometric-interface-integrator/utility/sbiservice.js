@@ -161,7 +161,7 @@ class SbiService {
 
     let [fromPort, tillPort] = this.sbiConfig?.portRange
       ?.split("-")
-      ?.map((x) => Number(x.trim()));
+      ?.map((x) => Number(x.trim())) ?? [defaultFromPort, defaultTillPort];
 
     if (
       isNaN(fromPort) ||

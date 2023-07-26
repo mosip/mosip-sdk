@@ -279,7 +279,7 @@ class SecureBiometricInterface {
    * @returns HTMLElement dropdown menu list container
    */
   generateDropdownMenuList(optionElement = null) {
-    if (optionElement === null) {
+    if (optionElement == null) {
       optionElement = this.generateOptionElement(this.modalityDevices);
     }
     const dropdownMenuList = this.container.querySelector(
@@ -758,7 +758,7 @@ class SecureBiometricInterface {
 
     let modalityDevices = [];
 
-    Object.keys(deviceInfosPortsWise).map((port) => {
+    Object.keys(deviceInfosPortsWise).forEach((port) => {
       let deviceInfos = deviceInfosPortsWise[port];
 
       deviceInfos?.forEach((deviceInfo) => {

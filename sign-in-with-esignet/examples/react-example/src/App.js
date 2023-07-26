@@ -281,7 +281,7 @@ function App() {
         width: "300px",
         fontFamily:
           "'Cera Pro Bold', Arial, 'Lucida Console', 'Courier New', 'monospace'",
-        font: "normal normal 600 20px Inter",
+        font: "normal normal 600 20px arial",
       },
       signInElement: document.getElementById("sign-in-with-esignet_invalid"),
     });
