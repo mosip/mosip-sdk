@@ -3,21 +3,21 @@
   border: 2px solid #d8d8d8;
   background: #ffffff 0% 0% no-repeat padding-box;
   color: black;
-  font: normal normal 600 14px/17px Inter;
+  font: normal normal 600 14px/17px arial;
 }
 
 .filledOrange {
   border: 2px solid #eb6f2d;
   background: #eb6f2d 0% 0% no-repeat padding-box;
   color: white;
-  font: normal normal 600 14px/17px Inter;
+  font: normal normal 600 14px/17px arial;
 }
 
 .filledBlack {
   border: 2px solid #333333;
   background: #333333 0% 0% no-repeat padding-box;
   color: white;
-  font: normal normal 600 14px/17px Inter;
+  font: normal normal 600 14px/17px arial;
 }
 
 /* Common css */
