@@ -42,7 +42,7 @@ const DeviceState: { [name in DeviceStateStatusType]: IDeviceState } = {
 };
 
 const LoadingStates = {
-  LOADING: "LOADING",
+  DISCOVERING: "DISCOVERING",
   LOADED: "LOADED",
   ERROR: "ERROR",
   AUTHENTICATING: "AUTHENTICATING",
@@ -61,6 +61,8 @@ const verifyButtonClass =
 const scanButtonClass =
   "mdb-cursor-pointer mdb-flex mdb-items-center mdb-ml-auto mdb-text-gray-900 mdb-bg-white mdb-shadow border mdb-border-gray-300 mdb-hover:bg-gray-100 mdb-font-medium mdb-rounded-lg mdb-text-lg mdb-px-3 mdb-py-1 mdb-ml-1";
 
+const cancelButtonClass =
+  "mdb-cursor-pointer mdb-block mdb-w-full mdb-font-medium mdb-rounded-lg mdb-text-sm mdb-px-5 mdb-py-2 mdb-text-center mdb-border-2 mdb-border-gray mdb-bg-white mdb-hover:bg-gray-100 mdb-text-gray-900";
 
 enum SelectBoxColor {
   PANEL_ACTIVE = "#2684ff",
@@ -81,5 +83,6 @@ export {
   loadingContClass,
   verifyButtonClass,
   scanButtonClass,
-  SelectBoxColor
+  cancelButtonClass,
+  SelectBoxColor,
 };

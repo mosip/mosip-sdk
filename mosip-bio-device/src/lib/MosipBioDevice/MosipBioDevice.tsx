@@ -22,6 +22,7 @@ import {
   loadingContClass,
   verifyButtonClass,
   scanButtonClass,
+  cancelButtonClass,
   DeviceStateStatusType,
   SelectBoxColor,
 } from "../models";
@@ -55,13 +56,14 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     msg: "",
   });
 
-  const [timer, setTimer] = useState<number | null | any>(null);
-
   const [errorState, setErrorState] = useState<string | null>(null);
 
   const [isRtl, setIsRtl] = useState<boolean>(
     i18n.dir(i18n.language) === "rtl"
   );
+
+  const [discoveryCancellationFlag, setDiscoveryCancellationFlag] =
+    useState<boolean>(true);
 
   const selectBoxStyles: StylesConfig = {
     control: (styles, { isFocused }) => {
@@ -116,6 +118,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       };
     },
   };
+  const buffertTime = 4000;
 
   useEffect(() => {
     handleLanguageChange();
@@ -133,12 +136,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     if (!forceScan && modalityDevices?.length && selectedDevice) {
       return;
     }
-    props.onErrored(null);
     setErrorState(null);
-
+    setDiscoveryCancellationFlag(false);
     try {
       setStatus({
-        state: states.LOADING,
+        state: states.DISCOVERING,
         msg: t("scanning_devices_msg"),
       });
 
@@ -153,36 +155,41 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   };
 
   const discoverDevicesAsync = async (host: string) => {
-    if (timer) {
-      clearInterval(timer);
-    }
-    let timePassed = 0;
-    let dicoverTimeout = (props.biometricEnv as IBiometricEnv).discTimeout;
-    const intervalId = setInterval(async () => {
-      timePassed += 2;
+    let discoverDeviceTill = new Date().setSeconds(
+      new Date().getSeconds() +
+        (props.biometricEnv as IBiometricEnv).discTimeout
+    );
 
+    while (
+      !discoveryCancellationFlag &&
+      discoverDeviceTill > new Date().valueOf()
+    ) {
       await sbiService.mosipdisc_DiscoverDevicesAsync(host);
-      let timeLeft = dicoverTimeout - timePassed;
-      if (timeLeft <= 0) {
-        clearInterval(intervalId);
-        setStatus({ state: states.LOADED, msg: "" });
-        setErrorState(t("device_disc_failed"));
-        props.onErrored({
-          errorCode: "device_not_found_msg",
-          defaultMsg: "Device not found",
-        });
-      } else if (
+      if (
         localStorageService.getDeviceInfos() &&
         Object.keys(localStorageService.getDeviceInfos()).length > 0
       ) {
-        setErrorState(null);
-        clearInterval(intervalId);
-        setStatus({ state: states.LOADED, msg: "" });
-        refreshDeviceList();
+        break;
       }
-    }, 3000);
-
-    setTimer(intervalId);
+      // delay added before the next fetch device api call
+      await new Promise((r) => setTimeout(r, buffertTime));
+    }
+    setDiscoveryCancellationFlag(false);
+    if (
+      localStorageService.getDeviceInfos() ||
+      Object.keys(localStorageService.getDeviceInfos()).length > 0
+    ) {
+      setErrorState(null);
+      refreshDeviceList();
+      setStatus({ state: states.LOADED, msg: "" });
+    } else {
+      setErrorState(t("device_not_found_msg"));
+      props.onErrored({
+        errorCode: "device_not_found_msg",
+        defaultMsg: "Device not found",
+      });
+      setStatus({ state: states.LOADED, msg: "" });
+    }
   };
 
   const refreshDeviceList = () => {
@@ -190,16 +197,17 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
     if (!deviceInfosPortsWise) {
       setModalityDevices([]);
-      setErrorState(t("no_devices_found_msg"));
+      setErrorState(t("device_not_found_msg"));
       props.onErrored({
-        errorCode: "no_devices_found_msg",
+        errorCode: "device_not_found_msg",
+        defaultMsg: "No devices found",
       });
       return;
     }
 
     let modalitydevices: any[] = [];
 
-    Object.keys(deviceInfosPortsWise).map((port: any) => {
+    Object.keys(deviceInfosPortsWise).forEach((port: any) => {
       let deviceInfos = deviceInfosPortsWise[port];
 
       deviceInfos?.forEach((deviceInfo: IDeviceInfo) => {
@@ -225,9 +233,10 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     setModalityDevices(modalitydevices);
 
     if (modalitydevices.length === 0) {
-      setErrorState(t("no_devices_found_msg"));
+      setErrorState(t("device_not_found_msg"));
       props.onErrored({
-        errorCode: "no_devices_found_msg",
+        errorCode: "device_not_found_msg",
+        defaultMsg: "No devices found",
       });
       return;
     }
@@ -246,12 +255,12 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   const scanAndVerify = () => startCapture();
 
   const startCapture = async () => {
-    props.onErrored(null);
     setErrorState(null);
     if (selectedDevice === null || selectedDevice === undefined) {
       setErrorState(t("device_not_found_msg"));
       props.onErrored({
         errorCode: "device_not_found_msg",
+        defaultMsg: "No devices found",
       });
       return;
     }
@@ -277,16 +286,31 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       );
 
       setStatus({ state: states.LOADED, msg: "" });
+      if (biometricResponse?.biometrics[0]?.error?.errorCode !== "0") {
+        setErrorState(t(biometricResponse.biometrics[0].error.errorCode));
+        props.onErrored({
+          errorCode: biometricResponse.biometrics[0].error.errorCode,
+          defaultMsg: biometricResponse.biometrics[0].error.errorInfo,
+        });
+        return;
+      }
     } catch (error: any) {
+      setStatus({ state: states.LOADED, msg: "" });
       setErrorState(t("biometric_capture_failed_msg"));
       props.onErrored({
-        errorCode: error.message,
-        defaultMsg: error.message,
+        errorCode: "biometric_capture_failed_msg",
+        defaultMsg: "Biometric capture failed",
       });
       return;
     }
 
     props.onCapture(biometricResponse);
+  };
+
+  const cancelLoadingIndicator = () => {
+    setDiscoveryCancellationFlag(true);
+    setErrorState(t("device_not_found_msg"));
+    setStatus({ state: states.LOADED, msg: "" });
   };
 
   const bioSelectOptionLabel = (e: IDeviceDetail) => (
@@ -313,13 +337,26 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="mdb-flex mdb-flex-col">
       <>
-        {(status.state === states.LOADING ||
+        {(status.state === states.DISCOVERING ||
           status.state === states.AUTHENTICATING) && (
-          <div className={loadingContClass}>
-            <div className="mdb-flex mdb-items-center">
-              <LoadingIndicator size="medium" message={status.msg} />
+          <>
+            <div className={loadingContClass}>
+              <div className="mdb-flex mdb-items-center">
+                <LoadingIndicator size="medium" message={status.msg} />
+              </div>
             </div>
-          </div>
+            {status.state === states.DISCOVERING && (
+              <div className="mdb-mt-2">
+                <button
+                  type="button"
+                  className={cancelButtonClass}
+                  onClick={cancelLoadingIndicator}
+                >
+                  {t("Cancel")}
+                </button>
+              </div>
+            )}
+          </>
         )}
         {status.state === states.LOADED && (
           <>
