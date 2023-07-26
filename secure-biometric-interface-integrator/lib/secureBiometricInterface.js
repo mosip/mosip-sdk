@@ -1,6 +1,7 @@
 import faceIcon from "../assets/face_sign_in.png";
 import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
+import langDetail from "../assets/locales/default.json";
 
 import "./sbd.css";
 
@@ -25,6 +26,7 @@ import {
   DeviceState,
   DeviceStateStatus,
   DEFAULT_PROPS,
+  ErrorCode,
 } from "./standardConstant";
 
 class SecureBiometricInterface {
@@ -39,14 +41,20 @@ class SecureBiometricInterface {
   modalityDevices = [];
   selectedDevice = null;
   host = "http://127.0.0.1";
+  discoveryCancellationFlag = true;
+  buffertTime = 4000; // 4 seconds
 
   /**
    * The class constructor object
    */
   constructor(container, props) {
     if (!container) {
-      document.body.appendChild(div({ id: "secure-biometric-interface-integration" }));
-      container = document.querySelector("#secure-biometric-interface-integration");
+      document.body.appendChild(
+        div({ id: "secure-biometric-interface-integration" })
+      );
+      container = document.querySelector(
+        "#secure-biometric-interface-integration"
+      );
     }
     this.container = container;
     this.props = { ...DEFAULT_PROPS, ...props };
@@ -54,7 +62,7 @@ class SecureBiometricInterface {
     this.sbiService = new SbiService(props?.sbiEnv ?? undefined);
 
     i18n.changeLanguage(this.props.langCode);
-    this.isRtl = i18n.dir(this.props.langCode) === "rtl";
+    this.isRtl = langDetail.rtlLanguages.includes(this.props.langCode);
 
     this.scanDevices();
   }
@@ -94,9 +102,7 @@ class SecureBiometricInterface {
    */
   setPlaceholder(data = null) {
     if (data === null) {
-      data = this.modalityDevices.length
-        ? "Select your option"
-        : "no_options";
+      data = this.modalityDevices.length ? "Select your option" : "no_options";
     }
     const placeholder = this.container.querySelector(
       ".sbd-dropdown__single-value"
@@ -114,22 +120,44 @@ class SecureBiometricInterface {
   }
 
   /**
-   * Calling loader indicator
-   * @param {string} msg message to be shown in the loader
-   * @returns HTMLElement loader indicator
+   * Calling loading indicator
+   * @returns HTMLElement loading indicator with cancel button
    */
-  generateLoadingIndicator = (msg) => loadingIndicator(msg, this.isRtl);
+  generateLoadingIndicator = () => {
+    const elemArray = [
+      loadingIndicator(this.generateStatusMessage(), this.isRtl),
+    ];
+    if (this.status === states.DISCOVERING) {
+      elemArray.push(
+        div(
+          {
+            className: "sbd-mt-2",
+          },
+          button(
+            {
+              className:
+                "sbd-cursor-pointer sbd-block sbd-w-full sbd-font-medium sbd-rounded-lg sbd-text-sm sbd-px-5 sbd-py-2 sbd-text-center sbd-border-2 sbd-border-gray sbd-bg-white sbd-hover:bg-gray-100 sbd-text-gray-900",
+              onclick: () => this.cancelLoadingIndicator(),
+            },
+            i18n.t("cancel")
+          )
+        )
+      );
+    }
+    return div({}, elemArray);
+  };
 
   /**
    * Generate error state div
    * @param {string} msg error message to be shown
    * @returns HTMLElement error message div
    */
-  generateErrorStateDiv = (msg) =>
+  generateErrorStateDiv = (msg, fullWidth = true) =>
     div(
       {
         className:
-          "sbd-p-2 sbd-mt-1 sbd-mb-1 sbd-w-full sbd-text-center sbd-text-sm sbd-rounded-lg sbd-text-red-700 sbd-bg-red-100 ",
+          (fullWidth ? "sbd-w-full " : "") +
+          "sbd-p-2 sbd-mt-1 sbd-mb-2 sbd-text-center sbd-text-sm sbd-rounded-lg sbd-text-red-700 sbd-bg-red-100 ",
         role: "alert",
       },
       i18n.t(msg)
@@ -457,12 +485,25 @@ class SecureBiometricInterface {
    * @returns HTMLElement containing verify button or error state div according to the error state
    */
   generateVerifyButtonDiv(onlyErrorState = null) {
-    const verifyButtonData =
-      !onlyErrorState && this.errorState === null
-        ? this.generateVerifyButton()
-        : this.generateErrorStateDiv(
-            onlyErrorState ? onlyErrorState : i18n.t(this.errorState)
-          );
+    const elemArray = [];
+    if (onlyErrorState || this.errorState !== null) {
+      elemArray.push(
+        this.generateErrorStateDiv(
+          onlyErrorState ??
+            (i18n.exists(this.errorState.errorCode)
+              ? i18n.t(this.errorState.errorCode)
+              : this.errorState.defaultMsg),
+          false
+        )
+      );
+    }
+    if (this.modalityDevices.length > 0) {
+      elemArray.push(this.generateVerifyButton());
+    }
+    const verifyButtonData = div(
+      { className: "sbd-flex sbd-flex-col sbd-w-full" },
+      elemArray
+    );
     const verifyButton = this.container.querySelector(".sbd-verify-button-div");
 
     if (verifyButton) {
@@ -495,7 +536,7 @@ class SecureBiometricInterface {
         modality: i18n.t(this.selectedDevice.type),
         deviceModel: this.selectedDevice.model,
       });
-    } else if (this.status === states.LOADING) {
+    } else if (this.status === states.DISCOVERING) {
       statusMsg = i18n.t("scanning_devices_msg");
     }
     return statusMsg;
@@ -513,7 +554,7 @@ class SecureBiometricInterface {
       },
       this.status === states.LOADED
         ? this.generateSecureBiometricInterfaceComponent()
-        : this.generateLoadingIndicator(this.generateStatusMessage())
+        : this.generateLoadingIndicator()
     );
 
   /**
@@ -526,14 +567,15 @@ class SecureBiometricInterface {
     if (exoskeleton) {
       exoskeleton.innerHTML = "";
       if (status === states.LOADED) {
-        appendArray(exoskeleton, this.generateSecureBiometricInterfaceComponent());
+        appendArray(
+          exoskeleton,
+          this.generateSecureBiometricInterfaceComponent()
+        );
         if (this.selectedDevice) {
           this.optionSelection();
         }
       } else {
-        exoskeleton.appendChild(
-          this.generateLoadingIndicator(this.generateStatusMessage())
-        );
+        exoskeleton.appendChild(this.generateLoadingIndicator());
       }
     }
   }
@@ -549,13 +591,28 @@ class SecureBiometricInterface {
   }
 
   /**
+   * Cancel loading indicator
+   */
+  cancelLoadingIndicator() {
+    this.discoveryCancellationFlag = true;
+    this.errorStateChanged(
+      {
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
+        defaultMsg: "Device not found",
+      },
+      false
+    );
+    this.statusChanged(states.LOADED);
+  }
+
+  /**
    * Change error state and rerender the verify button div if render is true
    * @param {json Object} error an error object with errorCode and errorMessage
    * @param {boolean} [render=true] if true it will render, otherwise it will not render
    */
   errorStateChanged(error, render = true) {
-    this.sendErrorMsg(error);
-    this.errorState = error?.errorCode ?? null;
+    this.errorState = error;
+    if (error !== null) this.sendErrorMsg(error);
     if (error === null || !render) return;
     this.generateVerifyButtonDiv();
   }
@@ -577,7 +634,7 @@ class SecureBiometricInterface {
     const selectedDevice = this.selectedDevice;
     if (selectedDevice === null || selectedDevice === undefined) {
       this.errorStateChanged({
-        errorCode: "device_not_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "Device not found",
       });
       return;
@@ -587,7 +644,6 @@ class SecureBiometricInterface {
 
     try {
       this.statusChanged(states.AUTHENTICATING);
-
       biometricResponse = await this.sbiService.capture_Auth(
         this.host,
         selectedDevice.port,
@@ -596,11 +652,20 @@ class SecureBiometricInterface {
         selectedDevice.type,
         selectedDevice.deviceId
       );
-
       this.statusChanged(states.LOADED);
+      // checking if the response has error or not
+
+      if (biometricResponse?.biometrics[0]?.error?.errorCode !== "0") {
+        this.errorStateChanged({
+          errorCode: biometricResponse.biometrics[0].error.errorCode,
+          defaultMsg: biometricResponse.biometrics[0].error.errorInfo,
+        });
+        return;
+      }
     } catch (error) {
+      this.statusChanged(states.LOADED);
       this.errorStateChanged({
-        errorCode: "biometric_capture_failed_msg",
+        errorCode: ErrorCode.BIOMETRIC_CAPTURE_FAILED,
         defaultMsg: "Biometric capture failed",
       });
       return;
@@ -619,13 +684,13 @@ class SecureBiometricInterface {
     }
 
     this.errorStateChanged(null);
-
+    this.discoveryCancellationFlag = false;
     try {
-      this.statusChanged(states.LOADING);
+      this.statusChanged(states.DISCOVERING);
       this.discoverDeviceAsync(this.host);
     } catch (error) {
       this.errorStateChanged({
-        errorCode: "device_disc_failed",
+        errorCode: ErrorCode.DEVICE_DISCOVERY_FAILED,
         defaultMsg: "Device discovery failed",
       });
     }
@@ -636,42 +701,44 @@ class SecureBiometricInterface {
    * @param {url} host host url from where it find the device
    */
   async discoverDeviceAsync(host) {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-
-    let timePassed = 0;
-    let dicoverTimeout = this.props.sbiEnv.discTimeout;
-
     this.modalityDevices = [];
     this.selectedDevice = null;
-    const intervalId = setInterval(async () => {
-      timePassed += 2;
 
+    let discoverDeviceTill = new Date().setSeconds(
+      new Date().getSeconds() + this.props.sbiEnv.discTimeout
+    );
+
+    // discoverFlag for cancel ongoing api request call
+    while (!this.discoveryCancellationFlag && discoverDeviceTill > new Date()) {
       await this.sbiService.mosipdisc_DiscoverDevicesAsync(host);
-      let timeLeft = dicoverTimeout - timePassed;
-      if (timeLeft <= 0) {
-        clearInterval(intervalId);
-        this.errorStateChanged(
-          {
-            errorCode: "device_not_found_msg",
-            defaultMsg: "Device not found",
-          },
-          false
-        );
-        this.statusChanged(states.LOADED);
-      } else if (
+      if (
         localStorageService.getDeviceInfos() &&
         Object.keys(localStorageService.getDeviceInfos()).length > 0
       ) {
-        this.errorStateChanged(null);
-        clearInterval(intervalId);
-        this.statusChanged(states.LOADED);
-        this.refreshDeviceList();
+        break;
       }
-    }, 3000);
+      // delay added before the next fetch device api call
+      await new Promise((r) => setTimeout(r, this.buffertTime));
+    }
 
-    this.timer = intervalId;
+    this.discoveryCancellationFlag = false;
+    if (
+      localStorageService.getDeviceInfos() ||
+      Object.keys(localStorageService.getDeviceInfos()).length > 0
+    ) {
+      this.errorStateChanged(null);
+      this.refreshDeviceList();
+      this.statusChanged(states.LOADED);
+    } else {
+      this.errorStateChanged(
+        {
+          errorCode: ErrorCode.DEVICE_NOT_FOUND,
+          defaultMsg: "Device not found",
+        },
+        false
+      );
+      this.statusChanged(states.LOADED);
+    }
   }
 
   /**
@@ -683,7 +750,7 @@ class SecureBiometricInterface {
     if (!deviceInfosPortsWise) {
       this.modalityDevices = [];
       this.errorStateChanged({
-        errorCode: "no_devices_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "No devices found",
       });
       return;
@@ -718,7 +785,7 @@ class SecureBiometricInterface {
 
     if (modalityDevices.length === 0) {
       this.errorStateChanged({
-        errorCode: "no_devices_found_msg",
+        errorCode: ErrorCode.DEVICE_NOT_FOUND,
         defaultMsg: "No devices found",
       });
       return;
@@ -759,7 +826,6 @@ const init = ({ container, ...args }) => {
   return myDevice.container;
 };
 
-
 /**
  * To change the property of the compoenent, to get the real time hanges
  * @param {json Object} props property of the component for any change {buttonLabel, transactionId, disable, langCode, onCapture, onErrored}
@@ -773,7 +839,7 @@ const propChange = (props) => {
 
       if (key === "langCode" && props[key] !== i18n.language) {
         i18n.changeLanguage(props[key]);
-        myDevice.isRtl = i18n.dir(props[key]) === "rtl";
+        myDevice.isRtl = langDetail.rtlLanguages.includes(props[key]);
       }
     }
   });

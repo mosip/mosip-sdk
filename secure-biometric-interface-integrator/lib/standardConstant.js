@@ -1,8 +1,14 @@
 const states = {
-  LOADING: "LOADING",
+  DISCOVERING: "DISCOVERING",
   LOADED: "LOADED",
   ERROR: "ERROR",
   AUTHENTICATING: "AUTHENTICATING",
+};
+
+const ErrorCode = {
+  DEVICE_NOT_FOUND: "device_not_found_msg",
+  BIOMETRIC_CAPTURE_FAILED: "biometric_capture_failed_msg",
+  DEVICE_DISCOVERY_FAILED: "device_disc_failed",
 };
 
 const DeviceStateStatus = {
@@ -74,4 +80,4 @@ const DEFAULT_PROPS = {
   },
 };
 
-export { states, DeviceState, DeviceStateStatus, DEFAULT_PROPS };
+export { states, DeviceState, DeviceStateStatus, DEFAULT_PROPS, ErrorCode };

@@ -124,6 +124,9 @@
 .sbd-mt-1 {
   margin-top: 0.25rem;
 }
+.sbd-mt-2 {
+  margin-top: 0.5rem;
+}
 .sbd-mb-1 {
   margin-bottom: 0.25rem;
 }
@@ -452,10 +455,15 @@
 /* spinner css start */
 @keyframes spin {
   100% {
-      transform: rotate(360deg);
- }
+    transform: rotate(360deg);
+  }
 }
 .sbd-animate-spin {
   animation: spin 1s linear infinite;
 }
 /* spinner css end */
+
+.sbd-border-gray {
+  border: 1px solid var(--sbd-dropdown__control_bordercolor_normal, #ccc);
+  box-shadow: 0 0 0 1px var(--sbd-dropdown__control_bordercolor_normal, #ccc);
+}

@@ -36,6 +36,12 @@ const mosip_DiscoverMethod = "MOSIPDISC";
 const mosip_DeviceInfoMethod = "MOSIPDINFO";
 const mosip_CaptureMethod = "CAPTURE";
 
+/**
+ * Default from & till port as per SBI spec
+ */
+const defaultFromPort = 4501;
+const defaultTillPort = 4600
+
 const BioType = {
   FACE: "Face",
   FINGER: "Finger",
@@ -140,9 +146,7 @@ class SbiService {
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: this.sbiConfig.captureTimeout * 1000,
     });
-
     return response?.data;
   };
 
@@ -162,12 +166,12 @@ class SbiService {
     if (
       isNaN(fromPort) ||
       isNaN(tillPort) ||
-      !(fromPort > 0) ||
-      !(tillPort > 0) ||
+      !(fromPort >= defaultFromPort) ||
+      !(tillPort <= defaultTillPort) ||
       !(fromPort <= tillPort)
     ) {
       // default port
-      [fromPort, tillPort] = [4501, 4510];
+      [fromPort, tillPort] = [defaultFromPort, defaultTillPort];
     }
 
     let discoverRequestList = [];
