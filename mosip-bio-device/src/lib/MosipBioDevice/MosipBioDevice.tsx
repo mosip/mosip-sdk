@@ -155,26 +155,45 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   };
 
   const discoverDevicesAsync = async (host: string) => {
-    let discoverDeviceTill = new Date().setSeconds(
-      new Date().getSeconds() +
-        (props.biometricEnv as IBiometricEnv).discTimeout
-    );
-
-    while (
-      !discoveryCancellationFlag &&
-      discoverDeviceTill > new Date().valueOf()
-    ) {
-      await sbiService.mosipdisc_DiscoverDevicesAsync(host);
-      if (
-        localStorageService.getDeviceInfos() &&
-        Object.keys(localStorageService.getDeviceInfos()).length > 0
+    const discTimeout = (props.biometricEnv as IBiometricEnv).discTimeout;
+  
+    if (discTimeout && discTimeout > 0) {
+      // The discTimeout is provided and positive, use time-based discovery
+      let discoverDeviceTill = new Date().setSeconds(
+        new Date().getSeconds() + discTimeout
+      );
+  
+      while (
+        !discoveryCancellationFlag &&
+        discoverDeviceTill > new Date().valueOf()
       ) {
-        break;
+        await sbiService.mosipdisc_DiscoverDevicesAsync(host);
+        if (
+          localStorageService.getDeviceInfos() &&
+          Object.keys(localStorageService.getDeviceInfos()).length > 0
+        ) {
+          break;
+        }
+        // delay added before the next fetch device api call
+        await new Promise((r) => setTimeout(r, buffertTime));
       }
-      // delay added before the next fetch device api call
-      await new Promise((r) => setTimeout(r, buffertTime));
+    } else {
+      // No discTimeout provided, perform discovery without a time-based constraint
+      while (!discoveryCancellationFlag) {
+        await sbiService.mosipdisc_DiscoverDevicesAsync(host);
+        if (
+          localStorageService.getDeviceInfos() &&
+          Object.keys(localStorageService.getDeviceInfos()).length > 0
+        ) {
+          break;
+        }
+        // delay added before the next fetch device api call
+        await new Promise((r) => setTimeout(r, buffertTime));
+      }
     }
+  
     setDiscoveryCancellationFlag(false);
+  
     if (
       localStorageService.getDeviceInfos() ||
       Object.keys(localStorageService.getDeviceInfos()).length > 0
@@ -191,6 +210,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       setStatus({ state: states.LOADED, msg: "" });
     }
   };
+  
 
   const refreshDeviceList = () => {
     let deviceInfosPortsWise = getDeviceInfos();
@@ -334,6 +354,9 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     </div>
   );
 
+  const isDevicesFound = modalityDevices && modalityDevices.length > 0;
+  const isDropdownDisabled = !isDevicesFound || props.disable;
+
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="mdb-flex mdb-flex-col">
       <>
@@ -383,6 +406,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   options={modalityDevices}
                   onChange={handleDeviceChange}
                   styles={selectBoxStyles}
+                  isDisabled={isDropdownDisabled}
                   formatOptionLabel={(e: any) => bioSelectOptionLabel(e)}
                 />
                 <button
