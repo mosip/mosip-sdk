@@ -375,7 +375,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   className={cancelButtonClass}
                   onClick={cancelLoadingIndicator}
                 >
-                  {t("Cancel")}
+                  {t("cancel")}
                 </button>
               </div>
             )}
