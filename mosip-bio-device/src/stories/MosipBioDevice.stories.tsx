@@ -39,13 +39,7 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
       },
     },
     buttonName: {
-      control: "select",
-      options: [
-        "scan",
-        "scan_and_verify",
-        "capture",
-        "capture_and_verify"
-      ],
+      control: "text",
       type: {name: "string"},
       description: `Capture button label`,
       table: {

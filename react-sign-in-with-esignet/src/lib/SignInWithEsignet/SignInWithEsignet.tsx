@@ -285,7 +285,7 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
       )}
 
       {!buttonCustomStyle && buttonClasses && (
-        <a href={urlToNavigate}>
+        <a href={urlToNavigate} style={{ textDecoration: "none" }}>
           <div className={buttonClasses.outerDivClasses} style={buttonStyle}>
             <div className={buttonClasses.logoDivClasses}>
               <img className={buttonClasses.logoImgClasses} src={logoPath} />
@@ -298,7 +298,7 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
       )}
 
       {buttonCustomStyle && (
-        <a href={urlToNavigate}>
+        <a href={urlToNavigate} style={{ textDecoration: "none" }}>
           <div style={buttonCustomStyle.outerDivStyle}>
             <div style={buttonCustomStyle.logoDivStyle}>
               <img style={buttonCustomStyle.logoImgStyle} src={logoPath} />
