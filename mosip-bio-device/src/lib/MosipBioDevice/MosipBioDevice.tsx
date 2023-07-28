@@ -50,7 +50,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   };
   const [modalityDevices, setModalityDevices] = useState<IDeviceDetail[]>();
 
-  const [selectedDevice, setSelectedDevice] = useState<IDeviceDetail>();
+  const [selectedDevice, setSelectedDevice] = useState<IDeviceDetail | null>();
 
   const [status, setStatus] = useState({
     state: states.LOADED,
@@ -123,9 +123,6 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   };
   const buffertTime = 4000;
 
-  const isLanguageRTL = (langCode: string) =>
-    (languageDetail.rtlLanguages).includes(langCode);
-
   useEffect(() => {
     handleLanguageChange();
     scanDevices(false);
@@ -133,7 +130,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const handleLanguageChange = () => {
     if (props.langCode && i18n.language != props.langCode) {
-      setIsRtl(isLanguageRTL(props.langCode));
+      setIsRtl(languageDetail.rtlLanguages.includes(props.langCode));
       i18n.changeLanguage(props.langCode);
     }
   };
@@ -182,9 +179,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       // delay added before the next fetch device api call
       await new Promise((r) => setTimeout(r, buffertTime));
     }
-
     setDiscoveryCancellationFlag(false);
-
     if (
       localStorageService.getDeviceInfos() ||
       Object.keys(localStorageService.getDeviceInfos()).length > 0
@@ -199,7 +194,6 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
         defaultMsg: "Device not found",
       });
       setStatus({ state: states.LOADED, msg: "" });
-      setModalityDevices([]);
     }
   };
 
@@ -211,8 +205,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       Object.keys(deviceInfosPortsWise).length === 0
     ) {
       setModalityDevices([]);
-      setSelectedDevice(undefined); // Reset selected device when no devices are found
-      setModalityDevices([]);
+      setSelectedDevice(null); // Reset selected device when no devices are found
       setErrorState(t("device_not_found_msg"));
       props.onErrored({
         errorCode: "device_not_found_msg",

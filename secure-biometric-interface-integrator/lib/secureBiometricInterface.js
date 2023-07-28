@@ -705,9 +705,11 @@ class SecureBiometricInterface {
     this.modalityDevices = [];
     this.selectedDevice = null;
 
+    const discTimeout = this.props.sbiEnv.discTimeout || this.defaultDiscTimeout;
+
     let discoverDeviceTill = new Date().setSeconds(
-      new Date().getSeconds() + this.props.sbiEnv.discTimeout
-    ) || defaultDiscTimeout;
+      new Date().getSeconds() + discTimeout
+    );
 
     // discoverFlag for cancel ongoing api request call
     while (!this.discoveryCancellationFlag && discoverDeviceTill > new Date()) {
