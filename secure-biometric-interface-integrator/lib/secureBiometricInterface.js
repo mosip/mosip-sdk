@@ -278,20 +278,7 @@ class SecureBiometricInterface {
    * @returns HTMLElement dropdown menu list container
    */
   generateDropdownMenuList() {
-    let optionElement = this.generateOptionElement(this.modalityDevices);
-    const dropdownMenuList = this.container.querySelector(
-      ".sbd-dropdown__menu-list"
-    );
-    if (dropdownMenuList) {
-      dropdownMenuList.innerHTML = "";
-      if (Array.isArray(optionElement)) {
-        appendArray(dropdownMenuList, optionElement);
-      } else if (optionElement != null) {
-        dropdownMenuList.appendChild(optionElement);
-      }
-      return dropdownMenuList;
-    }
-    return div({ className: "sbd-dropdown__menu-list" }, optionElement);
+    return div({ className: "sbd-dropdown__menu-list" }, this.generateOptionElement(this.modalityDevices));
   }
 
   /**
