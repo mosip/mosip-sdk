@@ -66,7 +66,8 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   if (oidcConfig?.state) {
     urlToNavigate += "&state=" + oidcConfig.state;
   } else {
-    const randomState = Math.random().toString(36).substring(5);
+    const randomNum = window.crypto.getRandomValues(new Uint32Array(1));
+    const randomState = randomNum[0].toString(36).substring(5);
     urlToNavigate += "&state=" + randomState;
   }
 

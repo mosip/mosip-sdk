@@ -130,7 +130,8 @@ var SignInWithEsignetButton = (function (exports) {
             urlToNavigate += "&state=" + oidcConfig.state;
         }
         else {
-            var randomState = Math.random().toString(36).substring(5);
+            var randomNum = window.crypto.getRandomValues(new Uint32Array(1));
+            var randomState = randomNum[0].toString(36).substring(5);
             urlToNavigate += "&state=" + randomState;
         }
         if (oidcConfig === null || oidcConfig === void 0 ? void 0 : oidcConfig.client_id)
