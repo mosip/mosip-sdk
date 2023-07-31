@@ -9,10 +9,21 @@ import { initReactI18next } from "react-i18next";
 
 import en from "../assets/locales/en/en.json";
 import ar from "../assets/locales/ar/ar.json";
+import hi from "../assets/locales/hi/hi.json";
+import kn from "../assets/locales/kn/kn.json";
+import ta from "../assets/locales/ta/ta.json";
 
 const resources = {
   en: { translation: en },
   ar: { translation: ar },
+  hi: { translation: hi },
+  kn: { translation: kn },
+  ta: { translation: ta },
+  eng: { translation: en },
+  ara: { translation: ar },
+  hin: { translation: hi },
+  kan: { translation: kn },
+  tam: { translation: ta },
 };
 
 i18n

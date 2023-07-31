@@ -32,6 +32,7 @@ import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
 
 import "./MosipBioDevice.scss";
+import languageDetail from "../assets/locales/default.json";
 
 const modalityIconPath: { [name: string]: string } = {
   Face: faceIcon,
@@ -49,7 +50,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   };
   const [modalityDevices, setModalityDevices] = useState<IDeviceDetail[]>();
 
-  const [selectedDevice, setSelectedDevice] = useState<IDeviceDetail>();
+  const [selectedDevice, setSelectedDevice] = useState<IDeviceDetail | null>();
 
   const [status, setStatus] = useState({
     state: states.LOADED,
@@ -64,6 +65,8 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const [discoveryCancellationFlag, setDiscoveryCancellationFlag] =
     useState<boolean>(true);
+
+  const defaultDiscTimeout = 15;
 
   const selectBoxStyles: StylesConfig = {
     control: (styles, { isFocused }) => {
@@ -127,7 +130,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const handleLanguageChange = () => {
     if (props.langCode && i18n.language != props.langCode) {
-      setIsRtl(i18n.dir(props.langCode) === "rtl");
+      setIsRtl(languageDetail.rtlLanguages.includes(props.langCode));
       i18n.changeLanguage(props.langCode);
     }
   };
@@ -155,9 +158,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   };
 
   const discoverDevicesAsync = async (host: string) => {
+    const discTimeout =
+      (props.biometricEnv as IBiometricEnv).discTimeout || defaultDiscTimeout;
+
     let discoverDeviceTill = new Date().setSeconds(
-      new Date().getSeconds() +
-        (props.biometricEnv as IBiometricEnv).discTimeout
+      new Date().getSeconds() + discTimeout
     );
 
     while (
@@ -195,8 +200,12 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   const refreshDeviceList = () => {
     let deviceInfosPortsWise = getDeviceInfos();
 
-    if (!deviceInfosPortsWise) {
+    if (
+      !deviceInfosPortsWise ||
+      Object.keys(deviceInfosPortsWise).length === 0
+    ) {
       setModalityDevices([]);
+      setSelectedDevice(null); // Reset selected device when no devices are found
       setErrorState(t("device_not_found_msg"));
       props.onErrored({
         errorCode: "device_not_found_msg",
@@ -334,6 +343,9 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
     </div>
   );
 
+  const isDevicesFound = modalityDevices && modalityDevices.length > 0;
+  const isDropdownDisabled = !isDevicesFound || props.disable;
+
   return (
     <div dir={isRtl ? "rtl" : "ltr"} className="mdb-flex mdb-flex-col">
       <>
@@ -352,7 +364,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   className={cancelButtonClass}
                   onClick={cancelLoadingIndicator}
                 >
-                  {t("Cancel")}
+                  {t("cancel")}
                 </button>
               </div>
             )}
@@ -370,8 +382,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
               <div className="mdb-flex mdb-items-stretch">
                 <Select
                   classNamePrefix="mbd-dropdown"
-                  placeholder={t("device_not_found_msg")}
-                  noOptionsMessage={() => t("no_options")}
+                  placeholder={t("no_options")}
                   name="modality_device"
                   id="modality_device"
                   aria-label="Modality Device Select"
@@ -383,6 +394,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                   options={modalityDevices}
                   onChange={handleDeviceChange}
                   styles={selectBoxStyles}
+                  isDisabled={isDropdownDisabled}
                   formatOptionLabel={(e: any) => bioSelectOptionLabel(e)}
                 />
                 <button
@@ -417,7 +429,9 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                         }}
                         disabled={props.disable}
                       >
-                        {t(props.buttonName)}
+                        {props.buttonName
+                          ? t(props.buttonName)
+                          : t("scan_and_verify")}
                       </button>
                     )}
                   {selectedDevice &&

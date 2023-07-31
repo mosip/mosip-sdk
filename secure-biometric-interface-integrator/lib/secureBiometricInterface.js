@@ -43,6 +43,7 @@ class SecureBiometricInterface {
   host = "http://127.0.0.1";
   discoveryCancellationFlag = true;
   buffertTime = 4000; // 4 seconds
+  defaultDiscTimeout = 15;
 
   /**
    * The class constructor object
@@ -688,8 +689,10 @@ class SecureBiometricInterface {
     this.modalityDevices = [];
     this.selectedDevice = null;
 
+    const discTimeout = this.props.sbiEnv.discTimeout || this.defaultDiscTimeout;
+
     let discoverDeviceTill = new Date().setSeconds(
-      new Date().getSeconds() + this.props.sbiEnv.discTimeout
+      new Date().getSeconds() + discTimeout
     );
 
     // discoverFlag for cancel ongoing api request call

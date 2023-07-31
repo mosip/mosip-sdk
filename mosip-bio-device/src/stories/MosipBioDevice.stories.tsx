@@ -16,10 +16,38 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
   tags: ["autodocs"],
   argTypes: {
     langCode: {
-      control: "text",
+      control: "select",
+      options: [
+        "en",
+        "hi",
+        "ta",
+        "kn",
+        "ar",
+        "eng",
+        "hin",
+        "tam",
+        "kan",
+        "ara",
+      ],
+      type: { name: "string" },
+      description: "Language code",
+      table: {
+        defaultValue: { summary: "en" },
+        type: {
+          summary: "en | hi | ta | kn | ar | eng | hin | tam | kan | ara",
+        },
+      },
     },
     buttonName: {
       control: "text",
+      type: {name: "string"},
+      description: `Capture button label`,
+      table: {
+        defaultValue: { summary: "scan_and_verify" },
+        type: {
+          summary: "scan | scan_and_verify | capture | capture_and_verify",
+        },
+      },
     },
     transactionId: {
       control: "text",
