@@ -147,7 +147,6 @@ on:
       - develop
       - master
       - 0.*
-      - release*
   pull_request:
     types: [ opened, synchronize, reopened ]
 jobs:
