@@ -14,9 +14,8 @@ on:
         type: string
   push:
     branches:
-      - develop
-      - master
-      - 0.*
+      - release*
+      - release.*
   pull_request:
     types: [ opened, synchronize, reopened ]
 jobs:
