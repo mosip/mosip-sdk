@@ -55,6 +55,28 @@ export const SignInWithEsignetStory: Story = {
 ```
 
 
+
+## Link Storybook from other project
+
+Add you reference in `refs.ts` file in `.storybook` folder
+
+```js
+{
+  UNIQUE_ID_FOR_STORYBOOK: {
+    title: STORYBOOK_TITLE,
+    local: LOCAL_URL, // http://localhost:6001
+    ghpages: GITHUB_PAGE_PATH, // "/esignet-plugins/react-sbi-integrator",
+  },
+}
+```
+
+then you have to build that project's storybook and export the static folder to storybook-example's storybook-static folder
+
+```js
+npm run build-storybook -- -o RELATIVE_PATH_TO_STATIC_FOLDER/UNIQUE_ID_FOR_STORYBOOK
+// npm run build-storybook -- -o ../storybook-example/storybook-static/react-sbi-integrator
+```
+
 # Storybook Example Setup
 
 ```cmd

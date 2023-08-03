@@ -59,7 +59,8 @@
     "package": "npm run rollup && npm pack",
     "watch": "npm-watch",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prebuild-storybook": "npm i"
   },
   "browserslist": {
     "production": [

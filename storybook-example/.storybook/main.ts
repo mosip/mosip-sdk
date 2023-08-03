@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "@storybook/web-components-webpack5";
+import {refs} from './refs';
 
 const path = require("path");
 const SRC_PATH = path.join(__dirname, "../../sign-in-with-esignet/src");
@@ -17,6 +18,7 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
+  refs: refs,
   webpackFinal: async (config) => {
     config?.module?.rules?.push({
       test: /\.(ts|tsx)$/,

@@ -1,0 +1,143 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="About" />
+
+# Sign in with Esignet
+
+Renders a button that will navigate the user to esignet website for authentication. Follows Open Id connect protocol.
+
+## Installation
+
+```
+# using npm
+npm i sign-in-with-esignet
+
+# using yarn
+yarn add sign-in-with-esignet
+```
+
+## Usage
+
+```js
+# using import
+import { SignInWithEsignet } from "sign-in-with-esignet";
+```
+
+
+## Example
+
+React JS
+
+```js
+//configuration for Open id connect
+useEffect(() => {
+  SignInWithEsignet({
+    oidcConfig: {
+      authorizeUri: "https://esignet.dev.mosip.net/authorize",
+      redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
+      client_id: "88Vjt34c5Twz1oJ",
+      scope: "openid profile",
+    },
+    buttonConfig: {
+      shape: "soft_edges",
+      theme: "filled_orange",
+    },
+    signInElement: document.getElementById("sign-in-with-esignet"),
+  });
+}, []);
+
+
+export default function MyComponent() {
+    return (
+        <div id="sign-in-with-esignet"></div>
+    );
+}
+```
+
+HTML
+
+```HTML
+
+<!DOCTYPE html>
+<html>
+  <body>
+    <script type="module">
+      import { SignInWithEsignet } from "<signin button JS url>";
+      window.onload = function () {
+        SignInWithEsignet({
+          oidcConfig: {
+            authorizeUri: "https://esignet.dev.mosip.net/authorize",
+            redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
+            client_id: "88Vjt34c5Twz1oJ",
+            scope: "openid profile",
+          },
+          buttonConfig: {
+            shape: "soft_edges",
+            theme: "filled_orange",
+          },
+          signInElement: document.getElementById("sign-in-with-esignet"),
+        });
+      };
+    </script>
+    <div id="sign-in-with-esignet"></div>
+  </body>
+</html>
+```
+
+
+# Secure Biometric Interface
+
+A standalone vanillajs library component for interacting with SBI devices and auth capture Face, Finger & Iris detail.
+
+## Installation
+
+```
+# using npm
+npm i secure-biometric-interface-integrator
+
+# using yarn
+yarn add secure-biometric-interface-integrator
+```
+
+## Usage
+
+```js
+# using import
+import { init } from "secure-biometric-interface-integrator";
+```
+
+## Example
+
+React JS
+```js
+// import the library first
+import { init } from "secure-biometric-interface-integrator";
+
+// call the library method
+init({
+    container: document.getElementById("secure-biometric-interface-integration"),
+    sbiEnv: BIOMETRIC_ENV_OBJECT,
+    buttonLabel: BUTTON_LABEL,
+    disable: DISABLE_OR_NOT,
+    transactionId: TRANSACTION_ID,
+    onCapture: SUCCESS_CALLBACK_METHOD,
+    onErrored: ERROR_CALLBACK_METHOD
+});
+
+```
+
+HTML
+
+You have to import `index.js` file which can be download from the mosip website 
+
+```js
+SecureBiometricInterface.init({
+  container: document.getElementById("secure-biometric-interface-integration"),
+  sbiEnv: BIOMETRIC_ENV_OBJECT,
+  buttonLabel: BUTTON_LABEL,
+  disable: DISABLE_OR_NOT,
+  transactionId: TRANSACTION_ID,
+  onCapture: SUCCESS_CALLBACK_METHOD,
+  onErrored: ERROR_CALLBACK_METHOD
+})
+```

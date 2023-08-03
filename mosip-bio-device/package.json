@@ -79,6 +79,7 @@
     "rollup": "rollup -c",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "prebuild-storybook": "npm i",
     "package": "npm run rollup && npm pack"
   },
   "eslintConfig": {

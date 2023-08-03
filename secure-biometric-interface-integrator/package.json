@@ -23,7 +23,9 @@
     "build": "rollup -c",
     "package": "rollup -c && npm pack",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prebuild-storybook": "npm i"
+
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.4",

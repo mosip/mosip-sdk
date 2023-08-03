@@ -1,4 +1,6 @@
-import { init, div } from ".";
+import { init } from "./../lib/secureBiometricInterface";
+import { div } from "../utility";
+
 import { action } from "@storybook/addon-actions";
 
 const customStyle = {

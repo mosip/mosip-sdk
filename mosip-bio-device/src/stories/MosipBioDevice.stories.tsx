@@ -11,7 +11,7 @@ import { MosipBioDevice } from "../index";
 import { IBioCompStyle, IBiometricEnv } from "../lib/models";
 
 const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
-  title: "MosipBioDevice",
+  title: "Secure Biometric Interface Integrator",
   component: MosipBioDevice,
   tags: ["autodocs"],
   argTypes: {
@@ -106,7 +106,7 @@ const customStyle: IBioCompStyle = {
   },
 }
 
-export const MosipBioDeviceStory: StoryObj<typeof MosipBioDeviceMeta> = {
+export const SBIStory: StoryObj<typeof MosipBioDeviceMeta> = {
   render: (args) => {
     return (
       <div style={{ width: "300px" }}>
@@ -116,7 +116,7 @@ export const MosipBioDeviceStory: StoryObj<typeof MosipBioDeviceMeta> = {
   },
 };
 
-MosipBioDeviceStory.args = {
+SBIStory.args = {
   langCode: "en",
   buttonName: "scan_and_verify",
   transactionId: "My Transaction Id",
@@ -125,7 +125,7 @@ MosipBioDeviceStory.args = {
   onErrored,
 };
 
-export const MosipBioDeviceStoryCustomStyle: StoryObj<typeof MosipBioDeviceMeta> = {
+export const SBIStoryCustomStyle: StoryObj<typeof MosipBioDeviceMeta> = {
   render: (args) => {
     return (
       <div style={{ width: "300px" }}>
@@ -135,7 +135,7 @@ export const MosipBioDeviceStoryCustomStyle: StoryObj<typeof MosipBioDeviceMeta>
   },
 };
 
-MosipBioDeviceStoryCustomStyle.args = {
+SBIStoryCustomStyle.args = {
   langCode: "en",
   buttonName: "scan_and_verify",
   transactionId: "My Transaction Id",
