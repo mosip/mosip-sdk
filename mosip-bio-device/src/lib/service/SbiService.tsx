@@ -20,8 +20,6 @@ const {
 const purpose = "Auth";
 const certification = "L1";
 
-const DeviceStatusReady = "Ready";
-
 const deviceEndPoint = "/device";
 const infoEndPoint = "/info";
 const captureEndPoint = "/capture";
@@ -278,8 +276,7 @@ const decodeAndValidateDeviceInfo = async (
 const validateDeviceInfo = (deviceInfo: IDeviceInfo | any): boolean => {
   if (
     deviceInfo.certification === certification &&
-    deviceInfo.purpose === purpose &&
-    deviceInfo.deviceStatus === DeviceStatusReady
+    deviceInfo.purpose === purpose
   ) {
     return true;
   }

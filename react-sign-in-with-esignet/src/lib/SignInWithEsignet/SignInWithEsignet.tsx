@@ -67,7 +67,8 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   if (oidcConfig?.state) {
     urlToNavigate += "&state=" + oidcConfig.state;
   } else {
-    const randomState = Math.random().toString(36).substring(5);
+    const randomNum = window.crypto.getRandomValues(new Uint32Array(1));
+    const randomState = randomNum[0].toString(36).substring(5);
     urlToNavigate += "&state=" + randomState;
   }
 
@@ -285,7 +286,7 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
       )}
 
       {!buttonCustomStyle && buttonClasses && (
-        <a href={urlToNavigate}>
+        <a href={urlToNavigate} style={{ textDecoration: "none" }}>
           <div className={buttonClasses.outerDivClasses} style={buttonStyle}>
             <div className={buttonClasses.logoDivClasses}>
               <img className={buttonClasses.logoImgClasses} src={logoPath} />
@@ -298,7 +299,7 @@ const SignInWithEsignet: React.FC<ISignInWithEsignetProps> = ({ ...props }) => {
       )}
 
       {buttonCustomStyle && (
-        <a href={urlToNavigate}>
+        <a href={urlToNavigate} style={{ textDecoration: "none" }}>
           <div style={buttonCustomStyle.outerDivStyle}>
             <div style={buttonCustomStyle.logoDivStyle}>
               <img style={buttonCustomStyle.logoImgStyle} src={logoPath} />
