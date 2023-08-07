@@ -36,22 +36,22 @@ export const references = {
     ghpages: "/esignet-plugins/dev/react-sbi-integrator",
   },
   "sign-in-with-esignet": {
-    title: "Sign in with Esignet",
+    title: "Release/Sign in with Esignet",
     local: "http://localhost:6001",
     ghpages: "/esignet-plugins/release/sign-in-with-esignet",
   },
   "secure-biometric-interface-integrator": {
-    title: "Secure Biometric Interface Integrator",
+    title: "Release/Secure Biometric Interface Integrator",
     local: "http://localhost:6002",
     ghpages: "/esignet-plugins/release/secure-biometric-interface-integrator",
   },
   "react-sign-in-with-esignet": {
-    title: "React Sign in with Esignet",
+    title: "Release/React Sign in with Esignet",
     local: "http://localhost:6003",
     ghpages: "/esignet-plugins/release/react-sign-in-with-esignet",
   },
   "react-sbi-integrator": {
-    title: "React Secure Biometric Interface Integrator",
+    title: "Release/React Secure Biometric Interface Integrator",
     local: "http://localhost:6004",
     ghpages: "/esignet-plugins/release/react-sbi-integrator",
   },
