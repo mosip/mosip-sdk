@@ -279,10 +279,7 @@ class SecureBiometricInterface {
    * @returns HTMLElement dropdown menu list container
    */
   generateDropdownMenuList() {
-    return div(
-      { className: "sbd-dropdown__menu-list" },
-      this.generateOptionElement(this.modalityDevices)
-    );
+    return div({ className: "sbd-dropdown__menu-list" }, this.generateOptionElement(this.modalityDevices));
   }
 
   /**
@@ -695,8 +692,7 @@ class SecureBiometricInterface {
     this.modalityDevices = [];
     this.selectedDevice = null;
 
-    const discTimeout =
-      this.props.sbiEnv.discTimeout || this.defaultDiscTimeout;
+    const discTimeout = this.props.sbiEnv.discTimeout || this.defaultDiscTimeout;
 
     let discoverDeviceTill = new Date().setSeconds(
       new Date().getSeconds() + discTimeout
