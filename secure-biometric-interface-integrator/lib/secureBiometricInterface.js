@@ -58,7 +58,7 @@ class SecureBiometricInterface {
       );
     }
     this.container = container;
-    this.props = { ...DEFAULT_PROPS, ...props };
+    this.props = { ...DEFAULT_PROPS, ...props, buttonLabel: props.buttonLabel || DEFAULT_PROPS.buttonLabel};
 
     this.sbiService = new SbiService(props?.sbiEnv ?? undefined);
 
