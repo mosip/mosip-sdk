@@ -482,7 +482,10 @@ class SecureBiometricInterface {
         )
       );
     }
-    if (this.modalityDevices.length > 0) {
+    if (
+      this.modalityDevices.length > 0 &&
+      this.selectedDevice === DeviceStateStatus.Ready
+    ) {
       elemArray.push(this.generateVerifyButton());
     }
     const verifyButtonData = div(
