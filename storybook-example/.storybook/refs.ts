@@ -18,49 +18,6 @@ const dotenv = require("dotenv").config({
  * StorybookRefs content for all Storybook instances
  * @typedef {Object.<string, StorybookReferences>} StorybookRefs
  */
-// export const references = {
-//   "sign-in-with-esignet_dev": {
-//     title: `${dotenv.DEV_PREFIX}/Sign in with Esignet`,
-//     local: "http://localhost:6001",
-//     ghpages: `/esignet-plugins/${dotenv.DEV_PATH}/sign-in-with-esignet`,
-//   },
-//   "secure-biometric-interface-integrator_dev": {
-//     title: `${dotenv.DEV_PREFIX}/Secure Biometric Interface Integrator`,
-//     local: "http://localhost:6002",
-//     ghpages: `/esignet-plugins/${dotenv.DEV_PATH}/secure-biometric-interface-integrator`,
-//   },
-//   "react-sign-in-with-esignet_dev": {
-//     title: `${dotenv.DEV_PREFIX}/React Sign in with Esignet`,
-//     local: "http://localhost:6003",
-//     ghpages: `/esignet-plugins/${dotenv.DEV_PATH}/react-sign-in-with-esignet`,
-//   },
-//   "react-sbi-integrator_dev": {
-//     title: `${dotenv.DEV_PREFIX}/React Secure Biometric Interface Integrator`,
-//     local: "http://localhost:6004",
-//     ghpages: `/esignet-plugins/${dotenv.DEV_PATH}/react-sbi-integrator`,
-//   },
-//   "sign-in-with-esignet": {
-//     title: `${dotenv.RELEASE_PREFIX}/Sign in with Esignet`,
-//     local: "http://localhost:6001",
-//     ghpages: `/esignet-plugins/${dotenv.RELEASE_PATH}/sign-in-with-esignet`,
-//   },
-//   "secure-biometric-interface-integrator": {
-//     title: `${dotenv.RELEASE_PREFIX}/Secure Biometric Interface Integrator`,
-//     local: "http://localhost:6002",
-//     ghpages: `/esignet-plugins/${dotenv.RELEASE_PATH}/secure-biometric-interface-integrator`,
-//   },
-//   "react-sign-in-with-esignet": {
-//     title: `${dotenv.RELEASE_PREFIX}/React Sign in with Esignet`,
-//     local: "http://localhost:6003",
-//     ghpages: `/esignet-plugins/${dotenv.RELEASE_PATH}/react-sign-in-with-esignet`,
-//   },
-//   "react-sbi-integrator": {
-//     title: `${dotenv.RELEASE_PREFIX}/React Secure Biometric Interface Integrator`,
-//     local: "http://localhost:6004",
-//     ghpages: `/esignet-plugins/${dotenv.RELEASE_PATH}/react-sbi-integrator`,
-//   },
-// };
-
 const createRef = (): {
   [name: string]: { title: string; ghpages: string; local: string };
 } => {
@@ -69,8 +26,6 @@ const createRef = (): {
   const titleList = dotenv.STORY_TITLE.split(",");
   const buildPathList = dotenv.BUILD_FOLDER_PATH.split(",");
   const n = titleList.length;
-  // const devPath = `${dotenv.DEV_PATH}`;
-  // const releasePath = `${dotenv.RELEASE_PATH}`;
   let portNo = 6001;
 
   const refs = {};
@@ -86,23 +41,6 @@ const createRef = (): {
     }
   }
 
-  // // dev storybook ref
-  // for (let i = 0; i < n; i++) {
-  //   const key = `${buildPathList[i]}_dev`;
-  //   refs[key] = {
-  //     title: `${dotenv.DEV_PREFIX}/${titleList[i]}`,
-  //     ghpages: `${devPath}/${buildPathList[i]}`,
-  //     local: `http://localhost:${portNo++}`,
-  //   };
-  // }
-  // // release storybook ref
-  // for (let i = 0; i < n; i++) {
-  //   refs[buildPathList[i]] = {
-  //     title: `${dotenv.RELEASE_PREFIX}/${titleList[i]}`,
-  //     ghpages: `${releasePath}/${buildPathList[i]}`,
-  //     local: `http://localhost:${portNo++}`,
-  //   };
-  // }
   return refs;
 };
 
