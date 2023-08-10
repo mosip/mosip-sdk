@@ -36,7 +36,7 @@
     "build:all:children": "npx concurrently -n \"dev,release\" -c \"bgCyan.italic,bgRed.italic\" \"npm run build:children:dev\" \"npm run build:children:release\"",
     "build:all:dev": "npm run build && npm run build:children:dev && npm run build:children:release",
     "build:all": "npm run build && npm run build:all:children",
-    "checkout:release": "git checkout feature/es-213",
+    "checkout:release": "git checkout feature/release",
     "build:dev:release": "npm run build:all:dev && npm run checkout:release && npm run build:children:release",
     "deploy": "gh-pages -d storybook-static",
     "sbook:rsiwe": "cd ../react-sign-in-with-esignet && npm run storybook -- --port 6003 --no-open",
@@ -46,7 +46,8 @@
     "sbook-children": "npx concurrently \"npm run sbook:siwe\"  \"npm run sbook:sbi\" \"npm run sbook:rsiwe\"  \"npm run sbook:rsbi\"",
     "sbook-parent": "npx wait-on http://localhost:6001 && npx wait-on http://localhost:6002 && npx wait-on http://localhost:6003 && npx wait-on http://localhost:6004 && npm run storybook",
     "sbook": "npx concurrently \"npm run sbook-children\" \"npm run sbook-parent\"",
-    "publish": "npm run build:all && npm run deploy"
+    "publish": "npm run build:all && npm run deploy",
+    "version-build": "node version-build.js"
   },
   "author": "",
   "license": "MPL-2.0",
@@ -64,7 +65,8 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.25",
+    "@types/node": "^16.18.40",
+    "dotenv": "^16.3.1",
     "gh-pages": "^5.0.0",
     "lit": "^2.7.5",
     "react": "^18.2.0",
