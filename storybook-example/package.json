@@ -5,9 +5,9 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/esignet-plugins/storybook-example"
+    "url": "git+https://github.com/mosip/mosip-plugins"
   },
-  "homepage": "http://mosip.github.io/esignet-plugins",
+  "homepage": "http://mosip.github.io/mosip-plugins",
   "keywords": [
     "mosip",
     "sbi",
