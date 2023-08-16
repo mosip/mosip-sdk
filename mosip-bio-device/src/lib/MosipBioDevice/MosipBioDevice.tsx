@@ -133,6 +133,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       setIsRtl(languageDetail.rtlLanguages.includes(props.langCode));
       i18n.changeLanguage(props.langCode);
     }
+    else {
+      // If langCode is not provided or matches, set English as default
+      setIsRtl(false);
+      i18n.changeLanguage("en"); // Set English as default language
+    }
   };
 
   const scanDevices = (forceScan: boolean) => {

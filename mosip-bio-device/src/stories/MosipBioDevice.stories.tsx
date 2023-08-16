@@ -16,19 +16,7 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
   tags: ["autodocs"],
   argTypes: {
     langCode: {
-      control: "select",
-      options: [
-        "en",
-        "hi",
-        "ta",
-        "kn",
-        "ar",
-        "eng",
-        "hin",
-        "tam",
-        "kan",
-        "ara",
-      ],
+      control: "text",
       type: { name: "string" },
       description: "Language code",
       table: {
