@@ -69,19 +69,7 @@ export default {
         "Container inside of which the whole component will be created",
     },
     langCode: {
-      control: "select",
-      options: [
-        "en",
-        "hi",
-        "ta",
-        "kn",
-        "ar",
-        "eng",
-        "hin",
-        "tam",
-        "kan",
-        "ara",
-      ],
+      control: "text",
       type: { name: "string" },
       description: "Language code",
       table: {
