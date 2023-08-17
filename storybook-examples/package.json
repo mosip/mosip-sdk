@@ -3,12 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "homepage": "http://mosip.github.io/esignet-plugins",
+  "keywords": [
+    "mosip",
+    "sbi",
+    "storybook-example-interface"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "start": "storybook dev -p 6006",
+    "build": "storybook build",
+    "build:version": "node version_build.js",
+    "deploy": "gh-pages -d storybook-static"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -26,7 +33,8 @@
     "@storybook/testing-library": "^0.2.0",
     "@storybook/theming": "^7.1.1",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.25",
+    "@types/node": "^16.18.40",
+    "dotenv": "^16.3.1",
     "gh-pages": "^5.0.0",
     "lit": "^2.7.6",
     "prop-types": "^15.8.1",
