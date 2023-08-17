@@ -43,3 +43,5 @@ yarn-error.log*
 storybook-example/types
 storybook-example/package-lock.json
 **/package-lock.json
+.cache
+types
