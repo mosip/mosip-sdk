@@ -1,0 +1,10 @@
+{
+  "language": {
+    "en": "English",
+    "ar": "عربى",
+    "hi": "हिंदी",
+    "kn": "ಕನ್ನಡ",
+    "ta": "தமிழ்"
+  },
+  "rtlLanguages": ["ar", "ara"]
+}
