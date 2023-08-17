@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/esignet-plugins/secure-biometric-interface-integrator"
+    "url": "git+https://github.com/mosip/mosip-plugins"
   },
   "keywords": [
     "mosip",
