@@ -1,8 +1,18 @@
-import { Meta, StoryObj } from "@storybook/web-components";
-import { SignInWithEsignet } from "./";
-import { html } from "lit";
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 
-const oidcConfig = {
+import type { Meta, StoryObj } from "@storybook/react";
+
+import ReactSignInWithEsignet from "../src/ReactSignInWithEsignet";
+import {
+  OidcConfigProp,
+  ButtonConfigProp,
+} from "../../react-sign-in-with-esignet/src/lib/SignInWithEsignet/ISignInWithEsignetProps";
+
+const oidcConfig: OidcConfigProp = {
   authorizeUri: "https://esignet.dev.mosip.net/authorize",
   redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
   client_id: "88Vjt34c5Twz1oJ",
@@ -18,7 +28,7 @@ const oidcConfig = {
   ui_locales: "en",
 };
 
-const buttonConfig = {
+const buttonConfig: ButtonConfigProp = {
   type: "standard",
   theme: "outline",
   shape: "sharp_edges",
@@ -31,11 +41,10 @@ const oidcConfigType =
 const buttonType =
   '{\r\n  type: "standard" | "icon",\r\n  theme: "outline" | "filled_orange" | "filled_black" | "custom",\r\n  shape: "sharp_edges" | "soft_edges" | "rounded_edges",\r\n  labelText: "string",\r\n  logoPath: "string",\r\n  width: "string",\r\n  background: "string",\r\n  textColor: "string",\r\n  borderColor: "string",\r\n  borderWidth: "string",\r\n  font: "string",\r\n  fontFamily: "string",\r\n  customStyle: "Json-Object",\r\n}';
 
-// More on how to set up stories at: https://storybook.js.org/docs/web-components/writing-stories/introduction
-export default {
-  title: "Sign In With Esignet",
+const ReactSignInWithEsignetMeta = {
+  title: "React/Sign In With Esignet",
   tags: ["autodocs"],
-  render: (args: any) => renderSignInButton(args),
+  component: ReactSignInWithEsignet,
   argTypes: {
     oidcConfig: {
       control: "object",
@@ -66,29 +75,14 @@ export default {
       },
     },
   },
-} as Meta<typeof SignInWithEsignet>;
+  parameters: {
+    layout: "fullscreen",
+  },
+} as Meta;
+export default ReactSignInWithEsignetMeta;
+type Story = StoryObj<typeof ReactSignInWithEsignetMeta>;
 
-const renderSignInButton = (args: any) => {
-  args.signInElement = document.createElement("div");
-  return html` <div style="width: 100%; background: #f6f6f2">
-    <div
-      style="
-      margin: auto;
-      width: 50%;
-      border: 3px solid #d8d8d8;
-      padding: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    "
-    >
-      ${SignInWithEsignet(args)}
-    </div>
-  </div>`;
-};
-type Story = StoryObj<typeof SignInWithEsignet>;
-
-export const SignInWithEsignetStandardButton: Story = {
+export const StandardButton: Story = {
   args: {
     oidcConfig,
     buttonConfig: {
@@ -99,7 +93,8 @@ export const SignInWithEsignetStandardButton: Story = {
     },
   },
 };
-export const SignInWithEsignetStandardIconButton: Story = {
+
+export const StandardIconButton: Story = {
   args: {
     oidcConfig,
     buttonConfig: {
@@ -110,7 +105,8 @@ export const SignInWithEsignetStandardIconButton: Story = {
     },
   },
 };
-export const SignInWithEsignetStandardButtonWithCustomDesign: Story = {
+
+export const StandardButtonWithCustomDesign: Story = {
   args: {
     oidcConfig,
     buttonConfig: {
