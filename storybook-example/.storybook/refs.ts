@@ -23,6 +23,7 @@ const createRef = (): {
 } => {
   const versionBranch = dotenv.VERSION_BRANCH.split(",");
   const noOfBranch = versionBranch.length;
+  const basePath = dotenv.BASE_PATH ?? "mosip-plugins";
   let portNo = 6001;
 
   const refs = {};
@@ -31,7 +32,7 @@ const createRef = (): {
     const key = versionBranch[i];
     refs[key] = {
       title: key,
-      ghpages: `/${dotenv.BASE_PATH}/${key}`,
+      ghpages: `/${basePath}/${key}`,
       local: `http://localhost:${portNo++}`,
     };
   }
