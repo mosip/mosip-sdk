@@ -1,5 +1,7 @@
-import { init, div } from ".";
 import { action } from "@storybook/addon-actions";
+import React from "react";
+import SecureBiomtericInterfaceIntegrator from "../src/SecureBiometricInterfaceIntegrator";
+import { Meta, StoryObj } from "@storybook/react";
 
 const customStyle = {
   selectBoxStyle: {
@@ -57,17 +59,17 @@ const sbiEnv = {
 const sbiEnvType =
   '{\r\n  env: "Staging" | "Developer" | "Pre-Production" | "Production",\r\n  captureTimeout: "number",\r\n  irisBioSubtypes: "Left" | "Right" | "UNKNOWN",\r\n  fingerBioSubtypes:\r\n    "Left IndexFinger" | "Left MiddleFinger" | "Left RingFinger" | "Left LittleFinger" | "Left Thumb" | "Right IndexFinger" | "Right MiddleFinger" | "Right RingFinger" | "Right LittleFinger" | "Right Thumb" | "UNKNOWN",\r\n  faceCaptureCount: 1,\r\n  faceCaptureScore: "0-100",\r\n  fingerCaptureCount: "1-10",\r\n  fingerCaptureScore: "0-100",\r\n  irisCaptureCount: "1-2",\r\n  irisCaptureScore: "0-100",\r\n  portRange: "4501-4600",\r\n  discTimeout: "number",\r\n  dinfoTimeout: "number",\r\n  domainUri: "string",\r\n}';
 
-export default {
-  title: "Secure Biometric Interface",
+const SBIMeta = {
+  title: "JavaScript/Secure Biometric Interface",
   tags: ["autodocs"],
-  render: (args) => renderComponent(args),
+  component: SecureBiomtericInterfaceIntegrator,
   argTypes: {
-    container: {
-      control: "object",
-      type: { required: true, name: "HTMLElement" },
-      description:
-        "Container inside of which the whole component will be created",
-    },
+    //   container: {
+    //     control: "object",
+    //     type: { required: true, name: "HTMLElement" },
+    //     description:
+    //       "Container inside of which the whole component will be created",
+    //   },
     langCode: {
       control: "select",
       options: [
@@ -111,7 +113,6 @@ export default {
     },
     transactionId: {
       control: "text",
-      type: { required: true },
       description: "Transaction Id for the capture",
       table: {
         type: { summary: "string" },
@@ -147,7 +148,7 @@ export default {
     },
     onCapture: {
       control: "events",
-      type: { required: true },
+      // type: { required: true },
       description:
         "The function to be called with Biometric response (successful/failed capture response)",
     },
@@ -156,52 +157,30 @@ export default {
       description:
         "Optional callback function on capture failure with the error code string (likely due to timeout)",
     },
+    id: {
+      control: false,
+    },
   },
   parameters: {
     layout: "fullscreen",
   },
-};
+} as Meta;
+export default SBIMeta;
+type Story = StoryObj<typeof SBIMeta>;
 
-const renderComponent = (args) => {
-  const container = document.createElement("div");
-  container.setAttribute("id", "secure-biometric-interface-integrator");
-  args.container = container;
-  return div(
-    {
-      style: {
-        width: "100%",
-        background: "#f6f6f2",
-      },
-    },
-    div(
-      {
-        style: {
-          margin: "auto",
-          width: "50%",
-          border: "3px solid #d8d8d8",
-          padding: "50px",
-          display: "flex",
-          "align-items": "center",
-          "justify-content": "center",
-        },
-      },
-      init(args)
-    )
-  );
-};
-
-export const SBIStory = {
+export const Primary: Story = {
   args: {
+    id: "sbi_story",
     buttonLabel: "scan_and_verify",
     disable: false,
     langCode: "en",
     sbiEnv,
-    onCapture: (e) => action("onCapture")(e),
-    onErrored: (e) => action("onErrored")(e),
+    onCapture: (e: any) => action("onCapture")(e),
+    onErrored: (e: any) => action("onErrored")(e),
   },
 };
 
-SBIStory.parameters = {
+Primary.parameters = {
   docs: {
     source: {
       code: `
@@ -244,19 +223,20 @@ SBIStory.parameters = {
   },
 };
 
-export const SBIStoryWithCustomStyle = {
+export const WithCustomStyle: Story = {
   args: {
+    id: "sbi_story_with_custom_style",
     buttonLabel: "scan_and_verify",
     disable: false,
     langCode: "en",
     sbiEnv,
     customStyle,
-    onCapture: (e) => action("onCapture")(e),
-    onErrored: (e) => action("onErrored")(e),
+    onCapture: (e: any) => action("onCapture")(e),
+    onErrored: (e: any) => action("onErrored")(e),
   },
 };
 
-SBIStoryWithCustomStyle.parameters = {
+WithCustomStyle.parameters = {
   docs: {
     source: {
       code: `
