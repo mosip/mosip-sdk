@@ -8,7 +8,6 @@ const SBI_PATH = path.join(__dirname, "../../mosip-bio-device/src");
 const STORIES_PATH = path.join(__dirname, "../stories");
 
 const config: StorybookConfig = {
-  staticDirs: ["../assets"],
   stories: [
     "../stories/**/*.mdx",
     "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",

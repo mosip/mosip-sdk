@@ -49,6 +49,10 @@ export const refs: any = (config, { configType }) => {
   if (configType === "DEVELOPMENT") {
     urlKey = "local";
   }
+  const refs = Object.entries(createRef());
+  if (refs.length < 1) {
+    return undefined;
+  }
   const newRefs = {};
   for (const [key, value] of Object.entries(createRef())) {
     newRefs[key] = {
