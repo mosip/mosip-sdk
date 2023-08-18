@@ -90,7 +90,7 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   if (oidcConfig?.claims_locales)
     urlToNavigate += "&claims_locales=" + oidcConfig.claims_locales;
   if (oidcConfig?.display) urlToNavigate += "&display=" + oidcConfig.display;
-  if (oidcConfig?.prompt) urlToNavigate += "&state=" + oidcConfig.prompt;
+  if (oidcConfig?.prompt) urlToNavigate += "&prompt=" + oidcConfig.prompt;
   if (oidcConfig?.max_age) urlToNavigate += "&max_age=" + oidcConfig.max_age;
 
   if (oidcConfig?.ui_locales)
