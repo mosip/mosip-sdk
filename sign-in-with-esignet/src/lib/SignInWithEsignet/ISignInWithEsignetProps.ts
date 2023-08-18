@@ -10,6 +10,8 @@ interface OidcConfigProp {
   claims?: object;
   claims_locales?: string;
   ui_locales?: string;
+  code_challenge?: string;
+  code_challenge_method?: string;
   display?: string;
   max_age?: number;
   prompt?: string;

@@ -96,6 +96,12 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
   if (oidcConfig?.ui_locales)
     urlToNavigate += "&ui_locales=" + oidcConfig.ui_locales;
 
+  if (oidcConfig?.code_challenge)
+    urlToNavigate += "&code_challenge=" + oidcConfig.code_challenge;
+
+  if (oidcConfig?.code_challenge_method)
+    urlToNavigate += "&code_challenge_method=" + oidcConfig.code_challenge_method;
+
   return urlToNavigate;
 }
 

@@ -56,6 +56,8 @@ export const SignInWithEsignetStory: Story = {
       prompt: "consent",
       max_age: 21,
       ui_locales: "en",
+      code_challenge: "",
+      code_challenge_method: "S256",
     },
     buttonConfig: {
       type: "standard",
