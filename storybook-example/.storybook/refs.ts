@@ -28,7 +28,7 @@ const createRef = ():
   if (!dotenv.VERSION_BRANCH) {
     return undefined;
   }
-  const versionBranch = dotenv.VERSION_BRANCH.split(",");
+  const versionBranch = dotenv.VERSION_BRANCH.split(",").map((_) => _.trim());
   const noOfBranch = versionBranch.length;
   const basePath = dotenv.BASE_PATH ?? "mosip-plugins";
   let portNo = 6001;
