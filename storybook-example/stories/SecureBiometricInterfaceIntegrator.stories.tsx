@@ -63,12 +63,6 @@ const SBIMeta = {
   tags: ["autodocs"],
   component: SecureBiomtericInterfaceIntegrator,
   argTypes: {
-    //   container: {
-    //     control: "object",
-    //     type: { required: true, name: "HTMLElement" },
-    //     description:
-    //       "Container inside of which the whole component will be created",
-    //   },
     langCode: {
       control: "text",
       type: { name: "string" },
@@ -135,7 +129,6 @@ const SBIMeta = {
     },
     onCapture: {
       control: "events",
-      // type: { required: true },
       description:
         "The function to be called with Biometric response (successful/failed capture response)",
     },

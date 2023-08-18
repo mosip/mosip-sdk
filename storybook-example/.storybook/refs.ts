@@ -18,9 +18,16 @@ const dotenv = require("dotenv").config({
  * StorybookRefs content for all Storybook instances
  * @typedef {Object.<string, StorybookReferences>} StorybookRefs
  */
-const createRef = (): {
-  [name: string]: { title: string; ghpages: string; local: string };
-} => {
+const createRef = ():
+  | {
+      [name: string]: { title: string; ghpages: string; local: string };
+    }
+  | undefined => {
+  // if empty version branch is provided
+  // then return undefined
+  if (!dotenv.VERSION_BRANCH) {
+    return undefined;
+  }
   const versionBranch = dotenv.VERSION_BRANCH.split(",");
   const noOfBranch = versionBranch.length;
   const basePath = dotenv.BASE_PATH ?? "mosip-plugins";
@@ -50,16 +57,20 @@ export const refs: any = (config, { configType }) => {
   if (configType === "DEVELOPMENT") {
     urlKey = "local";
   }
-  const refs = Object.entries(createRef());
-  if (refs.length < 1) {
-    return undefined;
+  const refs = createRef();
+
+  // if there is no references
+  // then return undefined
+  if (!refs) {
+    return {};
   }
   const newRefs = {};
-  for (const [key, value] of refs) {
+  for (const [key, value] of Object.entries(refs)) {
     newRefs[key] = {
       title: value.title,
       url: value[urlKey],
     };
   }
+
   return newRefs;
 };

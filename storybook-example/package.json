@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/mosip-plugins/storybook-example"
+    "url": "git+https://github.com/mosip/mosip-plugins"
   },
   "homepage": "http://mosip.github.io/mosip-plugins",
   "keywords": [
@@ -43,6 +43,8 @@
     "gh-pages": "^5.0.0",
     "lit": "^2.7.6",
     "prop-types": "^15.8.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "storybook": "^7.1.1",
     "ts-loader": "^9.4.3",
     "typescript": "^4.9.5",
@@ -53,9 +55,5 @@
     "jose": "^4.14.3",
     "react-i18next": "^11.18.6",
     "sass-loader": "^13.3.2"
-  },
-  "peerDependencies": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
   }
 }
