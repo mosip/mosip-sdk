@@ -71,7 +71,7 @@ const customStyle: IBioCompStyle = {
 };
 
 const SbiMeta = {
-  title: "React/Secure Biometric Interface",
+  title: "React/Secure Biometric Interface Integrator",
   tags: ["autodocs"],
   component: ReactSbi,
   argTypes: {
