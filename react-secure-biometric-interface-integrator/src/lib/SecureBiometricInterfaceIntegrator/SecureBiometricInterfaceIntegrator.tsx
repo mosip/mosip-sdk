@@ -15,7 +15,7 @@ import {
   IBiometricEnv,
   IDeviceDetail,
   IDeviceInfo,
-  IMosipBioDeviceProps,
+  ISBIProps,
   LoadingStates as states,
   host,
   errorRibbonClass,
@@ -31,7 +31,7 @@ import faceIcon from "../assets/face_sign_in.png";
 import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
 
-import "./MosipBioDevice.scss";
+import "./SecureBiometricInterfaceIntegrator.scss";
 import languageDetail from "../assets/locales/default.json";
 
 const modalityIconPath: { [name: string]: string } = {
@@ -40,7 +40,7 @@ const modalityIconPath: { [name: string]: string } = {
   Iris: irisIcon,
 };
 
-const MosipBioDevice = (props: IMosipBioDeviceProps) => {
+const SecureBiometricInterfaceIntegrator = (props: ISBIProps) => {
   const { t, i18n } = useTranslation();
 
   const sbiService = new SbiService(props.biometricEnv);
@@ -462,4 +462,4 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   );
 };
 
-export default MosipBioDevice;
+export default SecureBiometricInterfaceIntegrator;

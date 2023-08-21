@@ -12,7 +12,7 @@ import ReactSbi from "../src/ReactSbi";
 import {
   IBioCompStyle,
   IBiometricEnv,
-} from "../../mosip-bio-device/src/lib/models";
+} from "../../react-secure-biometric-interface-integrator/src/lib/models";
 
 const customStyleType = {
   selectBoxStyle: {

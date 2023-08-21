@@ -4,4 +4,4 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-export { default as MosipBioDevice } from "./MosipBioDevice";
+export { default as SecureBiometricInterfaceIntegrator } from "./SecureBiometricInterfaceIntegrator";

@@ -1,5 +1,5 @@
 {
-  "name": "mosip-bio-device",
+  "name": "react-secure-biometric-interface-integrator",
   "version": "0.1.0",
   "private": true,
   "main": "dist/cjs/index.js",

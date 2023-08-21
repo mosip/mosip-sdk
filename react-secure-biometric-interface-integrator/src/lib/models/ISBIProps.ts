@@ -6,7 +6,7 @@
 
 import { IBiometricEnv, IErrorClass, IBioCompStyle } from "./StandardInterface";
 
-interface IMosipBioDeviceProps {
+interface ISBIProps {
   buttonName: string;
   transactionId: string;
   customStyle?: IBioCompStyle;
@@ -17,4 +17,4 @@ interface IMosipBioDeviceProps {
   onErrored: (errorObj: IErrorClass | null) => void;
 }
 
-export { IMosipBioDeviceProps };
+export { ISBIProps };

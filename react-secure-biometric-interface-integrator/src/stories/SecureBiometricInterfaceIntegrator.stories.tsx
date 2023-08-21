@@ -7,12 +7,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 
-import { MosipBioDevice } from "../index";
+import { SecureBiometricInterfaceIntegrator } from "../index";
 import { IBioCompStyle, IBiometricEnv } from "../lib/models";
 
-const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
-  title: "MosipBioDevice",
-  component: MosipBioDevice,
+const SBIMeta: Meta<typeof SecureBiometricInterfaceIntegrator> = {
+  title: "Secure Biometric Interface Integrator",
+  render: (args) => {
+    return (
+      <div style={{ width: "300px" }}>
+        <SecureBiometricInterfaceIntegrator {...args} />
+      </div>
+    );
+  },
   tags: ["autodocs"],
   argTypes: {
     langCode: {
@@ -28,7 +34,7 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
     },
     buttonName: {
       control: "text",
-      type: {name: "string"},
+      type: { name: "string" },
       description: `Capture button label`,
       table: {
         defaultValue: { summary: "scan_and_verify" },
@@ -49,7 +55,8 @@ const MosipBioDeviceMeta: Meta<typeof MosipBioDevice> = {
   },
 };
 
-export default MosipBioDeviceMeta;
+export default SBIMeta;
+type Story = StoryObj<typeof SBIMeta>;
 
 const onCapture = (e: any) => action("onCapture")(e);
 
@@ -82,7 +89,7 @@ const customStyle: IBioCompStyle = {
   },
   verifyButtonStyle: {
     background: "green",
-    color: "yellow"
+    color: "yellow",
   },
   selectBoxStyle: {
     borderColorHover: "yellow",
@@ -92,43 +99,27 @@ const customStyle: IBioCompStyle = {
     panelBgColorHover: "red",
     panelBgColorActive: "green",
   },
-}
+};
 
-export const MosipBioDeviceStory: StoryObj<typeof MosipBioDeviceMeta> = {
-  render: (args) => {
-    return (
-      <div style={{ width: "300px" }}>
-        <MosipBioDevice {...args} />
-      </div>
-    );
+export const Primary: Story = {
+  args: {
+    langCode: "en",
+    buttonName: "scan_and_verify",
+    transactionId: "My Transaction Id",
+    biometricEnv,
+    onCapture,
+    onErrored,
   },
 };
 
-MosipBioDeviceStory.args = {
-  langCode: "en",
-  buttonName: "scan_and_verify",
-  transactionId: "My Transaction Id",
-  biometricEnv,
-  onCapture,
-  onErrored,
-};
-
-export const MosipBioDeviceStoryCustomStyle: StoryObj<typeof MosipBioDeviceMeta> = {
-  render: (args) => {
-    return (
-      <div style={{ width: "300px" }}>
-        <MosipBioDevice {...args} />
-      </div>
-    );
+export const WithCustomStyle: Story = {
+  args: {
+    langCode: "en",
+    buttonName: "scan_and_verify",
+    transactionId: "My Transaction Id",
+    biometricEnv,
+    customStyle,
+    onCapture,
+    onErrored,
   },
-};
-
-MosipBioDeviceStoryCustomStyle.args = {
-  langCode: "en",
-  buttonName: "scan_and_verify",
-  transactionId: "My Transaction Id",
-  biometricEnv,
-  customStyle,
-  onCapture,
-  onErrored,
 };

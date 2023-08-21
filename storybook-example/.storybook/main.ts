@@ -5,7 +5,7 @@ const path = require("path");
 // component which created with typescript has to added in ts-loader
 const SIGNIN_PATH = path.join(__dirname, "../../sign-in-with-esignet/src");
 const REACT_SIGNIN_PATH = path.join(__dirname, "../../react-sign-in-with-esignet/src");
-const SBI_PATH = path.join(__dirname, "../../mosip-bio-device/src");
+const SBI_PATH = path.join(__dirname, "../../react-secure-biometric-interface-integrator/src");
 const STORIES_PATH = path.join(__dirname, "../stories");
 
 const config: StorybookConfig = {

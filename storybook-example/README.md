@@ -12,7 +12,7 @@ If you have react based plugins then you have to create a wrapper component like
 
 ```js
 // import your react component
-import { MosipBioDevice } from "../../mosip-bio-device/src/index";
+import { SecureBiometricInterfaceIntegrator } from "../../react-secure-biometric-interface-integrator/src/index";
 
 // create a functional component that return an HTML Element with the component inside it
 // use args to pass on, in your react component
@@ -21,7 +21,7 @@ function ReactSbi(args) {
     // wrap you actual component with some styling
     <div style={{STYLING}}>
         <!-- call your react component with all of your arguments -->
-        <MosipBioDevice {...args} />
+        <SecureBiometricInterfaceIntegrator {...args} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-# Mosip L1 Biometric Dropdown
+# React Secure Biometric Interface Integrator
 
 A standalone library component for interacting with SBI devices and auth capture Face, Finger & Iris detail.
 
@@ -25,14 +25,13 @@ npm publish
 ## Component
 
 ```js
-<MosipBioDevice 
+<SecureBiometricInterfaceIntegrator 
     transactionId="your_transaction_id"
     labelName="label_name"
     buttonName="button_name"
     biometricEnv={biometricEnv}
     onCapture={myChange}
-    onErrored={myError}>
-</MosipBioDevice>
+    onErrored={myError} />
 ```
 
 ## Props
