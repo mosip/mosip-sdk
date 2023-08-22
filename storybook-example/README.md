@@ -1,58 +1,138 @@
 # Storybook Example
 
-Storybook example for sign-in-with-esignet & secure-biometric-interface-integrator library and how to show the in one place.
-
+Storybook example for all mosip-plugins.
 
 ## Creating Stories in this Storybook
 
+First of all you have to create a react component wrapper for your plugins, which will be used in storybook, inside src folder.
+
+### React based plugins
+
+If you have react based plugins then you have to create a wrapper component like this way
+
+```js
+// import your react component
+import { MosipBioDevice } from "../../mosip-bio-device/src/index";
+
+// create a functional component that return an HTML Element with the component inside it
+// use args to pass on, in your react component
+function ReactSbi(args) {
+  return (
+    // wrap you actual component with some styling
+    <div style={{STYLING}}>
+        <!-- call your react component with all of your arguments -->
+        <MosipBioDevice {...args} />
+    </div>
+  );
+}
+
+// export that functional component
+export default ReactSbi;
+```
+
+### Javascript based plugins
+
+If you have plain javascript based plugins then you have to create a wrapper component like this way
+
+```js
+import { useEffect } from "react";
+
+// importing your javascript component
+import init from "../../sign-in-with-esignet/src/lib/SignInWithEsignet/SignInWithEsignet";
+
+// create a functional component that return an HTML Element with the component inside it
+// use individual arguments which your javascript will need
+function SignInWithEsignet({ oidcConfig, buttonConfig, id }) {
+  // use useEffect to call your javascript component
+  useEffect(() => {
+    init({
+      oidcConfig,
+      buttonConfig,
+      signInElement: document.getElementById(id),
+      style: {
+        fontFamily: "'Cera Pro Bold', Arial, sans-serif",
+      },
+    });
+  }, [oidcConfig, buttonConfig]);
+
+  return (
+    // wrap you actual component with some styling
+    <div style={{ STYLING }}>
+      <!-- use id to show the component inside this div -->
+      <div id={id}></div>
+    </div>
+  );
+}
+
+// export your functional component
+export default SignInWithEsignet;
+```
 
 First you have to create a default value stating the detail for the story
 
 ```js
-export default {
+// import Meta & StoryObj from @storybook/react package
+import type { Meta, StoryObj } from "@storybook/react";
+
+// you can name anything in COMPONENT_META
+const COMPONENT_META =  {
   title: STORY_TITLE, // title of the Main story
   tags: ["autodocs"], // for story docs
-  render: (args) => renderComponent(args), // rendering the component which take args as parameter
+  component: YOUR_REACT_WRAPPER_COMPONENT, // wrapper component which you have created in src folder
   argTypes: ARG_TYPE_OBJECT, // arguments which have to be pass in the component
-};
-```
-
-and similarly if you have typescript component then you can add this
-
-```js
-export default {
-  title: STORY_TITLE, // title of the Main story
-  tags: ["autodocs"], // for story docs
-  render: (args) => renderComponent(args), // rendering the component which take args as parameter
-  argTypes: ARG_TYPE_OBJECT, // arguments which have to be pass in the component
-} as Meta<typeof YOUR_COMPONENT>;
-```
-
-Create a method as a callback which return an HTML Element with the component inside it, it also work for typescript component as well
-
-```js
-// callback method where it takes args as parameter, and return html elment
-const renderComponent = (args) => {
-    return <your-html-element></your-html-element>
-}
+} as Meta;
+export default COMPONENT_META;
+// type creation which will be used in stories
+type Story = StoryObj<typeof COMPONENT_META>
 ```
 
 Now create a specific story for the component
 
 ```js
-export const SecureBiometricInterfaceStory = {
-  args: ARGS_OBJECT, // passing all necessary inputs
-};
-```
-
-similarly if you have typescript component then you can add this
-
-```js
-type Story = StoryObj<typeof YOUR_COMPONENT>;
 export const SignInWithEsignetStory: Story = {
   args: ARGS_OBJECT, // passing all necessary inputs
 };
 ```
+
+
+# Storybook Deployment
+
+## Github Pages
+
+First of all you have to change `homepage` value in `package.json` file, according to your need where you want to deploy it (in which repo)
+
+After that you just have to run below command
+
+```cmd
+npm run publish
+```
+
+## Deploy static folder
+
+For deploying static folder, you need to build storybook by running the below command
+
+```cmd
+npm run build
+```
+
+Above command create a folder name `storybook-static`, you can copy paste this folder anywhere and serve it as a static folder website.
+
+## Deployed multiple version of storybook
+
+For deploying multiple version of storybook in a single github pages, then you have to first provide `VERSION_BRANCH` in the environment file `.env` then you have to run this command
+
+```cmd
+npm run build:version
+```
+
+It will create stories from the current branch and as well as the branch you have specify in the `VERSION_BRANCH` environment variable, in a comma separated way.
+
+It will also deploy the those stories in the github pages (taking homepage as the url).
+
+``
+NOTE: If `VERSION_BRANCH` is empty then it will deploy only the current branch stories
+``
+
 
 
 # Storybook Example Setup
@@ -62,7 +142,6 @@ npx storybook@latest init -t web_components
 ```
 
 after that select `webpack 5` as a builder for your project
-
 
 ## Typescript
 
@@ -112,24 +191,3 @@ Also add this snippet in `.babelrc.json`
 }
 ```
 
-# Storybook Deployment
-
-## Github Pages
-
-First of all you have to change `homepage` value in  `package.json` file, according to your need where you want to deploy it (in which repo)
-
-After that you just have to run below command
-
-```cmd
-npm run publish
-```
-
-## Deploy static folder
-
-For deploying static folder, you need to build storybook by running the below command
-
-```cmd
-npm run build
-```
-
-Above command create a folder name `storybook-static`, you can copy paste this folder anywhere and serve it as a static folder website.
