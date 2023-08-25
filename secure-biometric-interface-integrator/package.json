@@ -19,6 +19,7 @@
     "secure-biometric-interface-integrator"
   ],
   "scripts": {
+    "prebuild": "bash configure_start.sh",
     "start": "rollup -c -w",
     "build": "rollup -c",
     "package": "rollup -c && npm pack",
