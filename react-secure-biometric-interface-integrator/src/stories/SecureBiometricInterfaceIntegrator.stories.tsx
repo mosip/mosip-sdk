@@ -8,7 +8,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 
 import { SecureBiometricInterfaceIntegrator } from "../index";
-import { IBioCompStyle, IBiometricEnv } from "../lib/models";
+import { IBioCompStyle, ISbiEnv } from "../lib/models";
 
 const SBIMeta: Meta<typeof SecureBiometricInterfaceIntegrator> = {
   title: "Secure Biometric Interface Integrator",
@@ -32,7 +32,7 @@ const SBIMeta: Meta<typeof SecureBiometricInterfaceIntegrator> = {
         },
       },
     },
-    buttonName: {
+    buttonLabel: {
       control: "text",
       type: { name: "string" },
       description: `Capture button label`,
@@ -49,7 +49,7 @@ const SBIMeta: Meta<typeof SecureBiometricInterfaceIntegrator> = {
     customStyle: {
       control: "object",
     },
-    biometricEnv: {
+    sbiEnv: {
       control: "object",
     },
   },
@@ -62,7 +62,7 @@ const onCapture = (e: any) => action("onCapture")(e);
 
 const onErrored = (e: any) => action("onErrored")(e);
 
-const biometricEnv: IBiometricEnv = {
+const sbiEnv: ISbiEnv = {
   env: "Staging",
   captureTimeout: 30,
   irisBioSubtypes: "UNKNOWN",
@@ -104,9 +104,9 @@ const customStyle: IBioCompStyle = {
 export const Primary: Story = {
   args: {
     langCode: "en",
-    buttonName: "scan_and_verify",
+    buttonLabel: "scan_and_verify",
     transactionId: "My Transaction Id",
-    biometricEnv,
+    sbiEnv,
     onCapture,
     onErrored,
   },
@@ -115,9 +115,9 @@ export const Primary: Story = {
 export const WithCustomStyle: Story = {
   args: {
     langCode: "en",
-    buttonName: "scan_and_verify",
+    buttonLabel: "scan_and_verify",
     transactionId: "My Transaction Id",
-    biometricEnv,
+    sbiEnv,
     customStyle,
     onCapture,
     onErrored,

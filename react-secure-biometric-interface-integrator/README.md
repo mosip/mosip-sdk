@@ -27,9 +27,9 @@ npm publish
 ```js
 <SecureBiometricInterfaceIntegrator 
     transactionId="your_transaction_id"
-    labelName="label_name"
-    buttonName="button_name"
-    biometricEnv={biometricEnv}
+    buttonLabel="button_label"
+    langCod="en"
+    sbiEnv={sbiEnv}
     onCapture={myChange}
     onErrored={myError} />
 ```
@@ -40,31 +40,32 @@ Common props you may want to specify include:
 
 | prop           | type     | default value   | note                                                                                                                                                                     |
 | -------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `labelName`    | `string` | Select a Device | Device dropdown label                                                                                                                                                    |
-| `buttonName`   | `string` | Scan and Verify | Capture button label                                                                                                                                                     |
+| `buttonLabel`   | `string` | Scan and Verify | Capture button label                                                                                                                                                     |
 | `transactionId`| `string` | | Transaction id of the current biometric authorization |
 | `onCapture`    | `func`   |                 | The function to be called on a successful capture with [Biometric response](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification#capture-response). |
 | `onErrored`    | `func`   |                 | optional callback function on capture failure with error msg string.                                                                                                     |
 | `customStyle`      | `Object` | See below       | Json object for customize the css of the component                                                                                                                       |
-| `biometricEnv` | `Object` | See below       | Biometric environment detail                                                                                                                                             |
+| `sbiEnv` | `Object` | See below       | Biometric environment detail    |
+| `disable` | `boolean` | false | To disable scan_and_verify button.    |
+| `langCode`    | `string`  | en    |   Language code. Valid values `en`, `ar`, `hi`, `kn`, `ta`, `eng`, `hin`, `kan`, `tam`, `ara`
 
 ### Prop customStyle
 
-For more information check [React-JSS integration page](https://cssinjs.org/react-jss)
 
-| field          | type     | note                          |
-| -------------- | -------- | ----------------------------- |
-| `refreshButtonStyle`    | `Object` | Css for refresh button       |
-| `verifyButtonStyle` | `Object` | Css for verify button         |
+| field          | type     | Default value | note                          |
+| -------------- | -------- | ------------- | ----------------------------- |
+| `selectBoxStyle`  | `{`<br>`borderColor: string;` <br>`borderColorActive: string;`<br>`borderColorHover: string;`<br>`panelBgColor: string;`<br>`panelBgColorHover: string;`<br>`panelBgColorActive: string;`<br>`}`  | `{`<br>`borderColor: "#cccccc";`<br>`borderColorActive: "#2684ff";`<br>`borderColorHover: "#b3b3b3";`<br>`panelBgColor: "#fff";`<br>`panelBgColorHover: "#deebff";`<br>`panelBgColorActive: "#2684ff";`<br>`}`    | Css for select dropdown   |
+| `refreshButtonStyle`    | `{`<br>`iconUniCode: string;`<br>`}` | `{`<br>`iconUniCode: "\u21bb";`<br>`}`   | Css for refresh button       |
+| `verifyButtonStyle` | `{`<br>`background: string;`<br>`color: string;`<br>`}` | `{`<br>`background: linear-gradient(to top, #06b6d4, #3b82f6);`<br>`color: rgb(255, 255, 255, 1);`<br>`}` | Css for verify button         |
 
-### Prop biometricEnv
+### Prop sbiEnv
 For more information check [MDS Specification](https://docs.mosip.io/1.1.5/biometrics/mosip-device-service-specification)
 
 | field                | type     | valid values                                                                                                                                                                                                   | default value | note                                                                             |
 | -------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------- |
 | `env`                | `string` | ("Staging", "Developer", "Pre-Production", "Production")                                                                                                                                                       | "Staging"     | The target environment.                                                          |
 | `captureTimeout`     | `number` |                                                                                                                                                                                                                | 30            | Max time the app will wait for the capture api call.                             |
-| `discTimeout`        | `number` |                                                                                                                                                                                                                | 30            | Max time the app will wait for the discover api call.                            |
+| `discTimeout`        | `number` |                                                                                                                                                                                                                | 30            | The time during which app will keep scanning for the devices at a regular interval of 2 seconds.                             |
 | `dinfoTimeout`       | `number` |                                                                                                                                                                                                                | 30            | Max time the app will wait for the device info api call.                         |
 | `domainUri`          | `string` |                                                                                                                                                                                                                | window.origin | URI of the authentication server.                                                |
 | `faceCaptureCount`   | `number` | Always set to 1                                                                                                                                                                                                | 1             | Number of biometric data that is collected for face.                             |

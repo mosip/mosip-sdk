@@ -14,7 +14,7 @@ export {
   IInputField,
   IErrorClass,
   IDeviceDetail,
-  IBiometricEnv,
+  ISbiEnv,
   IBioCompStyle,
   IRefreshButtonStyle,
   IVerifyButtonStyle,

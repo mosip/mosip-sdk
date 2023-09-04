@@ -4,14 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { IBiometricEnv, IErrorClass, IBioCompStyle } from "./StandardInterface";
+import { ISbiEnv, IErrorClass, IBioCompStyle } from "./StandardInterface";
 
 interface ISBIProps {
-  buttonName: string;
+  buttonLabel: string;
   transactionId: string;
   customStyle?: IBioCompStyle;
   langCode?: string;
-  biometricEnv?: IBiometricEnv;
+  sbiEnv?: ISbiEnv;
   disable?: boolean;
   onCapture: (biometricResponse: Object) => void;
   onErrored: (errorObj: IErrorClass | null) => void;

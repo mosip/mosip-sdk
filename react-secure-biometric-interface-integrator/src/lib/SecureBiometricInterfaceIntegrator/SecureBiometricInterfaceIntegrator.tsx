@@ -12,7 +12,7 @@ import { localStorageService, SbiService } from "../service";
 import {
   DeviceState,
   DeviceStateStatus,
-  IBiometricEnv,
+  ISbiEnv,
   IDeviceDetail,
   IDeviceInfo,
   ISBIProps,
@@ -43,7 +43,7 @@ const modalityIconPath: { [name: string]: string } = {
 const SecureBiometricInterfaceIntegrator = (props: ISBIProps) => {
   const { t, i18n } = useTranslation();
 
-  const sbiService = new SbiService(props.biometricEnv);
+  const sbiService = new SbiService(props.sbiEnv);
 
   const { getDeviceInfos } = {
     ...localStorageService,
@@ -164,7 +164,7 @@ const SecureBiometricInterfaceIntegrator = (props: ISBIProps) => {
 
   const discoverDevicesAsync = async (host: string) => {
     const discTimeout =
-      (props.biometricEnv as IBiometricEnv).discTimeout || defaultDiscTimeout;
+      (props.sbiEnv as ISbiEnv).discTimeout || defaultDiscTimeout;
 
     let discoverDeviceTill = new Date().setSeconds(
       new Date().getSeconds() + discTimeout
@@ -434,8 +434,8 @@ const SecureBiometricInterfaceIntegrator = (props: ISBIProps) => {
                         }}
                         disabled={props.disable}
                       >
-                        {props.buttonName
-                          ? t(props.buttonName)
+                        {props.buttonLabel
+                          ? t(props.buttonLabel)
                           : t("scan_and_verify")}
                       </button>
                     )}
