@@ -28,7 +28,7 @@ npm publish
 <SecureBiometricInterfaceIntegrator 
     transactionId="your_transaction_id"
     buttonLabel="button_label"
-    langCod="en"
+    langCode="en"
     sbiEnv={sbiEnv}
     onCapture={myChange}
     onErrored={myError} />

@@ -61,9 +61,3 @@ versionBranch.forEach((branch) => {
   printMessage(`Building storybook for ${branch} branch`);
   execSync(`${storybookBuildCmd}/${branch}`);
 });
-
-// Deploying storybook in github pages
-if (profile === ".env.production") {
-  printMessage("Deploying storybook in github pages");
-  execSync("npm run deploy");
-}
