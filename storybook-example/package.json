@@ -17,8 +17,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "storybook dev -p 6006",
     "build": "storybook build",
-    "build:local": "set PROFILE=.env.local && npm run build",
-    "build:production": "set PROFILE=.env.production && npm run build",
     "build:version:production": "set PROFILE=.env.production && node version_build.js",
     "build:version:local": "set PROFILE=.env.local && node version_build.js",
     "deploy": "gh-pages -d storybook-static",
