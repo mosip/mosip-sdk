@@ -14,21 +14,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: npm Install secure-biometric-interface-integrator
-        run: |
-          cd secure-biometric-interface-integrator
-          npm install
-
-      - name: npm Install sign-in-with-esignet
-        run: |
-          cd sign-in-with-esignet
-          npm install
 
       - name: npm Install and Build storybook-example
         run: |
           cd storybook-example
           npm install
-          npm run build
+          npm run build:version:production
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
