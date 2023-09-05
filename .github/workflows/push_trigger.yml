@@ -101,6 +101,7 @@ jobs:
       - name: npm Install and Build storybook-example
         run: |
           cd storybook-example
+          npm install
           npm run build:version:production
 
       - name: Deploy to GitHub Pages
