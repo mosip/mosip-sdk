@@ -1,1 +1,1 @@
-# esignet-plugins
+# mosip-plugins

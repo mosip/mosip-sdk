@@ -8,7 +8,7 @@
   "homepage": "https://docs.esignet.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/esignet-plugins/sign-in-with-esignet"
+    "url": "git+https://github.com/mosip/mosip-plugins"
   },
   "files": [
     "dist",

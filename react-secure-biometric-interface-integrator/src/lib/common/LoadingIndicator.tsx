@@ -41,7 +41,7 @@ const LoadingIndicator = ({
         <svg
           style={dynamicSize[size]}
           aria-hidden="true"
-          className="mdb-mr-2 mdb-w-8 mdb-h-8 mdb-text-gray-200 mdb-animate-spin mdb-dark:text-gray-600 mdb-fill-blue-600"
+          className="mdb-mx-2 mdb-w-8 mdb-h-8 mdb-text-gray-200 mdb-animate-spin mdb-dark:text-gray-600 mdb-fill-blue-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

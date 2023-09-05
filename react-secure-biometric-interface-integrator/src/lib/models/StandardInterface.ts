@@ -92,7 +92,7 @@ interface IDeviceDetail {
   status: DeviceStateStatusType;
 }
 
-interface IBiometricEnv {
+interface ISbiEnv {
   env: EnvType;
   captureTimeout: number;
   irisBioSubtypes: IrisBioSubType;
@@ -143,7 +143,7 @@ export {
   IInputField,
   IErrorClass,
   IDeviceDetail,
-  IBiometricEnv,
+  ISbiEnv,
   IBioCompStyle,
   IRefreshButtonStyle,
   ISelectBoxStyle,
