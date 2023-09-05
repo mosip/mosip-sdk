@@ -12,7 +12,7 @@ If you have react based plugins then you have to create a wrapper component like
 
 ```js
 // import your react component
-import { MosipBioDevice } from "../../mosip-bio-device/src/index";
+import { SecureBiometricInterfaceIntegrator } from "../../react-secure-biometric-interface-integrator/src/index";
 
 // create a functional component that return an HTML Element with the component inside it
 // use args to pass on, in your react component
@@ -21,7 +21,7 @@ function ReactSbi(args) {
     // wrap you actual component with some styling
     <div style={{STYLING}}>
         <!-- call your react component with all of your arguments -->
-        <MosipBioDevice {...args} />
+        <SecureBiometricInterfaceIntegrator {...args} />
     </div>
   );
 }
@@ -119,10 +119,24 @@ Above command create a folder name `storybook-static`, you can copy paste this f
 
 ## Deployed multiple version of storybook
 
-For deploying multiple version of storybook in a single github pages, then you have to first provide `VERSION_BRANCH` in the environment file `.env` then you have to run this command
+### Environment Variables
+
+| Variable Name | Description | Default Value Production | Default Value Local |
+| ------------- | ----------- | ------------- | -----------|
+| BASE_PATH     | Base path for the reference storybook | `mosip-plugins` | `http://127.0.0.1/storybook-example/storybook-static` |
+| PLUGINS_FOLDER | Comma separated folder name of al the plugin | `react-secure-biometric-interface-integrator, react-sign-in-with-esignet, sign-in-with-esignet, secure-biometric-interface-integrator` | `react-secure-biometric-interface-integrator, react-sign-in-with-esignet, sign-in-with-esignet, secure-biometric-interface-integrator` |
+| VERSION_BRANCH | Name of the branch which you want to add in the storybook reference | `release-0.9.0` | `release-0.9.0` |
+
+For deploying multiple version of storybook in a single github pages, then you have to first provide value to the variable in the environment file `.env.production` then you have to run this command:
 
 ```cmd
-npm run build:version
+npm run build:version:production
+```
+
+If you want to run it locally then you have to provide environment variables value in `env.local` and then run this command:
+
+```cmd
+npm run build:version:local
 ```
 
 It will create stories from the current branch and as well as the branch you have specify in the `VERSION_BRANCH` environment variable, in a comma separated way.

@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-export { IMosipBioDeviceProps } from "./IMosipBioDeviceProps";
+export { ISBIProps } from "./ISBIProps";
 
 export {
   IDeviceInfo,
@@ -14,7 +14,7 @@ export {
   IInputField,
   IErrorClass,
   IDeviceDetail,
-  IBiometricEnv,
+  ISbiEnv,
   IBioCompStyle,
   IRefreshButtonStyle,
   IVerifyButtonStyle,

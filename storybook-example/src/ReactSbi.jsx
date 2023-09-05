@@ -1,4 +1,4 @@
-import { MosipBioDevice } from "../../mosip-bio-device/src/index";
+import { SecureBiometricInterfaceIntegrator } from "../../react-secure-biometric-interface-integrator/src/index";
 
 function ReactSbi(args) {
   return (
@@ -16,7 +16,7 @@ function ReactSbi(args) {
           padding: "50px"
         }}
       >
-        <MosipBioDevice {...args} />
+        <SecureBiometricInterfaceIntegrator {...args} />
       </div>
     </div>
   );

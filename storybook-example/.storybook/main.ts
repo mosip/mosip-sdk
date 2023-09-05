@@ -1,11 +1,11 @@
 import { StorybookConfig } from "@storybook/react-webpack5";
-import { refs } from "./refs";
+import { getBranchRefs } from "./refs";
 
 const path = require("path");
 // component which created with typescript has to added in ts-loader
 const SIGNIN_PATH = path.join(__dirname, "../../sign-in-with-esignet/src");
 const REACT_SIGNIN_PATH = path.join(__dirname, "../../react-sign-in-with-esignet/src");
-const SBI_PATH = path.join(__dirname, "../../mosip-bio-device/src");
+const SBI_PATH = path.join(__dirname, "../../react-secure-biometric-interface-integrator/src");
 const STORIES_PATH = path.join(__dirname, "../stories");
 
 const config: StorybookConfig = {
@@ -29,7 +29,7 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
-  refs: refs,
+  refs: getBranchRefs,
   webpackFinal: async (config) => {
     config?.module?.rules?.push({
       test: /\.(ts|tsx)$/,
