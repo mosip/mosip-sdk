@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       source_directory:
-        description: 'Provide esignet plugin utility'
+        description: 'Provide mosip plugin utility'
         required: true
         default: 'sign-in-with-esignet or secure-biometric-interface-integrator or storybook-example'
         type: string
@@ -46,19 +46,19 @@ jobs:
           name: sign-in-with-esignet
           path: sign-in-with-esignet/sign-in-with-esignet.zip
 
-      - name: Copy ZIP file to esignet-plugins directory
+      - name: Copy ZIP file to mosip-plugins directory
         run:  |
-          mkdir -p esignet-plugins
-          cp ./sign-in-with-esignet/sign-in-with-esignet.zip  esignet-plugins/
+          mkdir -p mosip-plugins
+          cp ./sign-in-with-esignet/sign-in-with-esignet.zip  mosip-plugins/
 
-      - name: Pushes esignet-plugin folder
+      - name: Pushes mosip-plugin folder
         uses: datalbry/copy_folder_to_another_repo_action@1.0.1
         env:
           API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
         with:
-          source_folder: esignet-plugins
+          source_folder: mosip-plugins
           destination_repo: mosip/artifactory-ref-impl
-          destination_folder: artifacts/src/esignet-plugins/sign-in-with-esignet/
+          destination_folder: artifacts/src/mosip-plugins/sign-in-with-esignet/
           destination_branch: ${{ github.event.inputs.destination_branch }}
           user_name: mosip
 
@@ -100,19 +100,19 @@ jobs:
           name: secure-biometric-interface-integrator
           path: secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip
 
-      - name: Copy ZIP file to esignet-plugins directory
+      - name: Copy ZIP file to mosip-plugins directory
         run: |
-          mkdir -p esignet-plugins
-          cp ./secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip  esignet-plugins/
+          mkdir -p mosip-plugins
+          cp ./secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip  mosip-plugins/
 
-      - name: Pushes esignet-plugin folder
+      - name: Pushes mosip-plugin folder
         uses: datalbry/copy_folder_to_another_repo_action@1.0.1
         env:
           API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
         with:
-          source_folder: esignet-plugins
+          source_folder: mosip-plugins
           destination_repo: mosip/artifactory-ref-impl
-          destination_folder: artifacts/src/esignet-plugins/secure-biometric-interface-integrator/
+          destination_folder: artifacts/src/mosip-plugins/secure-biometric-interface-integrator/
           destination_branch: ${{ github.event.inputs.destination_branch }}
           user_name: mosip
 

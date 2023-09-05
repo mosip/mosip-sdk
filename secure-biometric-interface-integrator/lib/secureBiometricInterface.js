@@ -58,7 +58,7 @@ class SecureBiometricInterface {
       );
     }
     this.container = container;
-    this.props = { ...DEFAULT_PROPS, ...props };
+    this.props = { ...DEFAULT_PROPS, ...props, langCode: props.langCode || DEFAULT_PROPS.langCode, buttonLabel: props.buttonLabel || DEFAULT_PROPS.buttonLabel };
 
     this.sbiService = new SbiService(props?.sbiEnv ?? undefined);
 
@@ -475,14 +475,17 @@ class SecureBiometricInterface {
       elemArray.push(
         this.generateErrorStateDiv(
           onlyErrorState ??
-            (i18n.exists(this.errorState.errorCode)
-              ? i18n.t(this.errorState.errorCode)
-              : this.errorState.defaultMsg),
+          (i18n.exists(this.errorState.errorCode)
+            ? i18n.t(this.errorState.errorCode)
+            : this.errorState.defaultMsg),
           false
         )
       );
     }
-    if (this.modalityDevices.length > 0) {
+    if (
+      this.modalityDevices.length > 0 &&
+      this.selectedDevice.status === DeviceStateStatus.Ready
+    ) {
       elemArray.push(this.generateVerifyButton());
     }
     const verifyButtonData = div(

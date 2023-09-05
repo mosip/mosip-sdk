@@ -12,10 +12,10 @@ import { localStorageService, SbiService } from "../service";
 import {
   DeviceState,
   DeviceStateStatus,
-  IBiometricEnv,
+  ISbiEnv,
   IDeviceDetail,
   IDeviceInfo,
-  IMosipBioDeviceProps,
+  ISBIProps,
   LoadingStates as states,
   host,
   errorRibbonClass,
@@ -31,7 +31,7 @@ import faceIcon from "../assets/face_sign_in.png";
 import fingerIcon from "../assets/fingerprint_sign_in.png";
 import irisIcon from "../assets/iris_sign_in.png";
 
-import "./MosipBioDevice.scss";
+import "./SecureBiometricInterfaceIntegrator.scss";
 import languageDetail from "../assets/locales/default.json";
 
 const modalityIconPath: { [name: string]: string } = {
@@ -40,10 +40,10 @@ const modalityIconPath: { [name: string]: string } = {
   Iris: irisIcon,
 };
 
-const MosipBioDevice = (props: IMosipBioDeviceProps) => {
+const SecureBiometricInterfaceIntegrator = (props: ISBIProps) => {
   const { t, i18n } = useTranslation();
 
-  const sbiService = new SbiService(props.biometricEnv);
+  const sbiService = new SbiService(props.sbiEnv);
 
   const { getDeviceInfos } = {
     ...localStorageService,
@@ -133,6 +133,11 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
       setIsRtl(languageDetail.rtlLanguages.includes(props.langCode));
       i18n.changeLanguage(props.langCode);
     }
+    else {
+      // If langCode is not provided or matches, set English as default
+      setIsRtl(false);
+      i18n.changeLanguage(process.env.REACT_APP_DEFAULT_LANGUAGE); // Set English as default language
+    }
   };
 
   const scanDevices = (forceScan: boolean) => {
@@ -159,7 +164,7 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
 
   const discoverDevicesAsync = async (host: string) => {
     const discTimeout =
-      (props.biometricEnv as IBiometricEnv).discTimeout || defaultDiscTimeout;
+      (props.sbiEnv as ISbiEnv).discTimeout || defaultDiscTimeout;
 
     let discoverDeviceTill = new Date().setSeconds(
       new Date().getSeconds() + discTimeout
@@ -429,8 +434,8 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
                         }}
                         disabled={props.disable}
                       >
-                        {props.buttonName
-                          ? t(props.buttonName)
+                        {props.buttonLabel
+                          ? t(props.buttonLabel)
                           : t("scan_and_verify")}
                       </button>
                     )}
@@ -457,4 +462,4 @@ const MosipBioDevice = (props: IMosipBioDeviceProps) => {
   );
 };
 
-export default MosipBioDevice;
+export default SecureBiometricInterfaceIntegrator;

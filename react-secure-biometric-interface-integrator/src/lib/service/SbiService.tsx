@@ -7,7 +7,7 @@
 import axios from "axios";
 import { localStorageService } from "./";
 import * as jose from "jose";
-import { BioType, IBiometricEnv, IDeviceInfo } from "../models";
+import { BioType, ISbiEnv, IDeviceInfo } from "../models";
 
 const {
   addDeviceInfos,
@@ -35,10 +35,10 @@ const defaultFromPort = 4501;
 const defaultTillPort = 4600;
 
 class SbiService {
-  esignetConfig!: IBiometricEnv;
+  esignetConfig!: ISbiEnv;
 
   constructor(
-    esignetConfig: IBiometricEnv = {
+    esignetConfig: ISbiEnv = {
       env: "Staging",
       captureTimeout: 30,
       irisBioSubtypes: "UNKNOWN",
