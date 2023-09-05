@@ -40,7 +40,7 @@ execSync("npm run build");
 printMessage("Storybook-example building complete");
 
 // default storybook build command
-const storybookBuildCmd = `set PROFILE=${profile} && npm run build -- -o storybook-static`;
+const storybookBuildCmd = `env PROFILE=${profile} npm run build -- -o storybook-static`;
 
 // using the branch name from this list, to create version
 const versionBranch =
