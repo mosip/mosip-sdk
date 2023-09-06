@@ -52,6 +52,22 @@ yarn add sign-in-with-esignet
 | `textColor`   | `string` |                                                      |                        | Color of label text                        |
 | `borderColor` | `string` |                                                      |                        | Border color of esignet button             |
 | `borderWidth` | `string` |                                                      |                        | Border width of esignet button             |
+| `customStyle` | `JSON Object` | See Below                                       |                        | Add custom style to the sign in button
+
+
+### Prop `customStyle`
+
+Basically all of the field will accept React.CSSProperties, and any value which is valid in React style is valid in below field
+
+**NOTE:** Adding customStyle will clear all theme-based CSS.
+
+| field         | type     | note                                       |
+| ------------- | -------- | ------------------------------------------ |
+| `outerDivStyleStandard`  | `{ [key: string]: string }` | Adding style to outer div |
+| `outerDivStyleIcon` | `{ [key: string]: string }` | Adding style to outer div icon |
+| `logoDivStyle`  | `{ [key: string]: string }` | Adding style div which surround the logo |
+| `logoImgStyle`  | `{ [key: string]: string }` | Adding style to logo |
+| `labelSpanStyle`  | `{ [key: string]: string }` | Adding style to the label |
 
 ## Usage
 
