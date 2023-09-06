@@ -40,7 +40,7 @@ execSync("npm run build");
 printMessage("Storybook-example building complete");
 
 // default storybook build command
-const storybookBuildCmd = `set PROFILE=${profile} && npm run build -- -o storybook-static`;
+const storybookBuildCmd = `npm run build -- -o storybook-static`;
 
 // using the branch name from this list, to create version
 const versionBranch =
@@ -48,6 +48,7 @@ const versionBranch =
     ? []
     : dotenv.VERSION_BRANCH.split(",").map((_) => _.trim());
 
+execSync(`git fetch`);
 versionBranch.forEach((branch) => {
   // execute script to checkout to the new branch
   printMessage(`Checkout to branch ${branch}`);

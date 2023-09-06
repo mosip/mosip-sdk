@@ -88,33 +88,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-      - name: Zip dist directory
-        run: |
-          cd secure-biometric-interface-integrator
-          mv dist secure-biometric-interface-integrator
-          zip -r secure-biometric-interface-integrator.zip secure-biometric-interface-integrator/
-
-      - name: Upload ZIP artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: secure-biometric-interface-integrator
-          path: secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip
-
-      - name: Copy ZIP file to mosip-plugins directory
-        run: |
-          mkdir -p mosip-plugins
-          cp ./secure-biometric-interface-integrator/secure-biometric-interface-integrator.zip  mosip-plugins/
-
-      - name: Pushes mosip-plugin folder
-        uses: datalbry/copy_folder_to_another_repo_action@1.0.1
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
-        with:
-          source_folder: mosip-plugins
-          destination_repo: mosip/artifactory-ref-impl
-          destination_folder: artifacts/src/mosip-plugins/secure-biometric-interface-integrator/
-          destination_branch: ${{ github.event.inputs.destination_branch }}
-          user_name: mosip
+      
 
   storybook-example:
     if: "contains(github.event.inputs.source_directory, 'storybook-example')"
@@ -123,21 +97,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: npm Install secure-biometric-interface-integrator
-        run: |
-          cd secure-biometric-interface-integrator
-          npm install
-
-      - name: npm Install sign-in-with-esignet
-        run: |
-          cd sign-in-with-esignet
-          npm install
-
       - name: npm Install and Build storybook-example
         run: |
           cd storybook-example
           npm install
-          npm run build
+          npm run build:version:production
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
