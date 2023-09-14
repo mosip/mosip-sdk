@@ -31,7 +31,43 @@ describe(
         signInElement.innerHTML = '';
     });
 
-    it("should return 'Required parameter is missing' when required parameters are missing", () => {
+    it("should return 'Required parameter is missing' when authorizeUri missing", () => {
+      const invalidOidcConfig = {
+        authorizeUri: "",
+        redirect_uri: "https://example.com/callback",
+        client_id: "client123",
+        scope: "scope"
+      };
+      init({ oidcConfig: invalidOidcConfig, buttonConfig, signInElement, style });
+      const errorElement = signInElement.querySelector('span');
+      expect(errorElement?.textContent).toContain('Required parameter is missing');
+    });
+
+    it("should return 'Required parameter is missing' when redirectUri missing", () => {
+      const invalidOidcConfig = {
+        authorizeUri: "https://example.com/authorize",
+        redirect_uri: "",
+        client_id: "client123",
+        scope: "scope"
+      };
+      init({ oidcConfig: invalidOidcConfig, buttonConfig, signInElement, style });
+      const errorElement = signInElement.querySelector('span');
+      expect(errorElement?.textContent).toContain('Required parameter is missing');
+    });
+
+    it("should return 'Required parameter is missing' when client_id missing", () => {
+      const invalidOidcConfig = {
+        authorizeUri: "https://example.com/authorize",
+        redirect_uri: "https://example.com/callback",
+        client_id: "",
+        scope: "scope"
+      };
+      init({ oidcConfig: invalidOidcConfig, buttonConfig, signInElement, style });
+      const errorElement = signInElement.querySelector('span');
+      expect(errorElement?.textContent).toContain('Required parameter is missing');
+    });
+
+    it("should return 'Required parameter is missing' when scope is missing", () => {
       const invalidOidcConfig = {
         authorizeUri: "https://example.com/authorize",
         redirect_uri: "https://example.com/callback",
@@ -97,9 +133,9 @@ describe(
     it('should correctly build the URL with required parameters', () => {
       const oidcConfig = {
         authorizeUri: 'https://example.com/auth',
-        nonce: 'some_nonce',
-        state: 'some_state',
-        client_id: 'your-client-id',
+        nonce: 'nonce',
+        state: 'state',
+        client_id: 'client-id',
         redirect_uri: 'https://example.com/callback',
         scope: 'openid profile',
         response_type: 'code',
@@ -118,8 +154,27 @@ describe(
       const anchorElement = signInElement.querySelector('a');
       const url = anchorElement?.href;
 
-      const expectedURL = 'https://example.com/auth?nonce=some_nonce&state=some_state&client_id=your-client-id&redirect_uri=https://example.com/callback&scope=openid%20profile&response_type=code&acr_values=acr_values&claims=%7B%22claim1%22:%22value1%22,%22claim2%22:%22value2%22%7D&claims_locales=en-US&display=popup&prompt=consent&max_age=3600&ui_locales=en-US';
+      const expectedURL = 'https://example.com/auth?nonce=nonce&state=state&client_id=client-id&redirect_uri=https://example.com/callback&scope=openid%20profile&response_type=code&acr_values=acr_values&claims=%7B%22claim1%22:%22value1%22,%22claim2%22:%22value2%22%7D&claims_locales=en-US&display=popup&prompt=consent&max_age=3600&ui_locales=en-US';
 
+      expect(url).toEqual(expectedURL);
+    });
+
+    it('should not build the url when the required paramters are missing', () => {
+      const invalidoidcConfig = {
+        authorizeUri: 'https://example.com/auth',
+        client_id: 'your-client-id',
+        redirect_uri: 'https://example.com/callback',
+        scope:""
+      };
+    
+      signInElement.id = 'sign-in-button';
+    
+      init({ oidcConfig: invalidoidcConfig, buttonConfig, signInElement, style });
+      const anchorElement = signInElement.querySelector('a');
+      const url = anchorElement?.href;
+      
+      const expectedURL="http://localhost/#"
+    
       expect(url).toEqual(expectedURL);
     });
 
