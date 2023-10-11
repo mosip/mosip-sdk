@@ -58,17 +58,17 @@ function validateInput(oidcConfig: OidcConfigProp): string {
  * @returns URL
  */
 function buildRedirectURL(oidcConfig: OidcConfigProp): string {
-  let urlToNavigate: string = oidcConfig?.authorizeUri;
+  let urlToNavigate: string = oidcConfig?.authorizeUri + "?";
 
-  if (oidcConfig?.nonce) urlToNavigate += "?nonce=" + oidcConfig.nonce;
+  if (oidcConfig?.nonce) urlToNavigate += "nonce=" + oidcConfig.nonce + "&";
 
   //Generating random state if not provided
   if (oidcConfig?.state) {
-    urlToNavigate += "&state=" + oidcConfig.state;
+    urlToNavigate += "state=" + oidcConfig.state;
   } else {
     const randomNum = window.crypto.getRandomValues(new Uint32Array(1));
     const randomState = randomNum[0].toString(36).substring(5);
-    urlToNavigate += "&state=" + randomState;
+    urlToNavigate += "state=" + randomState;
   }
 
   if (oidcConfig?.client_id)
