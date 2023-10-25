@@ -33,7 +33,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   sign-in-with-esignet:
-    if: "contains(github.event.inputs.source_directory, 'sign-in-with-esignet') && ${{ github.event_name != 'pull_request' }}"
+    if: "${{ github.event_name != 'pull_request' }}"
     runs-on: ubuntu-latest
     needs: build-sign-in-with-esignet
     env:
@@ -95,7 +95,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   secure-biometric-interface-integrator:
-    if: "contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator') && ${{ github.event_name != 'pull_request' }}"
+    if: "${{ github.event_name != 'pull_request' }}"
     needs: build-secure-biometric-interface-integrator
     uses: syedsalman3753/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
@@ -105,7 +105,7 @@ jobs:
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   storybook-example:
-    if: "contains(github.event.inputs.source_directory, 'storybook-example') && ${{ github.event_name != 'pull_request' }}"
+    if: "${{ contains(github.event.inputs.source_directory, 'storybook-example')  }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
