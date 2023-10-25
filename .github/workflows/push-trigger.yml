@@ -105,7 +105,7 @@ jobs:
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   storybook-example:
-    if: "${{ contains(github.event.inputs.source_directory, 'storybook-example')  }}"
+    if: "contains(github.event.inputs.source_directory, 'storybook-example')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
