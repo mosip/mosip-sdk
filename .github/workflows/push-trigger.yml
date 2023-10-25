@@ -97,7 +97,7 @@ jobs:
   secure-biometric-interface-integrator:
     if: "contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator') && ${{ github.event_name != 'pull_request' }}"
     needs: build-secure-biometric-interface-integrator
-    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    uses: syedsalman3753/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
       SERVICE_LOCATION: ./secure-biometric-interface-integrator
     secrets:
