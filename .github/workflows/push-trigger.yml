@@ -56,7 +56,7 @@ jobs:
           zip -r sign-in-with-esignet.zip sign-in-with-esignet/
 
       - name: Upload ZIP artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: sign-in-with-esignet
           path: sign-in-with-esignet/sign-in-with-esignet.zip
@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: npm Install and Build storybook-example
         run: |
