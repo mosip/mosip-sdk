@@ -1,0 +1,156 @@
+name: Build and Push
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_directory:
+        description: 'Provide mosip plugin utility'
+        required: true
+        default: 'sign-in-with-esignet or secure-biometric-interface-integrator or storybook-example'
+        type: string
+      destination_branch:
+        description: 'Provide artifactory branch'
+        required: true
+        type: string
+  push:
+    branches:
+      - develop
+      - master
+      - 0.*
+      - 1.*
+      - MOSIP*
+      - release*
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  build-sign-in-with-esignet:
+    if: "${{ contains(github.event.inputs.source_directory, 'sign-in-with-esignet') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
+    uses: mosip/kattu/.github/workflows/npm-build.yml@master
+    with:
+      SERVICE_LOCATION: ./sign-in-with-esignet
+      BUILD_ARTIFACT: dist
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  sign-in-with-esignet:
+    runs-on: ubuntu-latest
+    needs: build-sign-in-with-esignet
+    env:
+      SERVICE_LOCATION: ./sign-in-with-esignet
+      DIST_BUILD_ARTIFACT: dist
+      BUILD_ARTIFACT: sign-in-with-esignet
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.DIST_BUILD_ARTIFACT }}
+          path: ${{ env.SERVICE_LOCATION }}
+
+      - name: Zip dist directory
+        run: |
+          cd ${{ env.SERVICE_LOCATION }}
+          unzip ${{ env.DIST_BUILD_ARTIFACT }}
+          mv dist sign-in-with-esignet
+          zip -r sign-in-with-esignet.zip sign-in-with-esignet/
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sign-in-with-esignet
+          path: sign-in-with-esignet/sign-in-with-esignet.zip
+
+      - name: Copy ZIP file to mosip-plugins directory
+        run:  |
+          mkdir -p mosip-plugins
+          cp ./sign-in-with-esignet/sign-in-with-esignet.zip  mosip-plugins/
+
+      - name: Pushes mosip-plugin folder
+        uses: datalbry/copy_folder_to_another_repo_action@1.0.1
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.ACTION_PAT }}
+        with:
+          source_folder: mosip-plugins
+          destination_repo: mosip/artifactory-ref-impl
+          destination_folder: artifacts/src/mosip-plugins/sign-in-with-esignet/
+          destination_branch: ${{ github.event.inputs.destination_branch }}
+          user_name: mosip
+        if: "${{ github.event_name != 'pull_request' }}"
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+        if: failure() # Pick up events even if the job fails or is canceled.
+
+  build-secure-biometric-interface-integrator:
+    if: "${{ contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
+    uses: mosip/kattu/.github/workflows/npm-build.yml@master
+    with:
+      SERVICE_LOCATION: ./secure-biometric-interface-integrator
+      BUILD_ARTIFACT: dist-sbi-integrator
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  secure-biometric-interface-integrator:
+    if: "${{ github.event_name != 'pull_request' }}"
+    needs: build-secure-biometric-interface-integrator
+    uses: syedsalman3753/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: ./secure-biometric-interface-integrator
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  storybook-example:
+    if: "${{ contains(github.event.inputs.source_directory, 'storybook-example') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: npm Install and Build storybook-example
+        run: |
+          cd storybook-example
+          npm install
+          npm run build:version:production
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.ACTION_PAT }}
+          publish_dir: storybook-example/storybook-static
+        if: "${{ github.event_name != 'pull_request' }}"
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+        if: failure() # Pick up events even if the job fails or is canceled.
+
+  sonarcloud:
+    if: "${{ github.event_name != 'pull_request' }}"
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+        if: failure() # Pick up events even if the job fails or is canceled.
