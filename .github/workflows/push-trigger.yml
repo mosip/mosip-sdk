@@ -24,7 +24,7 @@ on:
 
 jobs:
   build-sign-in-with-esignet:
-    if: "${{ contains(github.event.inputs.source_directory, 'sign-in-with-esignet') || true }}"
+    if: "${{ contains(github.event.inputs.source_directory, 'sign-in-with-esignet') || false }}"
     uses: mosip/kattu/.github/workflows/npm-build.yml@master
     with:
       SERVICE_LOCATION: ./sign-in-with-esignet
