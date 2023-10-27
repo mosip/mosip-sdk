@@ -17,14 +17,15 @@ on:
       - develop
       - master
       - 0.*
-      - MOSIP
+      - 1.*
+      - MOSIP*
       - release*
   pull_request:
     types: [ opened, synchronize, reopened ]
 
 jobs:
   build-sign-in-with-esignet:
-    if: "${{ contains(github.event.inputs.source_directory, 'sign-in-with-esignet') || true }}"
+    if: "${{ contains(github.event.inputs.source_directory, 'sign-in-with-esignet') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
     uses: mosip/kattu/.github/workflows/npm-build.yml@master
     with:
       SERVICE_LOCATION: ./sign-in-with-esignet
@@ -87,7 +88,7 @@ jobs:
         if: failure() # Pick up events even if the job fails or is canceled.
 
   build-secure-biometric-interface-integrator:
-    if: "${{ contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator')  || true }}"
+    if: "${{ contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
     uses: mosip/kattu/.github/workflows/npm-build.yml@master
     with:
       SERVICE_LOCATION: ./secure-biometric-interface-integrator
@@ -106,7 +107,7 @@ jobs:
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   storybook-example:
-    if: "${{ contains(github.event.inputs.source_directory, 'storybook-example') || true }}"
+    if: "${{ contains(github.event.inputs.source_directory, 'storybook-example') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
