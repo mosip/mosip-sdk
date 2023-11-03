@@ -12,14 +12,6 @@ on:
         description: 'Provide artifactory branch'
         required: true
         type: string
-  push:
-    branches:
-      - develop
-      - master
-      - 0.*
-      - 1.*
-      - MOSIP*
-      - release*
   pull_request:
     types: [ opened, synchronize, reopened ]
 
