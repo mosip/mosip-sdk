@@ -12,10 +12,6 @@ on:
         description: 'Provide artifactory branch'
         required: true
         type: string
-      publish_type:
-        description: 'Provide publish type: main or beta'
-        required: true
-        type: string
   push:
     branches:
       - develop
@@ -106,7 +102,6 @@ jobs:
     uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
       SERVICE_LOCATION: ./secure-biometric-interface-integrator
-      PUBLISH_TYPE: ${{ github.event.inputs.publish_type }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
