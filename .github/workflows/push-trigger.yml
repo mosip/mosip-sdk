@@ -4,12 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       source_directory:
-        description: 'Provide mosip plugin utility'
+        description: 'Provide the mosip plugin utility'
         required: true
         default: 'sign-in-with-esignet or secure-biometric-interface-integrator or storybook-example'
         type: string
       destination_branch:
         description: 'Provide artifactory branch'
+        required: true
+        type: string
+      publish_type:
+        description: 'Provide publish type: main or beta'
         required: true
         type: string
   push:
@@ -102,6 +106,7 @@ jobs:
     uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
       SERVICE_LOCATION: ./secure-biometric-interface-integrator
+      PUBLISH_TYPE: ${{ github.event.inputs.publish_type }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
