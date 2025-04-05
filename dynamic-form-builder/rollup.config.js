@@ -1,7 +1,7 @@
 export default {
-  input: 'src/FormBuilder.js',
+  input: 'src/DynamicFormBuilder.js',
   output: [
-    { file: 'dist/FormBuilder.cjs.js', format: 'cjs' },
-    { file: 'dist/FormBuilder.esm.js', format: 'esm' },
+    { file: 'dist/DynamicFormBuilder.cjs.js', format: 'cjs' },
+    { file: 'dist/DynamicFormBuilder.esm.js', format: 'esm' },
   ],
 };
