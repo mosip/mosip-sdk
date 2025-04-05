@@ -1,0 +1,32 @@
+{
+  "name": "dynamic-form-builder",
+  "version": "1.0.0",
+  "description": "A flexible JavaScript library for building dynamic forms",
+  "main": "dist/DynamicFormBuilder.js",
+  "module": "src/DynamicFormBuilder.js",
+  "types": "dist/DynamicFormBuilder.d.ts",
+  "scripts": {
+    "build": "mkdir -p dist && cp src/DynamicFormBuilder.js dist/DynamicFormBuilder.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mosip",
+    "form",
+    "dynamic",
+    "dynamic-form-builder",
+    "javascript",
+    "dynamic-forms"
+  ],
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mosip/mosip-sdk"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "devDependencies": {
+    "rollup": "^4.39.0"
+  }
+}
