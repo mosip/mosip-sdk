@@ -21,7 +21,7 @@ jobs:
     uses: mosip/kattu/.github/workflows/npm-build.yml@master
     with:
       SERVICE_LOCATION: ./sign-in-with-esignet
-      BUILD_ARTIFACT: dist.zip
+      BUILD_ARTIFACT: dist
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
@@ -36,7 +36,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.DIST_BUILD_ARTIFACT }}
           path: ${{ env.SERVICE_LOCATION }}
