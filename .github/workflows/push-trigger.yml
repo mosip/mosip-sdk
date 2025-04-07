@@ -21,7 +21,7 @@ jobs:
     uses: mosip/kattu/.github/workflows/npm-build.yml@master
     with:
       SERVICE_LOCATION: ./sign-in-with-esignet
-      BUILD_ARTIFACT: dist
+      BUILD_ARTIFACT: dist.zip
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
