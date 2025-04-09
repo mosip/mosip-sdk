@@ -104,6 +104,25 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
+  build-dynamic-form-builder:
+    if: "${{ contains(github.event.inputs.source_directory, 'dynamic-form-builder') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
+    uses: mosip/kattu/.github/workflows/npm-build.yml@master
+    with:
+      SERVICE_LOCATION: ./dynamic-form-builder
+      BUILD_ARTIFACT: dist-dynamic-form-builder
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  dynamic-form-builder:
+    if: "${{ github.event_name != 'pull_request' }}"
+    needs: build-dynamic-form-builder
+    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: ./dynamic-form-builder
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
   storybook-example:
     if: "${{ contains(github.event.inputs.source_directory, 'storybook-example') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
     runs-on: ubuntu-latest
