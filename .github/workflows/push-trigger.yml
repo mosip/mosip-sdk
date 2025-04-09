@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       source_directory:
-        description: 'Provide mosip plugin utility'
+        description: 'Provide the mosip plugin utility'
         required: true
         default: 'sign-in-with-esignet or secure-biometric-interface-integrator or storybook-example'
         type: string

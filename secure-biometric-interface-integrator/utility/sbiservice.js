@@ -51,26 +51,64 @@ const BioType = {
 class SbiService {
   sbiConfig;
 
-  constructor(
-    sbiConfig = {
-      env: "Staging",
-      captureTimeout: 30,
-      irisBioSubtypes: "UNKNOWN",
-      fingerBioSubtypes: "UNKNOWN",
-      faceCaptureCount: 1,
-      faceCaptureScore: 70,
-      fingerCaptureCount: 1,
-      fingerCaptureScore: 70,
-      irisCaptureCount: 1,
-      irisCaptureScore: 70,
-      portRange: "4501-4600",
-      discTimeout: 15,
-      dinfoTimeout: 30,
-      domainUri: `${window.origin}`,
-    }
-  ) {
-    this.sbiConfig = sbiConfig;
+  constructor(sbiConfig) {
+    this.sbiConfig = {
+      env: this.nullCheckStr(sbiConfig.env,"Staging"),
+      irisBioSubtypes: this.nullCheckStr(sbiConfig.irisBioSubtypes, "UNKNOWN"),
+      fingerBioSubtypes: this.nullCheckStr(sbiConfig.fingerBioSubtypes, "UNKNOWN"),
+      faceCaptureCount: this.nullCheckNum(sbiConfig.faceCaptureCount, "1"),
+      faceCaptureScore: this.nullCheckNum(sbiConfig.faceCaptureScore, "70"),
+      fingerCaptureCount: this.nullCheckNum(sbiConfig.fingerCaptureCount, "1"),
+      fingerCaptureScore: this.nullCheckNum(sbiConfig.fingerCaptureScore, "70"),
+      irisCaptureCount: this.nullCheckNum(sbiConfig.irisCaptureCount, "1"),
+      irisCaptureScore: this.nullCheckNum(sbiConfig.irisCaptureScore, "70"),
+      portRange: this.nullCheckStr(sbiConfig.portRange, "4501-4600"),
+      captureTimeout: this.convertToMs(sbiConfig.captureTimeout, "30000"),
+      discTimeout: this.convertToMs(sbiConfig.discTimeout, "15000"),
+      dinfoTimeout: this.convertToMs(sbiConfig.dinfoTimeout, "30000"),
+      domainUri: this.nullCheckStr(sbiConfig.domainUri, window.origin),
+    };
   }
+
+  /**
+   * Convert sec to millisecond
+   * @param {string | number | undefined | null} current
+   * @param {string} default
+   * @returns {string} converted millisecond
+   */
+  convertToMs = (current, defaultVal) => {
+    if (current === null || current === undefined || current === "" || isNaN(current)) {
+      return defaultVal;
+    }
+    return (current * 1000).toString();
+  }
+
+  /**
+   * Null check & string conversion of number
+   * @param {string | number | undefined | null} str
+   * @param {string} defaultVal
+   * @returns {string} string value
+   */
+  nullCheckNum = (current, defaultVal) => {
+    if (current === null || current === undefined || current === "" || isNaN(current)) {
+      return defaultVal;
+    }
+    return current.toString();
+  }
+
+  /**
+   * Null check for string
+   * @param {string | undefined | null} str
+   * @param {string} defaultVal
+   * @returns {string} string value
+   */
+  nullCheckStr = (current, defaultVal) => {
+    if (current === null || current === undefined || current === "") {
+      return defaultVal;
+    }
+    return current.toString();
+  }
+
 
   /**
    * Triggers capture request of SBI for auth capture
@@ -119,7 +157,7 @@ class SbiService {
       env: this.sbiConfig.env,
       purpose,
       specVersion,
-      timeout: this.sbiConfig.captureTimeout * 1000,
+      timeout: this.sbiConfig.captureTimeout,
       captureTime: new Date().toISOString(),
       domainUri: this.sbiConfig.domainUri,
       transactionId,
@@ -130,7 +168,7 @@ class SbiService {
           bioSubType,
           requestedScore, // from configuration
           deviceId, // from discovery
-          deviceSubId: 0, //Set as 0, not required for Auth capture.
+          deviceSubId: "0", //Set as 0, not required for Auth capture.
           previousHash: "", // empty string
         },
       ],
@@ -214,7 +252,7 @@ const discoverRequestBuilder = async (
     method: mosip_DiscoverMethod,
     url: endpoint,
     data: request,
-    timeout: discTimeout * 1000,
+    timeout: discTimeout,
   })
     .then(async (response) => {
       if (response?.data !== null) {
@@ -239,7 +277,7 @@ const mosipdinfo_DeviceInfo = async (host, port, dinfoTimeout) => {
   await axios({
     method: mosip_DeviceInfoMethod,
     url: endpoint,
-    timeout: dinfoTimeout * 1000,
+    timeout: dinfoTimeout,
   })
     .then(async (response) => {
       if (response?.data !== null) {
