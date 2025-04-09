@@ -46,7 +46,7 @@ const appendError = (container, message) => {
 
   if (message) {
     const icon = document.createElement("img");
-    icon.src = "/images/error-icon.svg";
+    icon.src = "/images/error_icon.svg";
     icon.className = "error-icon";
 
     // Set alt only when image loads
