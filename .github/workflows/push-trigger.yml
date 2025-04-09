@@ -18,6 +18,7 @@ on:
       - MOSIP*
       - ES*
       - release*
+      - develop
   pull_request:
     types: [ opened, synchronize, reopened ]
 
