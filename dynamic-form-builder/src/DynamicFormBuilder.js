@@ -35,6 +35,43 @@ const generateLabel = (state, field) => {
   return labelText;
 };
 
+const createErrorContainer = () => {
+  const errorContainer = document.createElement("div");
+  errorContainer.className = "error-message";
+  return errorContainer;
+};
+
+const appendError = (container, message) => {
+  container.innerHTML = "";
+
+  if (message) {
+    const icon = document.createElement("img");
+    icon.src = "/images/error-icon.svg";
+    icon.className = "error-icon";
+
+    // Set alt only when image loads
+    icon.onload = () => {
+      icon.alt = "error-icon";
+      icon.style.display = "inline";
+    };
+
+    // Hide image if it fails to load
+    icon.onerror = () => {
+      icon.style.display = "none";
+    };
+
+    // Hide by default until it loads
+    icon.style.display = "none";
+
+    const textNode = document.createElement("span");
+    textNode.textContent = message;
+    textNode.className = "error-text";
+
+    container.appendChild(icon);
+    container.appendChild(textNode);
+  }
+};
+
 const createSimpleTextbox = (state, field) => {
   const wrapper = document.createElement("div");
   wrapper.className = `form-field-group ${field.cssClasses?.join(" ") || ""}`;
@@ -58,12 +95,11 @@ const createSimpleTextbox = (state, field) => {
     input.dataset.lang = lang;
     input.placeholder = labelObj?.[lang] || "";
 
-    const errorContainer = document.createElement("div");
-    errorContainer.className = "error-message";
+    const errorContainer = createErrorContainer();
 
     input.addEventListener("input", () => {
       let isValid = true;
-      errorContainer.textContent = "";
+      appendError(errorContainer, "");
 
       const langValidators =
         field.validators?.filter((v) => !v.langCode || v.langCode === lang) ||
@@ -72,7 +108,7 @@ const createSimpleTextbox = (state, field) => {
       langValidators.forEach((v) => {
         if (v.type === "regex" && !new RegExp(v.validator).test(input.value)) {
           isValid = false;
-          errorContainer.textContent = v.errorCode;
+          appendError(errorContainer, v.errorCode);
         }
       });
 
@@ -83,7 +119,7 @@ const createSimpleTextbox = (state, field) => {
       ) {
         isValid = false;
         if (!errorContainer.textContent)
-          errorContainer.textContent = "This field is required";
+          appendError(errorContainer, "This field is required");
       }
 
       input.setCustomValidity(isValid ? "" : "Invalid input");
@@ -168,24 +204,23 @@ const createFormElement = (state, field) => {
   if (labelObj?.[placeholderLang])
     input.placeholder = labelObj[placeholderLang];
 
-  const errorContainer = document.createElement("div");
-  errorContainer.className = "error-message";
+  const errorContainer = createErrorContainer();
 
   input.addEventListener("input", () => {
     let isValid = true;
-    errorContainer.textContent = "";
+    appendError(errorContainer, "");
 
     field.validators?.forEach((v) => {
       if (v.type === "regex" && !new RegExp(v.validator).test(input.value)) {
         isValid = false;
-        errorContainer.textContent = v.errorCode;
+        appendError(errorContainer, v.errorCode);
       }
     });
 
     if (field.required && !input.value.trim()) {
       isValid = false;
       if (!errorContainer.textContent)
-        errorContainer.textContent = "This field is required";
+        appendError(errorContainer, "This field is required");
     }
 
     input.setCustomValidity(isValid ? "" : "Invalid input");
@@ -216,13 +251,12 @@ const createFormElement = (state, field) => {
     confirmInput.name = `${field.id}_confirm`;
     confirmInput.required = field.required;
 
-    const confirmError = document.createElement("div");
-    confirmError.className = "error-message";
+    const confirmError = createErrorContainer();
 
     confirmInput.addEventListener("input", () => {
-      confirmError.textContent = "";
+      appendError(confirmError, "");
       if (confirmInput.value !== input.value) {
-        confirmError.textContent = "Passwords do not match";
+        appendError(confirmError, "Passwords do not match");
         confirmInput.setCustomValidity("Passwords do not match");
         confirmInput.classList.add("error");
       } else {
