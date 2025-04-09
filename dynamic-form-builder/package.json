@@ -6,6 +6,8 @@
   "module": "src/DynamicFormBuilder.js",
   "types": "dist/DynamicFormBuilder.d.ts",
   "scripts": {
+    "verify": "npm run build",
+    "start": "rollup -c -w",
     "build": "rollup -c",
     "prepublishOnly": "npm run build"
   },
