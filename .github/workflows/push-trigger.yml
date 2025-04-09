@@ -36,7 +36,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.DIST_BUILD_ARTIFACT }}
           path: ${{ env.SERVICE_LOCATION }}
@@ -49,7 +49,7 @@ jobs:
           zip -r sign-in-with-esignet.zip sign-in-with-esignet/
 
       - name: Upload ZIP artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sign-in-with-esignet
           path: sign-in-with-esignet/sign-in-with-esignet.zip
