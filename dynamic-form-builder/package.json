@@ -2,11 +2,11 @@
   "name": "dynamic-form-builder",
   "version": "1.0.0",
   "description": "A flexible JavaScript library for building dynamic forms",
-  "main": "dist/DynamicFormBuilder.js",
+  "main": "dist/DynamicFormBuilder.umd.js",
   "module": "src/DynamicFormBuilder.js",
   "types": "dist/DynamicFormBuilder.d.ts",
   "scripts": {
-    "build": "mkdir -p dist && cp src/DynamicFormBuilder.js dist/DynamicFormBuilder.js",
+    "build": "rollup -c",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -27,6 +27,8 @@
     "README.md"
   ],
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^4.39.0"
   }
 }

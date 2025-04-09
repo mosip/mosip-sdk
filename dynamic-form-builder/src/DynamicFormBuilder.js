@@ -1,337 +1,350 @@
-// DynamicFormBuilder.js
-const DynamicFormBuilder = class {
-    constructor(config, containerId) {
-        const state = {
-            schema: config.schema,
-            allowedValues: config.allowedValues || {},
-            mandatoryLanguages: config.mandatoryLanguages || ['eng'],
-            optionalLanguages: config.optionalLanguages || [],
-            container: document.getElementById(containerId),
-            formData: {},
-            formElements: {}
-        };
-        return Object.freeze({
-            render: () => render(state),
-            getFormData: () => getFormData(state)
-        });
-    }
+const DynamicFormBuilder = (config, containerId, additionalConfig) => {
+  const state = {
+    schema: config.schema,
+    allowedValues: config.allowedValues || {},
+    mandatoryLanguages: config.mandatoryLanguages || ["eng"],
+    optionalLanguages: config.optionalLanguages || [],
+    container: document.getElementById(containerId),
+    formData: {},
+    formElements: {},
+    submitLabel: additionalConfig.submitButton.label,
+    submitAction: additionalConfig.submitButton.action,
+  };
+
+  return Object.freeze({
+    render: () => render(state),
+    getFormData: () => getFormData(state),
+  });
 };
 
 const generateLabel = (state, field) => {
-    const labels = field.label;
-    const allLanguages = [...state.mandatoryLanguages, ...state.optionalLanguages];
-    let labelText = allLanguages
-        .map(lang => {
-            const labelObj = labels.find(l => l[lang]);
-            return labelObj ? labelObj[lang] : '';
-        })
-        .filter(label => label)
-        .join(' / ');
+  const labels = field.label;
+  const langs = [...state.mandatoryLanguages, ...state.optionalLanguages];
+  let labelText = langs
+    .map((lang) => {
+      const labelObj = labels.find((l) => l[lang]);
+      return labelObj?.[lang] || "";
+    })
+    .filter(Boolean)
+    .join(" / ");
 
-    if (field.required) {
-        labelText += ' *';
-    }
-    return labelText;
+  if (field.required) {
+    labelText += '<span class="required">*</span>';
+  }
+
+  return labelText;
+};
+
+const createErrorContainer = () => {
+  const errorContainer = document.createElement("div");
+  errorContainer.className = "error-message";
+  return errorContainer;
+};
+
+const appendError = (container, message) => {
+  container.innerHTML = "";
+
+  if (message) {
+    const icon = document.createElement("img");
+    icon.src = "/images/error_icon.svg";
+    icon.className = "error-icon";
+
+    // Set alt only when image loads
+    icon.onload = () => {
+      icon.alt = "error-icon";
+      icon.style.display = "inline";
+    };
+
+    // Hide image if it fails to load
+    icon.onerror = () => {
+      icon.style.display = "none";
+    };
+
+    // Hide by default until it loads
+    icon.style.display = "none";
+
+    const textNode = document.createElement("span");
+    textNode.textContent = message;
+    textNode.className = "error-text";
+
+    container.appendChild(icon);
+    container.appendChild(textNode);
+  }
 };
 
 const createSimpleTextbox = (state, field) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = `form-field-group ${field.cssClasses?.join(' ') || ''}`;
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field-group ${field.cssClasses?.join(" ") || ""}`;
 
-    const mainLabel = document.createElement('label');
-    mainLabel.textContent = generateLabel(state, field);
-    wrapper.appendChild(mainLabel);
+  const mainLabel = document.createElement("label");
+  mainLabel.innerHTML = generateLabel(state, field);
+  wrapper.appendChild(mainLabel);
 
-    [...state.mandatoryLanguages, ...state.optionalLanguages].forEach(lang => {
-        const langWrapper = document.createElement('div');
-        langWrapper.className = `form-field lang-${lang}`;
+  const languages = [...state.mandatoryLanguages, ...state.optionalLanguages];
 
-        const subLabel = document.createElement('label');
-        const labelObj = field.label.find(l => l[lang]);
-        subLabel.textContent = labelObj ? labelObj[lang] : '';
-        subLabel.htmlFor = `${field.id}_${lang}`;
-        subLabel.style.display = 'none'; // Hide individual language labels
-        langWrapper.appendChild(subLabel);
+  languages.forEach((lang) => {
+    const langWrapper = document.createElement("div");
+    langWrapper.className = `form-field lang-${lang}`;
 
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = `${field.id}_${lang}`;
-        input.name = `${field.id}_${lang}`;
-        input.dataset.lang = lang;
-        input.placeholder = labelObj ? labelObj[lang] : ''; // Add placeholder
+    const labelObj = field.label.find((l) => l[lang]);
+    const input = document.createElement("input");
+    input.className = "input_box";
+    input.type = "text";
+    input.id = `${field.id}_${lang}`;
+    input.name = `${field.id}_${lang}`;
+    input.dataset.lang = lang;
+    input.placeholder = labelObj?.[lang] || "";
 
-        if (field.validators) {
-            const langSpecificValidators = field.validators.filter(v => !v.langCode || v.langCode === lang);
-            input.addEventListener('input', () => {
-                let isValid = true;
-                const errorContainer = langWrapper.querySelector('.error-message');
-                if (errorContainer) {
-                    errorContainer.textContent = '';
-                } else {
-                    const newErrorContainer = document.createElement('div');
-                    newErrorContainer.className = 'error-message';
-                    langWrapper.appendChild(newErrorContainer);
-                }
-                const currentErrorContainer = langWrapper.querySelector('.error-message');
+    const errorContainer = createErrorContainer();
 
-                langSpecificValidators.forEach(validator => {
-                    if (validator.type === 'regex') {
-                        const regex = new RegExp(validator.validator);
-                        if (!regex.test(input.value)) {
-                            isValid = false;
-                            if (currentErrorContainer) {
-                                currentErrorContainer.textContent = validator.errorCode;
-                            }
-                        }
-                    }
-                    // Add other validator types here if needed
-                });
-                if (state.mandatoryLanguages.includes(lang) && field.required && !input.value.trim()) {
-                    isValid = false;
-                    if (currentErrorContainer && !currentErrorContainer.textContent) {
-                        currentErrorContainer.textContent = 'This field is required';
-                    }
-                }
-                input.setCustomValidity(isValid ? '' : 'Invalid input');
-            });
-        } else if (state.mandatoryLanguages.includes(lang) && field.required) {
-            input.addEventListener('input', () => {
-                const errorContainer = langWrapper.querySelector('.error-message');
-                if (errorContainer) {
-                    errorContainer.textContent = '';
-                } else {
-                    const newErrorContainer = document.createElement('div');
-                    newErrorContainer.className = 'error-message';
-                    langWrapper.appendChild(newErrorContainer);
-                }
-                const currentErrorContainer = langWrapper.querySelector('.error-message');
-                if (!input.value.trim()) {
-                    input.setCustomValidity('This field is required');
-                    if (currentErrorContainer && !currentErrorContainer.textContent) {
-                        currentErrorContainer.textContent = 'This field is required';
-                    }
-                } else {
-                    input.setCustomValidity('');
-                }
-            });
+    input.addEventListener("input", () => {
+      let isValid = true;
+      appendError(errorContainer, "");
+
+      const langValidators =
+        field.validators?.filter((v) => !v.langCode || v.langCode === lang) ||
+        [];
+
+      langValidators.forEach((v) => {
+        if (v.type === "regex" && !new RegExp(v.validator).test(input.value)) {
+          isValid = false;
+          appendError(errorContainer, v.errorCode);
         }
+      });
 
-        input.addEventListener('change', (e) => {
-            if (!state.formData[field.id]) {
-                state.formData[field.id] = {};
-            }
-            state.formData[field.id][lang] = e.target.value;
-            input.dispatchEvent(new Event('input')); // Trigger validation on change
-        });
+      if (
+        field.required &&
+        state.mandatoryLanguages.includes(lang) &&
+        !input.value.trim()
+      ) {
+        isValid = false;
+        if (!errorContainer.textContent)
+          appendError(errorContainer, "This field is required");
+      }
 
-        const errorContainer = document.createElement('div');
-        errorContainer.className = 'error-message';
-        langWrapper.appendChild(errorContainer);
-
-        langWrapper.appendChild(input);
-        wrapper.appendChild(langWrapper);
-        if (!state.formElements[field.id]) {
-            state.formElements[field.id] = {};
-        }
-        state.formElements[field.id][lang] = input;
+      input.setCustomValidity(isValid ? "" : "Invalid input");
+      input.classList.toggle("error", !isValid);
     });
 
-    return wrapper;
+    input.addEventListener("change", (e) => {
+      state.formData[field.id] = state.formData[field.id] || {};
+      state.formData[field.id][lang] = e.target.value;
+      input.dispatchEvent(new Event("input"));
+    });
+
+    langWrapper.appendChild(input);
+    langWrapper.appendChild(errorContainer);
+    wrapper.appendChild(langWrapper);
+
+    state.formElements[field.id] = state.formElements[field.id] || {};
+    state.formElements[field.id][lang] = input;
+  });
+
+  return wrapper;
 };
 
 const createFormElement = (state, field) => {
-    if (field.controlType === 'textbox' && field.type === 'simpleType') {
-        return createSimpleTextbox(state, field);
-    }
+  if (field.controlType === "textbox" && field.type === "simpleType") {
+    return createSimpleTextbox(state, field);
+  }
 
-    const wrapper = document.createElement('div');
-    wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-    const label = document.createElement('label');
-    label.textContent = generateLabel(state, field);
-    label.htmlFor = field.id;
-    wrapper.appendChild(label);
+  const label = document.createElement("label");
+  label.innerHTML = generateLabel(state, field);
+  label.htmlFor = field.id;
+  wrapper.appendChild(label);
 
-    let input;
-    switch (field.controlType) {
-        case 'textbox':
-        case 'password':
-            input = document.createElement('input');
-            input.type = field.controlType === 'password' ? 'password' : 'text';
-            break;
-        case 'date':
-            input = document.createElement('input');
-            input.type = 'date';
-            break;
-        case 'dropdown':
-            input = document.createElement('select');
-            const options = state.allowedValues[field.id] || {};
-            Object.entries(options).forEach(([value, labels]) => {
-                const option = document.createElement('option');
-                option.value = value;
-                option.textContent = labels[state.mandatoryLanguages[0]];
-                input.appendChild(option);
-            });
-            break;
-    }
+  let input;
+  switch (field.controlType) {
+    case "textbox":
+    case "password":
+    case "date":
+      input = document.createElement("input");
+      input.className = "input_box";
+      input.type =
+        field.controlType === "password" ? "password" : field.controlType;
+      break;
+    case "dropdown":
+      input = document.createElement("select");
+      input.className = "input_box select-placeholder";
 
-    input.id = field.id;
-    input.name = field.id;
-    input.required = field.required && field.type !== 'simpleType'; // Only mandatory for non-simpleType
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Select an Option";
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      placeholder.hidden = true;
+      input.appendChild(placeholder);
 
-    const errorContainer = document.createElement('div');
-    errorContainer.className = 'error-message';
-    wrapper.appendChild(errorContainer);
-
-    if (field.validators) {
-        input.addEventListener('input', () => {
-            let isValid = true;
-            errorContainer.textContent = '';
-            field.validators.forEach(validator => {
-                if (validator.type === 'regex') {
-                    const regex = new RegExp(validator.validator);
-                    if (!regex.test(input.value)) {
-                        isValid = false;
-                        errorContainer.textContent = validator.errorCode;
-                    }
-                }
-                // Add other validator types here if needed
-            });
-            if (field.required && field.type !== 'simpleType' && !input.value.trim()) {
-                isValid = false;
-                if (!errorContainer.textContent) {
-                    errorContainer.textContent = 'This field is required';
-                }
-            }
-            input.setCustomValidity(isValid ? '' : 'Invalid input');
-        });
-    } else if (field.required && field.type !== 'simpleType') {
-        input.addEventListener('input', () => {
-            if (!input.value.trim()) {
-                input.setCustomValidity('This field is required');
-                if (!errorContainer.textContent) {
-                    errorContainer.textContent = 'This field is required';
-                }
-            } else {
-                input.setCustomValidity('');
-                errorContainer.textContent = '';
-            }
-        });
-    }
-
-    input.addEventListener('change', (e) => {
-        state.formData[field.id] = e.target.value;
-        input.dispatchEvent(new Event('input')); // Trigger validation on change
-    });
-
-    wrapper.appendChild(input);
-    state.formElements[field.id] = input;
-
-    if (field.controlType === 'password') {
-        const confirmField = document.createElement('div');
-        confirmField.className = 'form-field'; // Consistent styling with other fields
-
-        const confirmLabel = document.createElement('label');
-        confirmLabel.textContent = `Confirm ${generateLabel(state, field)}`;
-        confirmLabel.htmlFor = `${field.id}_confirm`;
-        confirmField.appendChild(confirmLabel);
-
-        const confirmInput = document.createElement('input');
-        confirmInput.type = 'password';
-        confirmInput.id = `${field.id}_confirm`;
-        confirmInput.name = `${field.id}_confirm`;
-        confirmInput.required = field.required && field.type !== 'simpleType';
-
-        const confirmErrorContainer = document.createElement('div');
-        confirmErrorContainer.className = 'error-message';
-        confirmField.appendChild(confirmErrorContainer);
-
-        confirmInput.addEventListener('input', () => {
-            confirmErrorContainer.textContent = '';
-            if (confirmInput.value !== input.value) {
-                confirmErrorContainer.textContent = 'Passwords do not match';
-                confirmInput.setCustomValidity('Passwords do not match');
-            } else {
-                confirmInput.setCustomValidity('');
-            }
-        });
-
-        confirmInput.addEventListener('change', (e) => {
-            state.formData[`${field.id}_confirm`] = e.target.value;
-            confirmInput.dispatchEvent(new Event('input'));
-        });
-
-        confirmField.appendChild(confirmInput);
-        wrapper.appendChild(confirmField);
-        state.formElements[`${field.id}_confirm`] = confirmInput;
-    }
-
-    return wrapper;
-};
-
-const groupFields = (state) => {
-    const groups = {};
-    state.schema.forEach(field => {
-        const group = field.alignmentGroup || `solo_${field.id}`;
-        if (!groups[group]) {
-            groups[group] = [];
+      Object.entries(state.allowedValues[field.id] || {}).forEach(
+        ([value, labels]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = Object.values(labels).join(" / ");
+          input.appendChild(option);
         }
-        groups[group].push(field);
+      );
+
+      input.addEventListener("change", (e) => {
+        state.formData[field.id] = e.target.value;
+        input.dispatchEvent(new Event("input"));
+        input.style.color = input.value ? "black" : "";
+      });
+      break;
+  }
+
+  input.id = field.id;
+  input.name = field.id;
+  input.required = field.required && field.type !== "simpleType";
+
+  const placeholderLang = state.mandatoryLanguages[0];
+  const labelObj = field.label.find((l) => l[placeholderLang]);
+  if (labelObj?.[placeholderLang])
+    input.placeholder = labelObj[placeholderLang];
+
+  const errorContainer = createErrorContainer();
+
+  input.addEventListener("input", () => {
+    let isValid = true;
+    appendError(errorContainer, "");
+
+    field.validators?.forEach((v) => {
+      if (v.type === "regex" && !new RegExp(v.validator).test(input.value)) {
+        isValid = false;
+        appendError(errorContainer, v.errorCode);
+      }
     });
-    return groups;
+
+    if (field.required && !input.value.trim()) {
+      isValid = false;
+      if (!errorContainer.textContent)
+        appendError(errorContainer, "This field is required");
+    }
+
+    input.setCustomValidity(isValid ? "" : "Invalid input");
+    input.classList.toggle("error", !isValid);
+  });
+
+  input.addEventListener("change", (e) => {
+    state.formData[field.id] = e.target.value;
+    input.dispatchEvent(new Event("input"));
+  });
+
+  wrapper.appendChild(input);
+  wrapper.appendChild(errorContainer);
+  state.formElements[field.id] = input;
+
+  if (field.controlType === "password") {
+    const confirmField = document.createElement("div");
+    confirmField.className = "form-field";
+
+    const confirmLabel = document.createElement("label");
+    confirmLabel.innerHTML = `Confirm ${generateLabel(state, field)}`;
+    confirmField.appendChild(confirmLabel);
+
+    const confirmInput = document.createElement("input");
+    confirmInput.className = "input_box";
+    confirmInput.type = "password";
+    confirmInput.id = `${field.id}_confirm`;
+    confirmInput.name = `${field.id}_confirm`;
+    confirmInput.required = field.required;
+
+    const confirmError = createErrorContainer();
+
+    confirmInput.addEventListener("input", () => {
+      appendError(confirmError, "");
+      if (confirmInput.value !== input.value) {
+        appendError(confirmError, "Passwords do not match");
+        confirmInput.setCustomValidity("Passwords do not match");
+        confirmInput.classList.add("error");
+      } else {
+        confirmInput.setCustomValidity("");
+        confirmInput.classList.remove("error");
+      }
+    });
+
+    confirmInput.addEventListener("change", (e) => {
+      state.formData[`${field.id}_confirm`] = e.target.value;
+      confirmInput.dispatchEvent(new Event("input"));
+    });
+
+    confirmField.appendChild(confirmInput);
+    confirmField.appendChild(confirmError);
+    wrapper.appendChild(confirmField);
+    state.formElements[`${field.id}_confirm`] = confirmInput;
+  }
+
+  return wrapper;
 };
+
+const groupFields = (state) =>
+  state.schema.reduce((acc, field) => {
+    const group = field.alignmentGroup || `solo_${field.id}`;
+    acc[group] = acc[group] || [];
+    acc[group].push(field);
+    return acc;
+  }, {});
 
 const render = (state) => {
-    const form = document.createElement('form');
-    const groups = groupFields(state);
+  const form = document.createElement("form");
+  const groups = groupFields(state);
 
-    Object.values(groups).forEach(groupFields => {
-        const groupDiv = document.createElement('div');
-        groupDiv.className = 'form-group';
-        groupDiv.style.display = groupFields.length > 1 ? 'flex' : 'block';
+  Object.values(groups).forEach((fields) => {
+    const groupDiv = document.createElement("div");
+    groupDiv.className = "form-group";
+    groupDiv.style.display = fields.length > 1 ? "flex" : "block";
+    groupDiv.style.justifyContent = "space-between";
 
-        groupFields.forEach(field => {
-            const element = createFormElement(state, field);
-            groupDiv.appendChild(element);
-        });
-
-        form.appendChild(groupDiv);
+    fields.forEach((field) => {
+      const el = createFormElement(state, field);
+      groupDiv.appendChild(el);
     });
 
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Submit';
-    form.appendChild(submitButton);
+    form.appendChild(groupDiv);
+  });
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        validateAndSubmit(state);
-    });
+  const submitButton = document.createElement("button");
+  submitButton.type = "submit";
+  submitButton.textContent = state.submitLabel;
+  submitButton.className = "form-button";
+  submitButton.id = "submit-button";
+  form.appendChild(submitButton);
 
-    state.container.appendChild(form);
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    validateAndSubmit(state);
+  });
+
+  state.container.appendChild(form);
 };
 
 const validateAndSubmit = (state) => {
-    const form = state.container.querySelector('form');
-    let overallValid = true;
-    form.querySelectorAll('input').forEach(input => {
-        input.dispatchEvent(new Event('input')); // Trigger all input validations
-        if (!input.checkValidity()) {
-            overallValid = false;
-        }
-    });
+  const form = state.container.querySelector("form");
+  let isValid = true;
 
-    if (overallValid) {
-        console.log('Form data:', getFormData(state));
+  form.querySelectorAll("input, select").forEach((el) => {
+    el.dispatchEvent(new Event("input"));
+    if (!el.checkValidity()) isValid = false;
+  });
+
+  if (isValid) {
+    const data = getFormData(state);
+    if (typeof state.submitAction === "function") {
+      state.submitAction(data);
     } else {
-        form.reportValidity();
+      console.log("Form data:", data);
     }
+  } else {
+    form.reportValidity();
+  }
 };
 
 const getFormData = (state) => ({ ...state.formData });
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DynamicFormBuilder;
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = DynamicFormBuilder;
 } else {
-    window.DynamicFormBuilder = DynamicFormBuilder;
+  window.DynamicFormBuilder = DynamicFormBuilder;
 }
