@@ -1,10 +1,10 @@
 {
-  "name": "dynamic-form-builder",
+  "name": "@anushase/json-form-builder",
   "version": "1.0.0",
-  "description": "A flexible JavaScript library for building dynamic forms",
-  "main": "dist/DynamicFormBuilder.umd.js",
-  "module": "src/DynamicFormBuilder.js",
-  "types": "dist/DynamicFormBuilder.d.ts",
+  "description": "A flexible JavaScript library for building json forms",
+  "main": "dist/JsonFormBuilder.umd.js",
+  "module": "src/JsonFormBuilder.js",
+  "types": "dist/JsonFormBuilder.d.ts",
   "scripts": {
     "verify": "npm run build",
     "start": "rollup -c -w",
@@ -14,10 +14,10 @@
   "keywords": [
     "mosip",
     "form",
-    "dynamic",
-    "dynamic-form-builder",
+    "json",
+    "json-form-builder",
     "javascript",
-    "dynamic-forms"
+    "json-forms"
   ],
   "license": "MPL-2.0",
   "repository": {

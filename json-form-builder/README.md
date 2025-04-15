@@ -1,4 +1,4 @@
-# Dynamic Form Builder
+# Json Form Builder
 
 Construct a dynamic form with validation based on the input JSON-based form structure.
 
@@ -6,22 +6,27 @@ Construct a dynamic form with validation based on the input JSON-based form stru
 
 ```
 # using npm
-npm i dynamic-form-builder
+npm i @anushase/json-form-builder
 
 # using yarn
-yarn add dynamic-form-builder
+yarn add @anushase/json-form-builder
 ```
 
 ## Usage
 
 ```html
-<script src="DynamicFormBuilder.js"></script>
 <div id="formContainer"></div>
 ```
 
 ```js
-const formBuilder = new DynamicFormBuilder(formConfig, 'formContainer');
-formBuilder.render();
+import JsonFormBuilder from "@anushase/json-form-builder/dist/JsonFormBuilder.umd";
+
+const form = JsonFormBuilder(
+        formConfig,
+        "form-container",
+        additionalConfig
+      );
+form.render();
 ```
 
 ## Supported config structure

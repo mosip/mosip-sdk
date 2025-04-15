@@ -1,4 +1,4 @@
-const DynamicFormBuilder = (config, containerId, additionalConfig) => {
+const JsonFormBuilder = (config, containerId, additionalConfig) => {
   const state = {
     schema: config.schema,
     allowedValues: config.allowedValues || {},
@@ -344,7 +344,7 @@ const validateAndSubmit = (state) => {
 const getFormData = (state) => ({ ...state.formData });
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = DynamicFormBuilder;
+  module.exports = JsonFormBuilder;
 } else {
-  window.DynamicFormBuilder = DynamicFormBuilder;
+  window.JsonFormBuilder = JsonFormBuilder;
 }
