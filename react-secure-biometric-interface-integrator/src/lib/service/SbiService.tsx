@@ -105,18 +105,18 @@ class SbiService {
       env: this.esignetConfig.env,
       purpose,
       specVersion,
-      timeout: this.esignetConfig.captureTimeout * 1000,
+      timeout: String(this.esignetConfig.captureTimeout * 1000),
       captureTime: new Date().toISOString(),
       domainUri: this.esignetConfig.domainUri,
       transactionId,
       bio: [
         {
           type, //modality
-          count, // from configuration
+          count: String(count), // from configuration
           bioSubType,
-          requestedScore, // from configuration
+          requestedScore: String(requestedScore), // from configuration
           deviceId, // from discovery
-          deviceSubId: 0, //Set as 0, not required for Auth capture.
+          deviceSubId: "0", //Set as 0, not required for Auth capture.
           previousHash: "", // empty string
         },
       ],

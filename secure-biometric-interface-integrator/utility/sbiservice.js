@@ -164,9 +164,9 @@ class SbiService {
       bio: [
         {
           type, //modality
-          count, // from configuration
+          count: String(count), // from configuration
           bioSubType,
-          requestedScore, // from configuration
+          requestedScore: String(requestedScore), // from configuration
           deviceId, // from discovery
           deviceSubId: "0", //Set as 0, not required for Auth capture.
           previousHash: "", // empty string
