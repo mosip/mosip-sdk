@@ -5,6 +5,7 @@
  */
 
 import axios from "axios";
+import crypto from "crypto";
 import { localStorageService } from "./";
 import * as jose from "jose";
 import { BioType, ISbiEnv, IDeviceInfo } from "../models";
@@ -36,6 +37,7 @@ const defaultTillPort = 4600;
 
 class SbiService {
   esignetConfig!: ISbiEnv;
+  private previousHash: string | null = null;
 
   constructor(
     esignetConfig: ISbiEnv = {
@@ -101,6 +103,13 @@ class SbiService {
         break;
     }
 
+    let previousHashValue: string;
+    if (!this.previousHash || this.previousHash.trim().length === 0) {
+      previousHashValue = crypto.createHash("sha256").update("").digest("hex");
+    } else {
+      previousHashValue = this.previousHash;
+    }
+
     let request = {
       env: this.esignetConfig.env,
       purpose,
@@ -117,7 +126,7 @@ class SbiService {
           requestedScore, // from configuration
           deviceId, // from discovery
           deviceSubId: 0, //Set as 0, not required for Auth capture.
-          previousHash: "", // empty string
+          previousHash: previousHashValue, // calculated sha256 hash of empty string
         },
       ],
       customOpts: null,
@@ -134,6 +143,10 @@ class SbiService {
       },
       timeout: this.esignetConfig.captureTimeout * 1000,
     });
+
+    if (response?.data?.biometrics?.[0]?.hash) {
+      this.previousHash = response.data.biometrics[0].hash;
+    }
 
     return response?.data;
   };

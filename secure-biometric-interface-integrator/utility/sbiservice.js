@@ -7,6 +7,7 @@
 import axios from "axios";
 import { localStorageService } from "./localstorage";
 import * as jose from "jose";
+import crypto from "crypto";
 
 const {
   addDeviceInfos,
@@ -50,6 +51,7 @@ const BioType = {
 
 class SbiService {
   sbiConfig;
+  previousHash = null;
 
   constructor(sbiConfig) {
     this.sbiConfig = {
@@ -153,6 +155,13 @@ class SbiService {
         break;
     }
 
+    let previousHashValue;
+    if (!this.previousHash || this.previousHash.trim().length === 0) {
+      previousHashValue = crypto.createHash("sha256").update("").digest("hex");
+    } else {
+      previousHashValue = this.previousHash;
+    }
+
     let request = {
       env: this.sbiConfig.env,
       purpose,
@@ -169,7 +178,7 @@ class SbiService {
           requestedScore, // from configuration
           deviceId, // from discovery
           deviceSubId: "0", //Set as 0, not required for Auth capture.
-          previousHash: "", // empty string
+          previousHash: previousHashValue, // calculated sha256 hash of empty utf-8 string
         },
       ],
       customOpts: null,
@@ -185,6 +194,11 @@ class SbiService {
         "Content-Type": "application/json",
       },
     });
+
+    if (response?.data?.biometrics?.[0]?.hash) {
+      this.previousHash = response.data.biometrics[0].hash;
+    }
+    
     return response?.data;
   };
 
