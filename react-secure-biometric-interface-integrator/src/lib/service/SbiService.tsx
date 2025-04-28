@@ -5,7 +5,7 @@
  */
 
 import axios from "axios";
-import crypto from "crypto";
+import cryptoJs from "crypto-js"
 import { localStorageService } from "./";
 import * as jose from "jose";
 import { BioType, ISbiEnv, IDeviceInfo } from "../models";
@@ -105,7 +105,7 @@ class SbiService {
 
     let previousHashValue: string;
     if (!this.previousHash || this.previousHash.trim().length === 0) {
-      previousHashValue = crypto.createHash("sha256").update("").digest("hex");
+      previousHashValue = cryptoJs.SHA256("").toString();
     } else {
       previousHashValue = this.previousHash;
     }

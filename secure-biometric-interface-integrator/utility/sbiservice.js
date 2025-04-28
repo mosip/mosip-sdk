@@ -7,7 +7,7 @@
 import axios from "axios";
 import { localStorageService } from "./localstorage";
 import * as jose from "jose";
-import crypto from "crypto";
+import cryptoJs from "crypto-js";
 
 const {
   addDeviceInfos,
@@ -157,7 +157,7 @@ class SbiService {
 
     let previousHashValue;
     if (!this.previousHash || this.previousHash.trim().length === 0) {
-      previousHashValue = crypto.createHash("sha256").update("").digest("hex");
+      previousHashValue = cryptoJs.SHA256("").toString();
     } else {
       previousHashValue = this.previousHash;
     }
