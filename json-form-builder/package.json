@@ -1,36 +1,46 @@
 {
   "name": "@anushase/json-form-builder",
-  "version": "1.0.0",
-  "description": "A flexible JavaScript library for building json forms",
-  "main": "dist/JsonFormBuilder.umd.js",
-  "module": "src/JsonFormBuilder.js",
-  "types": "dist/JsonFormBuilder.d.ts",
+  "version": "1.1.0",
+  "description": "A dynamic JSON form builder with multi-language support, validation, and responsive design",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "verify": "npm run build",
-    "start": "rollup -c -w",
-    "build": "rollup -c",
-    "prepublishOnly": "npm run build"
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint"
   },
   "keywords": [
-    "mosip",
     "form",
+    "builder",
     "json",
-    "json-form-builder",
-    "javascript",
-    "json-forms"
+    "multilingual",
+    "validation",
+    "responsive"
   ],
-  "license": "MPL-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mosip/mosip-sdk"
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "author": "Anusha Se",
+  "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "rollup": "^4.39.0"
+    "@testing-library/jest-dom": "^6.4.2",
+    "@types/jest": "^29.5.12",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.2.5",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
