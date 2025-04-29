@@ -1,25 +1,16 @@
 # JSON Form Builder
 
-A TypeScript-based dynamic form builder that generates forms from JSON configuration. This library provides a flexible and type-safe way to create forms with support for multiple languages, validation, and responsive design.
+A flexible and customizable form builder that creates forms from JSON configuration. Supports multiple languages, RTL layouts, and Google reCAPTCHA integration.
 
 ## Features
 
-- 🎯 TypeScript support with full type safety
-- 🌐 Multi-language support with language preferences and switching
-- 📱 Responsive design with mobile-first approach
-- ✅ Form validation with regex support
-- 🔄 Dynamic form field generation
-- 🎨 Customizable styling
-- 🔒 Password confirmation support
-- 🤖 Google reCAPTCHA integration with enable/disable option
-- 📝 Support for various input types:
-  - Text input
-  - Password
-  - Date
-  - Dropdown
-  - Multi-language text input
-- 🌍 RTL (Right-to-Left) language support
-- 🔤 Language-specific validation rules
+- Create forms from JSON configuration
+- Support for multiple languages
+- RTL language support
+- Responsive design
+- Field validation
+- Google reCAPTCHA integration
+- Customizable styling
 
 ## Installation
 
@@ -27,71 +18,46 @@ A TypeScript-based dynamic form builder that generates forms from JSON configura
 npm install json-form-builder
 ```
 
-## Available Bundles
-
-The library is available in two formats:
-
-1. **UMD Bundle** (`dist/JsonFormBuilder.umd.js`):
-   - Compatible with CommonJS, AMD, and global variables
-   - Use this for traditional browser usage or when you need global access
-
-2. **ESM Bundle** (`dist/JsonFormBuilder.esm.js`):
-   - Modern ES modules format
-   - Use this for modern JavaScript applications and bundlers
-
-TypeScript type definitions are included in the `dist` directory.
-
 ## Usage
 
-```typescript
-import JsonFormBuilder from 'json-form-builder';
+### Basic Usage
+
+```javascript
+import { JsonFormBuilder } from 'json-form-builder';
 
 const config = {
   schema: [
     {
       id: 'name',
       controlType: 'textbox',
-      type: 'simpleType',
       label: {
         eng: 'Name',
-        fra: 'Nom',
-        ara: 'الاسم'
+        fra: 'Nom'
       },
-      required: true,
-      validators: [
-        {
-          type: 'regex',
-          validator: '^[a-zA-Z ]+$',
-          errorCode: 'Only letters and spaces allowed',
-          langCode: 'eng'
-        },
-        {
-          type: 'regex',
-          validator: '^[\u0600-\u06FF ]+$',
-          errorCode: 'يُسمح فقط بالحروف والمسافات',
-          langCode: 'ara'
-        }
-      ]
+      required: true
     }
+    // ... more fields
   ],
   mandatoryLanguages: ['eng'],
-  optionalLanguages: ['fra', 'ara']
+  optionalLanguages: ['fra']
 };
 
 const additionalConfig = {
   submitButton: {
     label: 'Submit',
     action: (data) => {
-      console.log('Form submitted:', data);
+      console.log('Form data:', data);
     }
   },
   language: {
     currentLanguage: 'eng',
     defaultLanguage: 'eng',
-    showLanguageSwitcher: true,
-    languageSwitcherPosition: 'top',
-    availableLanguages: ['eng', 'fra', 'ara'],
-    rtlLanguages: ['ara', 'ar', 'he', 'fa', 'ur']  // List of RTL languages
+    showLanguageSwitcher: true
+  },
+  recaptcha: {
+    siteKey: 'your-recaptcha-site-key',
+    enabled: true,
+    language: 'en'
   }
 };
 
@@ -101,7 +67,9 @@ formBuilder.render();
 
 ## Configuration
 
-### FormConfig Interface
+### Form Configuration
+
+The form configuration object (`config`) has the following structure:
 
 ```typescript
 interface FormConfig {
@@ -112,131 +80,115 @@ interface FormConfig {
 }
 ```
 
-### FormField Interface
+### Additional Configuration
+
+The additional configuration object has the following structure:
 
 ```typescript
-interface FormField {
-  id: string;
-  controlType: 'textbox' | 'password' | 'date' | 'dropdown';
-  type?: 'simpleType' | 'string';
-  label: Label;  // Map of language codes to label text
-  required?: boolean;
-  validators?: Validator[];
-  cssClasses?: string[];
-  alignmentGroup?: string;
+interface AdditionalConfig {
+  submitButton: {
+    label: string;
+    action: (data: FormData) => void;
+  };
+  language?: {
+    currentLanguage?: string;
+    defaultLanguage?: string;
+    showLanguageSwitcher?: boolean;
+    languageSwitcherPosition?: 'top' | 'bottom';
+    availableLanguages?: string[];
+    rtlLanguages?: string[];
+  };
+  recaptcha?: {
+    siteKey: string;
+    enabled?: boolean;
+    language?: string;
+  };
 }
 ```
 
-### Label Interface
+## reCAPTCHA Integration
 
-```typescript
-interface Label {
-  [key: string]: string;  // language code -> label text
+The form builder supports Google reCAPTCHA v2 integration. To enable reCAPTCHA:
+
+1. Add the reCAPTCHA configuration to your `additionalConfig`:
+
+```javascript
+recaptcha: {
+  siteKey: 'your-recaptcha-site-key', // Required
+  enabled: true,                      // Optional, defaults to true
+  language: 'en'                      // Optional, defaults to form's current 
 }
 ```
 
-### Validator Interface
+2. The reCAPTCHA widget will be automatically rendered in the form
+3. The reCAPTCHA token will be included in the form data as `recaptchaToken`
+4. The widget will automatically update its language when the form language changes
 
-```typescript
-interface Validator {
-  type: 'regex';
-  validator: string;
-  errorCode: string;
-  langCode?: string;  // Optional language code for language-specific validation
+### reCAPTCHA Features
+
+- Responsive design that scales appropriately on different screen sizes
+- Automatic language synchronization with the form
+- Proper cleanup and recreation when language changes
+- Validation before form submission
+- Error handling for failed initialization
+
+## Field Types
+
+The form builder supports the following field types:
+
+- Textbox (single language)
+- Textbox (multiple languages)
+- Password
+- Date
+- Dropdown
+
+## Validation
+
+Fields can be validated using regular expressions:
+
+```javascript
+{
+  id: 'email',
+  controlType: 'textbox',
+  label: { eng: 'Email' },
+  required: true,
+  validators: [
+    {
+      type: 'regex',
+      validator: '^[^@]+@[^@]+\\.[^@]+$',
+      errorCode: 'Invalid email format'
+    }
+  ]
 }
 ```
-
-### LanguageConfig Interface
-
-```typescript
-interface LanguageConfig {
-  currentLanguage: string;  // Language to display
-  defaultLanguage: string;  // Fallback language
-  showLanguageSwitcher?: boolean;  // Enable/disable language switcher
-  languageSwitcherPosition?: 'top' | 'bottom';  // Position of language switcher
-  availableLanguages?: string[];  // Available languages for switching
-  rtlLanguages?: string[];  // List of RTL languages
-}
-```
-
-## Language-Specific Validation
-
-The form builder supports language-specific validation rules. You can specify different validation rules for different languages using the `langCode` property in the validator:
-
-```typescript
-validators: [
-  {
-    type: 'regex',
-    validator: '^[a-zA-Z ]+$',
-    errorCode: 'Only letters and spaces allowed',
-    langCode: 'eng'
-  },
-  {
-    type: 'regex',
-    validator: '^[\u0600-\u06FF ]+$',
-    errorCode: 'يُسمح فقط بالحروف والمسافات',
-    langCode: 'ara'
-  }
-]
-```
-
-Validators without a `langCode` will apply to all languages.
 
 ## RTL Support
 
-The form builder includes built-in support for Right-to-Left (RTL) languages. When using RTL languages like Arabic, the form will automatically adjust its layout. The following features are supported:
+The form builder automatically handles RTL layouts for specified languages:
 
-1. **Automatic RTL Detection**:
-   - The form automatically detects RTL languages based on the `rtlLanguages` configuration
-   - Default RTL languages: Arabic ('ara', 'ar'), Hebrew ('he'), Persian ('fa'), Urdu ('ur')
-
-2. **Dynamic Direction Switching**:
-   - The form's direction automatically switches when changing languages
-   - The `dir` attribute is updated on the container element
-
-3. **RTL-Specific Layout**:
-   - Form groups are reversed in RTL mode
-   - Form field groups are reversed in RTL mode
-   - Language switcher alignment is adjusted
-   - Required field indicators are positioned correctly
-   - Error messages are right-aligned
-   - Form labels are right-aligned
-   - Input text is right-aligned
-   - Submit button alignment is adjusted
-   - reCAPTCHA container alignment is adjusted
-
-4. **Responsive RTL Support**:
-   - RTL layout is maintained on mobile devices
-   - Form groups stack vertically on small screens while maintaining RTL order
-
-Example configuration:
-```typescript
+```javascript
 language: {
-  currentLanguage: 'eng',
-  defaultLanguage: 'eng',
-  showLanguageSwitcher: true,
-  languageSwitcherPosition: 'top',
-  availableLanguages: ['eng', 'fra', 'ara'],
   rtlLanguages: ['ara', 'ar', 'he', 'fa', 'ur']
 }
 ```
 
+## Methods
+
+- `render()`: Renders the form
+- `getFormData()`: Returns the current form data
+- `updateLanguage(newLanguage: string)`: Updates the form language and reCAPTCHA language
+
 ## Styling
 
-The form builder includes responsive styles by default. You can customize the appearance by overriding the following CSS classes:
+The form builder comes with default styles but can be customized using CSS. The main classes are:
 
-- `.form-group`: Container for grouped fields
-- `.form-field`: Individual form field container
+- `.form`: The main form container
+- `.form-group`: Groups of fields
+- `.form-field`: Individual field container
 - `.form-field-group`: Container for multi-language fields
-- `.input_box`: Input field styling
-- `.form-button`: Submit button styling
-- `.error-message`: Error message container
-- `.error-icon`: Error icon styling
-- `.error-text`: Error text styling
-- `.recaptcha-container`: Container for reCAPTCHA widget
-- `.language-switcher`: Container for language switcher
-- `.language-switcher select`: Language selector styling
-- `.language-switcher label`: Language label styling
+- `.input_box`: Input elements
+- `.language-switcher`: Language selection container
+- `.recaptcha-container`: reCAPTCHA widget container
 
 ## Browser Support
 
@@ -244,7 +196,6 @@ The form builder includes responsive styles by default. You can customize the ap
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
-- Mobile browsers (iOS Safari, Android Chrome)
 
 ## Development
 

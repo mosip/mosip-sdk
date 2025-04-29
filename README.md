@@ -53,4 +53,4 @@ npm test
 
 ## License
 
-MIT
+MPL

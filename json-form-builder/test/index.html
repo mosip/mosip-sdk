@@ -57,6 +57,8 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 1em;
+            display: block;
+            margin: 20px auto;
         }
 
         .form-button:hover {
@@ -67,10 +69,17 @@
             margin-bottom: 15px;
         }
 
-        .form-field label {
+        .form-field label,
+        .form-field-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+        }
+
+        .form-field-group .form-field label {
+            font-weight: normal;
+            font-size: 0.9em;
+            color: #666;
         }
 
         .input_box {
@@ -108,16 +117,56 @@
             border-radius: 4px;
         }
 
-        .recaptcha-container {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-        }
-
         @media (max-width: 768px) {
             .form-group {
                 flex-direction: column;
                 gap: 10px;
+            }
+        }
+
+        .recaptcha-container {
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            min-width: 304px; /* Minimum width of reCAPTCHA widget */
+            width: 100%;
+            overflow: visible;
+        }
+
+        .g-recaptcha {
+            transform: scale(1);
+            -webkit-transform: scale(1);
+            transform-origin: 0 0;
+            -webkit-transform-origin: 0 0;
+        }
+
+        @media (max-width: 768px) {
+            .recaptcha-container {
+                min-width: 258px; /* 85% of original width */
+            }
+            .g-recaptcha {
+                transform: scale(0.85);
+                -webkit-transform: scale(0.85);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .recaptcha-container {
+                min-width: 228px; /* 75% of original width */
+            }
+            .g-recaptcha {
+                transform: scale(0.75);
+                -webkit-transform: scale(0.75);
+            }
+        }
+
+        @media (max-width: 320px) {
+            .recaptcha-container {
+                min-width: 198px; /* 65% of original width */
+            }
+            .g-recaptcha {
+                transform: scale(0.65);
+                -webkit-transform: scale(0.65);
             }
         }
     </style>
@@ -129,7 +178,7 @@
     </div>
 
     <script type="module">
-        import JsonFormBuilder from '../dist/JsonFormBuilder.esm.js';
+        import { JsonFormBuilder } from '../../dist/JsonFormBuilder.esm.js';
 
         const config = {
             schema: [
@@ -242,24 +291,25 @@
                     alert('Form submitted successfully! Check console for data.');
                 }
             },
-            recaptcha: {
-                siteKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', // Test key
-                theme: 'light',
-                size: 'normal',
-                position: 'before',
-                enabled: true
-            },
             language: {
                 currentLanguage: 'eng',
                 defaultLanguage: 'eng',
                 showLanguageSwitcher: true,
                 languageSwitcherPosition: 'top',
                 availableLanguages: ['eng', 'fra', 'spa']
+            },
+            recaptcha: {
+                siteKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', // This is a test key from Google
+                enabled: true,
+                language: 'en'
             }
         };
 
+        // Initialize form
         const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
-        formBuilder.render();
+        formBuilder.render().catch(error => {
+            console.error('Failed to render form:', error);
+        });
     </script>
 </body>
 </html> 

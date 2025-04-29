@@ -6,9 +6,19 @@ import {
   SubmitButtonConfig,
   Label,
   AdditionalConfig,
-  RecaptchaConfig,
   LanguageConfig
 } from './types';
+
+// Add TypeScript declaration for grecaptcha
+declare global {
+  interface Window {
+    grecaptcha?: {
+      render: (container: HTMLElement, options: { sitekey: string; callback?: (response: string) => void; 'expired-callback'?: () => void; }) => number;
+      getResponse: (widgetId?: number) => string;
+      reset: (widgetId?: number) => void;
+    };
+  }
+}
 
 // Refresh all labels without losing form data
 const refreshLabels = (state: FormState): void => {
@@ -111,6 +121,45 @@ const updateLanguage = (state: FormState, newLanguage: string): void => {
   state.isRTL = state.rtlLanguages.includes(newLanguage);
   state.container.dir = state.isRTL ? 'rtl' : 'ltr';
   state.container.style.direction = state.isRTL ? 'rtl' : 'ltr';
+  
+  // Update reCAPTCHA language if enabled
+  if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey && window.grecaptcha) {
+    const recaptchaContainer = document.getElementById('recaptcha-container');
+    if (recaptchaContainer) {
+      const widgetId = recaptchaContainer.getAttribute('data-widget-id');
+      if (widgetId) {
+        try {
+          // Reset and remove the current widget
+          window.grecaptcha.reset(Number(widgetId));
+          
+          // Create a new container for the reCAPTCHA
+          const newContainer = document.createElement('div');
+          newContainer.id = 'recaptcha-container';
+          newContainer.className = 'recaptcha-container';
+          
+          // Replace the old container with the new one
+          recaptchaContainer.parentNode?.replaceChild(newContainer, recaptchaContainer);
+          
+          // Create new widget with updated language
+          const newWidgetId = window.grecaptcha.render(newContainer, {
+            sitekey: state.recaptcha.siteKey,
+            callback: (response) => {
+              state.formData.recaptchaToken = response;
+            },
+            'expired-callback': () => {
+              delete state.formData.recaptchaToken;
+            }
+          });
+          
+          // Update the widget ID
+          newContainer.setAttribute('data-widget-id', newWidgetId.toString());
+        } catch (error) {
+          console.error('Failed to update reCAPTCHA language:', error);
+        }
+      }
+    }
+  }
+  
   refreshLabels(state);
 };
 
@@ -161,7 +210,6 @@ const JsonFormBuilder = (
     formElements: {},
     submitLabel: additionalConfig.submitButton.label,
     submitAction: additionalConfig.submitButton.action,
-    recaptcha: additionalConfig.recaptcha,
     currentLanguage: additionalConfig.language?.currentLanguage || "eng",
     defaultLanguage: additionalConfig.language?.defaultLanguage || "eng",
     showLanguageSwitcher: additionalConfig.language?.showLanguageSwitcher || false,
@@ -169,17 +217,70 @@ const JsonFormBuilder = (
     availableLanguages: additionalConfig.language?.availableLanguages || 
       [...(config.mandatoryLanguages || ["eng"]), ...(config.optionalLanguages || [])],
     rtlLanguages: additionalConfig.language?.rtlLanguages || ['ara', 'ar', 'he', 'fa', 'ur'],
-    isRTL: false
+    isRTL: false,
+    recaptcha: additionalConfig.recaptcha
+  };
+
+  // Load reCAPTCHA script
+  const loadRecaptcha = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      // Check if script is already loaded
+      if (window.grecaptcha) {
+        resolve(true);
+        return;
+      }
+
+      // Check if script is already in the DOM
+      if (document.querySelector('script[src*="recaptcha/api.js"]')) {
+        // Wait for grecaptcha to be available
+        const checkGrecaptcha = () => {
+          if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+            resolve(true);
+          } else {
+            setTimeout(checkGrecaptcha, 100);
+          }
+        };
+        checkGrecaptcha();
+        return;
+      }
+
+      // Create script element
+      const script = document.createElement('script');
+      script.src = `https://www.google.com/recaptcha/api.js?hl=${state.recaptcha?.language || state.currentLanguage}`;
+      script.async = true;
+      script.defer = true;
+
+      // Add onload handler
+      script.onload = () => {
+        // Wait for grecaptcha to be available
+        const checkGrecaptcha = () => {
+          if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+            resolve(true);
+          } else {
+            setTimeout(checkGrecaptcha, 100);
+          }
+        };
+        checkGrecaptcha();
+      };
+
+      // Add error handler
+      script.onerror = () => {
+        console.error('Failed to load reCAPTCHA script');
+        resolve(false);
+      };
+
+      document.head.appendChild(script);
+    });
   };
 
   // Add reCAPTCHA script
-  const addRecaptchaScript = (): void => {
-    if (state.recaptcha) {
-      const script = document.createElement('script');
-      script.src = `https://www.google.com/recaptcha/api.js?render=explicit`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
+  const addRecaptchaScript = async (): Promise<void> => {
+    if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
+      const success = await loadRecaptcha();
+      if (!success) {
+        console.error('Failed to initialize reCAPTCHA');
+        state.recaptcha.enabled = false;
+      }
     }
   };
 
@@ -211,41 +312,19 @@ const JsonFormBuilder = (
         padding: 0.75rem;
         border: 1px solid #ccc;
         border-radius: 4px;
-        font-size: 1rem;
+        font-size: 0.9rem;
       }
 
-      .form-button {
-        width: 100%;
-        max-width: 300px;
-        padding: 0.75rem 1.5rem;
-        margin: 1rem auto;
-        display: block;
+      .language-switcher label {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
       }
 
       .recaptcha-container {
         margin: 1rem 0;
         display: flex;
         justify-content: center;
-      }
-
-      @media (max-width: 768px) {
-        .form-group {
-          flex-direction: column;
-        }
-
-        .form-field, .form-field-group {
-          min-width: 100%;
-        }
-
-        .form-button {
-          width: 100%;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .input_box {
-          font-size: 16px; /* Prevents zoom on mobile */
-        }
       }
     `;
     document.head.appendChild(style);
@@ -316,10 +395,6 @@ const JsonFormBuilder = (
         margin-left: 0;
       }
 
-      [dir="rtl"] .recaptcha-container {
-        justify-content: flex-start;
-      }
-
       @media (max-width: 768px) {
         [dir="rtl"] .form-group {
           flex-direction: column;
@@ -336,28 +411,175 @@ const JsonFormBuilder = (
     state.container.style.direction = state.isRTL ? 'rtl' : 'ltr';
   };
 
-  // Override updateLanguage to handle RTL
-  const updateLanguage = (newLanguage: string): void => {
-    state.currentLanguage = newLanguage;
-    updateRTLState(newLanguage);
-    refreshLabels(state);
-  };
-
   // Initialize RTL state
   updateRTLState(state.currentLanguage);
 
+  const render = (state: FormState): void => {
+    const form = document.createElement('form');
+    form.className = 'form';
+
+    // Add language switcher if enabled
+    if (state.showLanguageSwitcher) {
+      const languageSwitcher = createLanguageSwitcher(state);
+      form.appendChild(languageSwitcher);
+    }
+
+    // Group fields by alignment group
+    const groupedFields = groupFields(state);
+
+    // Render each group
+    Object.entries(groupedFields).forEach(([groupName, fields]) => {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+      group.style.display = 'flex';
+      group.style.flexDirection = 'row';
+
+      fields.forEach(field => {
+        const fieldElement = createFormElement(state, field);
+        group.appendChild(fieldElement);
+      });
+
+      form.appendChild(group);
+    });
+
+    // Add reCAPTCHA if enabled
+    if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
+      const recaptchaContainer = document.createElement('div');
+      recaptchaContainer.id = 'recaptcha-container';
+      recaptchaContainer.className = 'recaptcha-container';
+      form.appendChild(recaptchaContainer);
+    }
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.className = 'form-button';
+    submitButton.textContent = state.submitLabel;
+    form.appendChild(submitButton);
+
+    // Add form submit handler
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      validateAndSubmit(state);
+    });
+
+    // Clear container and append form
+    state.container.innerHTML = '';
+    state.container.appendChild(form);
+
+    // Initialize reCAPTCHA if enabled
+    if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
+      const recaptchaContainer = document.getElementById('recaptcha-container');
+      if (recaptchaContainer && window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+        try {
+          const widgetId = window.grecaptcha.render(recaptchaContainer, {
+            sitekey: state.recaptcha.siteKey,
+            callback: (response) => {
+              // Store the response in form data
+              state.formData.recaptchaToken = response;
+            },
+            'expired-callback': () => {
+              // Clear the token when it expires
+              delete state.formData.recaptchaToken;
+            }
+          });
+          // Store the widget ID for later use
+          recaptchaContainer.setAttribute('data-widget-id', widgetId.toString());
+        } catch (error) {
+          console.error('Failed to initialize reCAPTCHA:', error);
+          // Disable reCAPTCHA if initialization fails
+          state.recaptcha.enabled = false;
+        }
+      } else {
+        console.warn('reCAPTCHA not available or not properly initialized');
+        state.recaptcha.enabled = false;
+      }
+    }
+  };
+
+  const validateAndSubmit = (state: FormState): void => {
+    const form = state.container.querySelector("form");
+    if (!form) return;
+
+    let isValid = true;
+
+    // Trigger validation on all inputs
+    form.querySelectorAll("input, select").forEach((el) => {
+      el.dispatchEvent(new Event("input"));
+      if (!(el as HTMLInputElement | HTMLSelectElement).checkValidity()) {
+        isValid = false;
+      }
+    });
+
+    // Validate reCAPTCHA if configured and enabled
+    if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
+      const recaptchaContainer = document.getElementById('recaptcha-container');
+      if (recaptchaContainer && window.grecaptcha && typeof window.grecaptcha.getResponse === 'function') {
+        const widgetId = recaptchaContainer.getAttribute('data-widget-id');
+        if (widgetId) {
+          try {
+            const recaptchaResponse = window.grecaptcha.getResponse(Number(widgetId));
+            if (!recaptchaResponse) {
+              isValid = false;
+              const errorMessage = document.createElement('div');
+              errorMessage.className = 'error-message';
+              errorMessage.textContent = 'Please complete the reCAPTCHA';
+              recaptchaContainer.appendChild(errorMessage);
+            }
+          } catch (error) {
+            console.error('Failed to validate reCAPTCHA:', error);
+            isValid = false;
+          }
+        }
+      }
+    }
+
+    if (isValid) {
+      // Ensure all form data is up to date
+      form.querySelectorAll("input").forEach((el) => {
+        const input = el as HTMLInputElement;
+        const fieldId = input.dataset.fieldId;
+        const lang = input.dataset.lang;
+        
+        if (fieldId && lang) {
+          // Handle simpleType fields
+          if (!state.formData[fieldId]) {
+            state.formData[fieldId] = {};
+          }
+          if (input.value) {
+            (state.formData[fieldId] as { [key: string]: string })[lang] = input.value;
+          }
+        } else if (input.id) {
+          // Handle regular fields
+          if (input.value) {
+            state.formData[input.id] = input.value;
+          }
+        }
+      });
+
+      const data = getFormData(state);
+      if (typeof state.submitAction === "function") {
+        state.submitAction(data);
+      } else {
+        console.log("Form data:", data);
+      }
+    } else {
+      form.reportValidity();
+    }
+  };
+
   return Object.freeze({
-    render: (): void => {
-      addRecaptchaScript();
+    render: async (): Promise<void> => {
       addResponsiveStyles();
       addRTLStyles();
       if (state.showLanguageSwitcher) {
         addLanguageSwitcherStyles();
       }
+      await addRecaptchaScript();
       render(state);
     },
     getFormData: (): FormData => getFormData(state),
-    updateLanguage: (newLanguage: string): void => updateLanguage(newLanguage)
+    updateLanguage: (newLanguage: string): void => updateLanguage(state, newLanguage)
   });
 };
 
@@ -748,146 +970,6 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
     return acc;
   }, {} as { [key: string]: FormField[] });
 
-const render = (state: FormState): void => {
-  const form = document.createElement('form');
-  form.className = 'form';
-
-  // Add language switcher if enabled
-  if (state.showLanguageSwitcher) {
-    const languageSwitcher = createLanguageSwitcher(state);
-    form.appendChild(languageSwitcher);
-  }
-
-  // Group fields by alignment group
-  const groupedFields = groupFields(state);
-
-  // Render each group
-  Object.entries(groupedFields).forEach(([groupName, fields]) => {
-    const group = document.createElement('div');
-    group.className = 'form-group';
-    group.style.display = 'flex';
-    group.style.flexDirection = 'row';
-
-    fields.forEach(field => {
-      const fieldElement = createFormElement(state, field);
-      group.appendChild(fieldElement);
-    });
-
-    form.appendChild(group);
-  });
-
-  // Add reCAPTCHA if enabled
-  if (state.recaptcha?.enabled) {
-    const recaptchaContainer = document.createElement('div');
-    recaptchaContainer.id = 'recaptcha-container';
-    recaptchaContainer.className = 'recaptcha-container';
-    form.appendChild(recaptchaContainer);
-  }
-
-  // Add submit button
-  const submitButton = document.createElement('button');
-  submitButton.type = 'submit';
-  submitButton.className = 'form-button';
-  submitButton.textContent = state.submitLabel;
-  form.appendChild(submitButton);
-
-  // Add form submit handler
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    validateAndSubmit(state);
-  });
-
-  // Clear container and append form
-  state.container.innerHTML = '';
-  state.container.appendChild(form);
-
-  // Add click handler to submit button
-  submitButton.addEventListener('click', (e) => {
-    e.preventDefault();
-    form.dispatchEvent(new Event('submit', { bubbles: true }));
-  });
-};
-
-const validateAndSubmit = (state: FormState): void => {
-  const form = state.container.querySelector("form");
-  if (!form) return;
-
-  let isValid = true;
-
-  // Trigger validation on all inputs
-  form.querySelectorAll("input, select").forEach((el) => {
-    el.dispatchEvent(new Event("input"));
-    if (!(el as HTMLInputElement | HTMLSelectElement).checkValidity()) {
-      isValid = false;
-    }
-  });
-
-  // Validate reCAPTCHA if configured and enabled
-  if (state.recaptcha && state.recaptcha.enabled !== false) {
-    const recaptchaResponse = window.grecaptcha.getResponse();
-    if (!recaptchaResponse) {
-      isValid = false;
-      const recaptchaContainer = document.getElementById('recaptcha-container');
-      if (recaptchaContainer) {
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'error-message';
-        errorMessage.textContent = 'Please complete the reCAPTCHA';
-        recaptchaContainer.appendChild(errorMessage);
-      }
-    } else {
-      // Add reCAPTCHA token to form data
-      state.formData.recaptchaToken = recaptchaResponse;
-    }
-  }
-
-  if (isValid) {
-    // Ensure all form data is up to date
-    form.querySelectorAll("input").forEach((el) => {
-      const input = el as HTMLInputElement;
-      const fieldId = input.dataset.fieldId;
-      const lang = input.dataset.lang;
-      
-      if (fieldId && lang) {
-        // Handle simpleType fields
-        if (!state.formData[fieldId]) {
-          state.formData[fieldId] = {};
-        }
-        if (input.value) {
-          (state.formData[fieldId] as { [key: string]: string })[lang] = input.value;
-        }
-      } else if (input.id) {
-        // Handle regular fields
-        if (input.value) {
-          state.formData[input.id] = input.value;
-        }
-      }
-    });
-
-    const data = getFormData(state);
-    if (typeof state.submitAction === "function") {
-      state.submitAction(data);
-    } else {
-      console.log("Form data:", data);
-    }
-  } else {
-    form.reportValidity();
-  }
-};
-
 const getFormData = (state: FormState): FormData => ({ ...state.formData });
-
-// Add TypeScript declaration for grecaptcha
-declare global {
-  interface Window {
-    grecaptcha: {
-      render: (container: string, options: {
-        sitekey: string;
-        theme?: 'light' | 'dark';
-        size?: 'normal' | 'compact';
-      }) => number;
-      getResponse: () => string;
-    };
-  }
-}
 
 export { JsonFormBuilder }; 

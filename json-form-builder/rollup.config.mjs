@@ -1,40 +1,37 @@
-import terser from '@rollup/plugin-terser';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
+import pkg from './package.json' assert { type: 'json' };
 
-const config = {
+export default {
   input: 'src/JsonFormBuilder.ts',
   output: [
     {
-      file: 'dist/JsonFormBuilder.umd.js',
+      file: pkg.main,
       format: 'umd',
       name: 'JsonFormBuilder',
       sourcemap: true,
-      globals: {},
-      plugins: [terser()]
+      globals: {
+        react: 'React',
+        'react-dom': 'ReactDOM'
+      }
     },
     {
-      file: 'dist/JsonFormBuilder.esm.js',
+      file: pkg.module,
       format: 'esm',
-      sourcemap: true,
-      plugins: [terser()]
+      sourcemap: true
     }
   ],
+  external: ['react', 'react-dom'],
   plugins: [
+    resolve(),
+    commonjs(),
     typescript({
       tsconfig: './tsconfig.json',
       declaration: true,
-      declarationDir: './dist',
-      module: 'esnext'
+      declarationDir: 'dist'
     }),
-    nodeResolve({
-      browser: true,
-      extensions: ['.ts', '.js']
-    }),
-    commonjs()
-  ],
-  external: []
+    terser()
+  ]
 };
-
-export default config;

@@ -12,12 +12,12 @@ export interface Validator {
 export interface FormField {
   id: string;
   controlType: 'textbox' | 'password' | 'date' | 'dropdown';
-  type?: 'simpleType';
+  type?: 'string' | 'simpleType';
   label: Label;
   required?: boolean;
   validators?: Validator[];
-  cssClasses?: string[];
   alignmentGroup?: string;
+  cssClasses?: string[];
 }
 
 export interface AllowedValues {
@@ -26,32 +26,30 @@ export interface AllowedValues {
   };
 }
 
-export interface RecaptchaConfig {
-  siteKey: string;
-  theme?: 'light' | 'dark';
-  size?: 'normal' | 'compact';
-  position?: 'before' | 'after';
-  enabled?: boolean;
-}
-
 export interface SubmitButtonConfig {
   label: string;
   action: (data: FormData) => void;
 }
 
 export interface LanguageConfig {
-  currentLanguage: string;
-  defaultLanguage: string;
+  currentLanguage?: string;
+  defaultLanguage?: string;
   showLanguageSwitcher?: boolean;
   languageSwitcherPosition?: 'top' | 'bottom';
   availableLanguages?: string[];
   rtlLanguages?: string[];
 }
 
+export interface ReCaptchaConfig {
+  siteKey: string;
+  enabled?: boolean;
+  language?: string;
+}
+
 export interface AdditionalConfig {
   submitButton: SubmitButtonConfig;
-  recaptcha?: RecaptchaConfig;
   language?: LanguageConfig;
+  recaptcha?: ReCaptchaConfig;
 }
 
 export interface FormConfig {
@@ -63,7 +61,6 @@ export interface FormConfig {
 
 export interface FormData {
   [key: string]: string | { [key: string]: string } | undefined;
-  recaptchaToken?: string;
 }
 
 export interface FormState {
@@ -76,7 +73,6 @@ export interface FormState {
   formElements: { [key: string]: HTMLElement | { [key: string]: HTMLElement } };
   submitLabel: string;
   submitAction: (data: FormData) => void;
-  recaptcha?: RecaptchaConfig;
   currentLanguage: string;
   defaultLanguage: string;
   showLanguageSwitcher: boolean;
@@ -84,4 +80,5 @@ export interface FormState {
   availableLanguages: string[];
   rtlLanguages: string[];
   isRTL: boolean;
+  recaptcha?: ReCaptchaConfig;
 } 
