@@ -81,9 +81,9 @@ describe('JsonFormBuilder', () => {
   });
 
   describe('Initialization', () => {
-    it('should create a form with the correct structure', () => {
+    it('should create a form with the correct structure', async () => {
       const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
-      formBuilder.render();
+      await formBuilder.render();
 
       expect(container.querySelector('form')).toBeTruthy();
       expect(container.querySelector('.language-switcher')).toBeTruthy();
@@ -99,9 +99,9 @@ describe('JsonFormBuilder', () => {
       expect(nameFieldGroup.querySelectorAll('.form-field.lang-ara')).toHaveLength(1);
     });
 
-    it('should initialize with the correct language', () => {
+    it('should initialize with the correct language', async () => {
       const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
-      formBuilder.render();
+      await formBuilder.render();
 
       const fieldGroups = container.querySelectorAll('.form-field-group');
       const nameLabel = fieldGroups[0]?.querySelector('label');
@@ -110,9 +110,9 @@ describe('JsonFormBuilder', () => {
   });
 
   describe('Language Switching', () => {
-    it('should update labels when language is changed', () => {
+    it('should update labels when language is changed', async () => {
       const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
-      formBuilder.render();
+      await formBuilder.render();
 
       formBuilder.updateLanguage('fra');
       const fieldGroups = container.querySelectorAll('.form-field-group');
@@ -122,9 +122,9 @@ describe('JsonFormBuilder', () => {
   });
 
   describe('Form Validation', () => {
-    it('should validate required fields', () => {
+    it('should validate required fields', async () => {
       const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
-      formBuilder.render();
+      await formBuilder.render();
 
       const form = container.querySelector('form');
       form?.dispatchEvent(new Event('submit'));
@@ -133,9 +133,9 @@ describe('JsonFormBuilder', () => {
       expect(errorMessages.length).toBeGreaterThan(0);
     });
 
-    it('should validate regex patterns', () => {
+    it('should validate regex patterns', async () => {
       const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
-      formBuilder.render();
+      await formBuilder.render();
 
       const nameInput = container.querySelector('input[data-lang="eng"][data-field-id="name"]') as HTMLInputElement;
       nameInput.value = '123';

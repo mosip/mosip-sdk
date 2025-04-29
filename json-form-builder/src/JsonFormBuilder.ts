@@ -109,7 +109,7 @@ const getLabelText = (state: FormState, field: FormField): string => {
 
   // Add required indicator if needed
   if (field.required) {
-    labelText += ' <span class="required">*</span>';
+    labelText += '<span class="required">*</span>';
   }
 
   return labelText;
@@ -292,19 +292,19 @@ const JsonFormBuilder = (
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0rem;
       }
 
       .form-field {
         flex: 1;
         min-width: 250px;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
       }
 
       .form-field-group {
         flex: 1;
         min-width: 250px;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
       }
 
       .input_box {
