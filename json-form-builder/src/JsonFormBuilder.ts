@@ -56,6 +56,27 @@ const refreshLabels = (state: FormState): void => {
         const placeholderText = field.label[state.currentLanguage] || field.label[state.defaultLanguage] || '';
         input.placeholder = placeholderText;
       }
+
+      // Handle confirm password field if it's a password field
+      if (field.controlType === 'password') {
+        // Create confirm label object
+        const confirmLabel: Label = {};
+        Object.keys(field.label).forEach(lang => {
+          confirmLabel[lang] = `Confirm ${field.label[lang]}`;
+        });
+
+        // Update confirm password label
+        const confirmLabelElement = state.container.querySelector(`label[for="${field.id}_confirm"]`);
+        if (confirmLabelElement) {
+          confirmLabelElement.innerHTML = getLabelText({ ...state, schema: [{ ...field, label: confirmLabel }] }, { ...field, label: confirmLabel });
+        }
+
+        // Update confirm password placeholder
+        const confirmInput = state.container.querySelector(`input#${field.id}_confirm`) as HTMLInputElement;
+        if (confirmInput) {
+          confirmInput.placeholder = confirmLabel[state.currentLanguage] || confirmLabel[state.defaultLanguage] || '';
+        }
+      }
     }
 
     // Update dropdown options if it's a dropdown field
@@ -68,7 +89,7 @@ const refreshLabels = (state: FormState): void => {
         // Add placeholder option
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = 'Select an Option';
+        placeholder.textContent = field.label[state.currentLanguage] || field.label[state.defaultLanguage] || 'Select an Option';
         placeholder.disabled = true;
         placeholder.selected = true;
         placeholder.hidden = true;
@@ -632,6 +653,7 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
   input.id = field.id;
   input.name = field.id;
   input.required = Boolean(field.required);
+  input.placeholder = field.label[state.currentLanguage] || field.label[state.defaultLanguage] || '';
 
   const errorContainer = createErrorContainer();
 
@@ -669,9 +691,16 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
   const confirmField = document.createElement('div');
   confirmField.className = 'form-field';
 
-  const confirmLabel = document.createElement('label');
-  confirmLabel.innerHTML = `Confirm ${getLabelText(state, field)}`;
-  confirmField.appendChild(confirmLabel);
+  // Create a confirm label object that follows the same structure as the original field
+  const confirmLabel: Label = {};
+  Object.keys(field.label).forEach(lang => {
+    confirmLabel[lang] = `Confirm ${field.label[lang]}`;
+  });
+
+  const confirmLabelElement = document.createElement('label');
+  confirmLabelElement.innerHTML = getLabelText({ ...state, schema: [{ ...field, label: confirmLabel }] }, { ...field, label: confirmLabel });
+  confirmLabelElement.htmlFor = `${field.id}_confirm`;
+  confirmField.appendChild(confirmLabelElement);
 
   const confirmInput = document.createElement('input');
   confirmInput.className = 'input_box';
@@ -679,6 +708,8 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
   confirmInput.id = `${field.id}_confirm`;
   confirmInput.name = `${field.id}_confirm`;
   confirmInput.required = Boolean(field.required);
+  // Set placeholder using the same confirm label
+  confirmInput.placeholder = confirmLabel[state.currentLanguage] || confirmLabel[state.defaultLanguage] || '';
 
   const confirmError = createErrorContainer();
 
@@ -722,6 +753,7 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
   input.id = field.id;
   input.name = field.id;
   input.required = Boolean(field.required);
+  input.placeholder = field.label[state.currentLanguage] || field.label[state.defaultLanguage] || '';
 
   const errorContainer = createErrorContainer();
 
@@ -768,7 +800,7 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
 
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = 'Select an Option';
+  placeholder.textContent = field.label[state.currentLanguage] || field.label[state.defaultLanguage] || 'Select an Option';
   placeholder.disabled = true;
   placeholder.selected = true;
   placeholder.hidden = true;
@@ -908,6 +940,7 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
   input.id = field.id;
   input.name = field.id;
   input.required = Boolean(field.required);
+  input.placeholder = field.label[state.currentLanguage] || field.label[state.defaultLanguage] || '';
 
   const errorContainer = createErrorContainer();
 
