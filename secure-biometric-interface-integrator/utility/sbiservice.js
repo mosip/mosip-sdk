@@ -173,9 +173,9 @@ class SbiService {
       bio: [
         {
           type, //modality
-          count, // from configuration
+          count: String(getValidNumber(count, 1)), // from configuration
           bioSubType,
-          requestedScore, // from configuration
+          requestedScore: String(getValidNumber(requestedScore, 70)), // from configuration
           deviceId, // from discovery
           deviceSubId: "0", //Set as 0, not required for Auth capture.
           previousHash: previousHashValue, // calculated sha256 hash of empty utf-8 string
@@ -348,6 +348,18 @@ const validateDeviceInfo = (deviceInfo) => {
 const decodeJWT = async (signed_jwt) => {
   const data = await jose.decodeJwt(signed_jwt);
   return data;
+};
+
+/**
+ * Ensures the input is a valid number. If invalid, returns the default value.
+ * @param {any} value The value to validate.
+ * @param {number} defaultValue The default value to return if the input is invalid.
+ * @returns {number} A valid number.
+ */
+const getValidNumber = (value, defaultValue) => {
+  return value === null || value === undefined || isNaN(Number(value))
+    ? defaultValue
+    : Number(value);
 };
 
 export { SbiService };

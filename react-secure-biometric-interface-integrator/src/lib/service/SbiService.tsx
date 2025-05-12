@@ -114,18 +114,18 @@ class SbiService {
       env: this.esignetConfig.env,
       purpose,
       specVersion,
-      timeout: this.esignetConfig.captureTimeout * 1000,
+      timeout: String(getValidNumber(this.esignetConfig.captureTimeout, 30) * 1000), // Default to 30
       captureTime: new Date().toISOString(),
       domainUri: this.esignetConfig.domainUri,
       transactionId,
       bio: [
         {
           type, //modality
-          count, // from configuration
+          count: String(getValidNumber(count, 1)), // from configuration, default to 1
           bioSubType,
-          requestedScore, // from configuration
+          requestedScore: String(getValidNumber(requestedScore, 70)), // from configuration, default to 70
           deviceId, // from discovery
-          deviceSubId: 0, //Set as 0, not required for Auth capture.
+          deviceSubId: "0", //Set as 0, not required for Auth capture.
           previousHash: previousHashValue, // calculated sha256 hash of empty string
         },
       ],
@@ -304,6 +304,18 @@ const validateDeviceInfo = (deviceInfo: IDeviceInfo | any): boolean => {
 const decodeJWT = async (signed_jwt: string) => {
   const data = await jose.decodeJwt(signed_jwt);
   return data;
+};
+
+/**
+ * Ensures the input is a valid number. If invalid, returns the default value.
+ * @param {any} value The value to validate.
+ * @param {number} defaultValue The default value to return if the input is invalid.
+ * @returns {number} A valid number.
+ */
+const getValidNumber = (value: any, defaultValue: number): number => {
+  return value === null || value === undefined || isNaN(Number(value))
+    ? defaultValue
+    : Number(value);
 };
 
 export { SbiService };
