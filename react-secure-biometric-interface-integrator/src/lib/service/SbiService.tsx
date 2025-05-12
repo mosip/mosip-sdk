@@ -306,6 +306,12 @@ const decodeJWT = async (signed_jwt: string) => {
   return data;
 };
 
+/**
+ * Ensures the input is a valid number. If invalid, returns the default value.
+ * @param {any} value The value to validate.
+ * @param {number} defaultValue The default value to return if the input is invalid.
+ * @returns {number} A valid number.
+ */
 const getValidNumber = (value: any, defaultValue: number): number => {
   return value === null || value === undefined || isNaN(Number(value))
     ? defaultValue
