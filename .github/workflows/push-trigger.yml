@@ -105,21 +105,21 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-  build-dynamic-form-builder:
-    if: "${{ contains(github.event.inputs.source_directory, 'dynamic-form-builder') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
+  build-json-form-builder:
+    if: "${{ contains(github.event.inputs.source_directory, 'json-form-builder') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
     uses: mosip/kattu/.github/workflows/npm-build.yml@master
     with:
-      SERVICE_LOCATION: ./dynamic-form-builder
-      BUILD_ARTIFACT: dist-dynamic-form-builder
+      SERVICE_LOCATION: ./json-form-builder
+      BUILD_ARTIFACT: dist-json-form-builder
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  dynamic-form-builder:
+  json-form-builder:
     if: "${{ github.event_name != 'pull_request' }}"
-    needs: build-dynamic-form-builder
+    needs: build-json-form-builder
     uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
-      SERVICE_LOCATION: ./dynamic-form-builder
+      SERVICE_LOCATION: ./json-form-builder
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
