@@ -52,15 +52,32 @@ export interface AdditionalConfig {
   recaptcha?: ReCaptchaConfig;
 }
 
+export interface Errors {
+  [key: string]: { [language: string]: string };
+}
+
 export interface FormConfig {
   schema: FormField[];
   allowedValues?: AllowedValues;
-  mandatoryLanguages?: string[];
-  optionalLanguages?: string[];
+  errors?: Errors
+  language: LanguageSettings;
 }
 
 export interface FormData {
   [key: string]: string | { [key: string]: string } | undefined;
+}
+
+export interface LanguageSettings {
+  mandatory?: string[];
+  optional?: string[];
+  langCodeMap?: { [key: string]: string }; // for languageMap builder
+}
+
+export interface Validator {
+  regex?: RegExp;
+  error?: {
+    [lang: string]: string;
+  };
 }
 
 export interface FormState {
@@ -81,4 +98,7 @@ export interface FormState {
   rtlLanguages: string[];
   isRTL: boolean;
   recaptcha?: ReCaptchaConfig;
+  fallbackErrors: Errors;
+  lastErrors?: Record<string, 'required' | number | null>;
+  languageMap: { [key: string]: string }
 } 

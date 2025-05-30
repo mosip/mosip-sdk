@@ -55,8 +55,10 @@ describe('JsonFormBuilder', () => {
           ]
         }
       ],
-      mandatoryLanguages: ['eng'],
-      optionalLanguages: ['fra', 'ara']
+      language: {
+        mandatory: ["eng"],
+        optional: ['fra', 'ara']
+      }
     };
 
     additionalConfig = {

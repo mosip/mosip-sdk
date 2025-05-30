@@ -8,12 +8,13 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": true,
+    "noUnusedLocals": false,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*", "src/__tests__/**/*"],
+  "include": ["src/**/*", "src/__tests__/**/*", "rollup.config.js"],
   "exclude": ["node_modules", "dist"]
-} 
+}
