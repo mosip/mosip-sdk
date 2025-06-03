@@ -43,7 +43,7 @@ const getMultiLangText = (
   languageMap: LanguageMap,
   strictOnly: boolean = false
 ): string => {
-  if (!labels) return "";
+  if (!labels || languageMap[lang] === undefined) return "";
 
   const langVariants = [
     lang,
@@ -56,7 +56,11 @@ const getMultiLangText = (
     if (variant in labels) return labels[variant];
   }
 
-  return strictOnly ? "" : Object.values(labels)[0] || "";
+  // 🚫 Don't fallback to any label if strictOnly is true
+  if (strictOnly) return "";
+
+  // ✅ Otherwise, fallback to the first available label
+  return Object.values(labels)[0] || "";
 };
 
 // Refresh all labels without losing form data
@@ -204,14 +208,13 @@ const getLabelText = (state: FormState, field: FormField): string => {
 };
 
 const triggerAllEvents = (state: FormState) => {
-  const inputs = state.container.querySelectorAll('input, select, textarea');
+  const inputs = state.container.querySelectorAll('input, select');
 
   inputs.forEach(input => {
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 };
-
 
 // Update language and refresh labels
 const updateLanguage = (state: FormState, newLanguage: string): void => {
@@ -602,7 +605,8 @@ const JsonFormBuilder = (
 
     // Trigger validation on all inputs
     form.querySelectorAll("input, select").forEach((el) => {
-      el.dispatchEvent(new Event("input"));
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
       if (!(el as HTMLInputElement | HTMLSelectElement).checkValidity()) {
         isValid = false;
       }
@@ -639,14 +643,20 @@ const JsonFormBuilder = (
         const lang = input.dataset.lang;
 
         if (fieldId && lang) {
-          // Handle simpleType fields
-          if (!state.formData[fieldId]) {
-            state.formData[fieldId] = {};
+          // Always normalize to 3-letter code
+          const normalizedLang = state.languageMap[lang];
+
+          // Store only if normalization results in a valid 3-letter code
+          if (normalizedLang && normalizedLang.length === 3) {
+            if (!state.formData[fieldId]) {
+              state.formData[fieldId] = {};
+            }
+            if (input.value) {
+              (state.formData[fieldId] as { [key: string]: string })[normalizedLang] = input.value;
+            }
           }
-          if (input.value) {
-            (state.formData[fieldId] as { [key: string]: string })[lang] = input.value;
-          }
-        } else if (input.id) {
+        }
+        else if (input.id) {
           // Handle regular fields
           if (input.value) {
             state.formData[input.id] = input.value;
@@ -742,16 +752,21 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
   input.required = Boolean(field.required);
   input.dataset.fieldId = field.id;
 
-  // Set initial placeholder
-  const initLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-  const initDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+  // Language normalization helper function to get current normalized languages on each validation
+  const getNormalizedLangs = () => {
+    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+    return { normalizedLang, normalizedDefault };
+  };
+
+  // Set initial placeholder with current language
+  const { normalizedLang: initLang, normalizedDefault: initDefault } = getNormalizedLangs();
   input.placeholder = getMultiLangText(field.label, initLang, initDefault, state.languageMap);
 
   const errorContainer = createErrorContainer();
 
-  input.addEventListener('input', () => {
-    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+  const validateInput = () => {
+    const { normalizedLang, normalizedDefault } = getNormalizedLangs();
 
     let isValid = true;
     let lastError: 'required' | number | null = null;
@@ -760,6 +775,7 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
 
     const value = input.value.trim();
 
+    // Required validation (multilingual)
     if (field.required && !value) {
       const requiredErrors = state.fallbackErrors?.required || {};
       const requiredError = getMultiLangText(
@@ -773,6 +789,8 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
       appendError(errorContainer, requiredError);
       lastError = 'required';
       isValid = false;
+
+      // Regex validations
     } else if (Array.isArray(field.validators)) {
       for (let i = 0; i < field.validators.length; i++) {
         const validator = field.validators[i];
@@ -787,12 +805,7 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
               true
             ) || 'Invalid input';
 
-            // ✅ Fallback: if no matching error message in currentLang or defaultLang
-            if (!errorMsg) {
-              errorMsg = 'Invalid input';
-            }
-
-            appendError(errorContainer, errorMsg || 'Invalid input');
+            appendError(errorContainer, errorMsg);
             lastError = i;
             isValid = false;
             break;
@@ -806,7 +819,9 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
 
     input.setCustomValidity(isValid ? '' : 'Invalid input');
     input.classList.toggle('error', !isValid);
-  });
+  };
+
+  input.addEventListener('input', validateInput);
 
   input.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
@@ -822,6 +837,7 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
   const confirmField = document.createElement('div');
   confirmField.className = 'form-field';
 
+  // Build confirm password label with "Confirm" prefix for all languages
   const confirmLabel: Label = {};
   Object.keys(field.label).forEach(lang => {
     confirmLabel[lang] = `Confirm ${field.label[lang]}`;
@@ -842,9 +858,8 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
 
   const confirmError = createErrorContainer();
 
-  confirmInput.addEventListener('input', () => {
-    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+  const validateConfirm = () => {
+    const { normalizedLang, normalizedDefault } = getNormalizedLangs();
 
     appendError(confirmError, '');
 
@@ -854,7 +869,8 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
         mismatchErrors,
         normalizedLang,
         normalizedDefault,
-        state.languageMap
+        state.languageMap,
+        true
       ) || 'Passwords do not match';
 
       appendError(confirmError, mismatchError);
@@ -864,7 +880,9 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
       confirmInput.setCustomValidity('');
       confirmInput.classList.remove('error');
     }
-  });
+  };
+
+  confirmInput.addEventListener('input', validateConfirm);
 
   confirmInput.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
@@ -896,11 +914,15 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
   input.required = Boolean(field.required);
   input.dataset.fieldId = field.id;
 
-  // Normalize language codes
-  const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-  const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+  // Use current language normalized each time for validation, not just once here
+  const getNormalizedLangs = () => {
+    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+    return { normalizedLang, normalizedDefault };
+  };
 
-  // Multilingual placeholder (optional, since browsers don’t usually show placeholder on date fields)
+  // Placeholder (optional for date input)
+  const { normalizedLang, normalizedDefault } = getNormalizedLangs();
   input.placeholder = getMultiLangText(
     field.label,
     normalizedLang,
@@ -910,9 +932,11 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
 
   const errorContainer = createErrorContainer();
 
-  input.addEventListener('input', () => {
+  const validate = () => {
+    const { normalizedLang, normalizedDefault } = getNormalizedLangs();
+
     let isValid = true;
-    let lastError: 'required' | number | null = null;
+    let lastError: 'required' | null = null;
 
     appendError(errorContainer, '');
 
@@ -936,8 +960,9 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
 
     input.setCustomValidity(isValid ? '' : 'Invalid input');
     input.classList.toggle('error', !isValid);
-  });
+  };
 
+  input.addEventListener('input', validate);
   input.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
     state.formData[field.id] = target.value;
@@ -972,7 +997,9 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
   // Placeholder
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = getMultiLangText(field.label, normalizedLang, normalizedDefault, state.languageMap) || 'Select an Option';
+  placeholder.textContent =
+    getMultiLangText(field.label, normalizedLang, normalizedDefault, state.languageMap) ||
+    'Select an Option';
   placeholder.disabled = true;
   placeholder.selected = true;
   placeholder.hidden = true;
@@ -988,27 +1015,19 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
 
   const errorContainer = createErrorContainer();
 
-  select.addEventListener('change', (e) => {
-    const target = e.target as HTMLSelectElement;
-    state.formData[field.id] = target.value;
-    select.style.color = target.value ? 'black' : '';
-    select.dispatchEvent(new Event('input'));
-  });
+  const validateSelect = () => {
+    const currLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const defLang = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
 
-  select.addEventListener('input', () => {
     let isValid = true;
     let lastError: 'required' | null = null;
     appendError(errorContainer, '');
 
     if (field.required && !select.value) {
       const requiredErrors = state.fallbackErrors?.required || {};
-      const requiredError = getMultiLangText(
-        requiredErrors,
-        normalizedLang,
-        normalizedDefault,
-        state.languageMap,
-        true
-      ) || 'This field is required';
+      const requiredError =
+        getMultiLangText(requiredErrors, currLang, defLang, state.languageMap, true) ||
+        'This field is required';
 
       appendError(errorContainer, requiredError);
       lastError = 'required';
@@ -1020,7 +1039,16 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
 
     select.setCustomValidity(isValid ? '' : 'Invalid input');
     select.classList.toggle('error', !isValid);
+  };
+
+  select.addEventListener('change', (e) => {
+    const target = e.target as HTMLSelectElement;
+    state.formData[field.id] = target.value;
+    select.style.color = target.value ? 'black' : '';
+    validateSelect();
   });
+
+  select.addEventListener('input', validateSelect);
 
   wrapper.appendChild(select);
   wrapper.appendChild(errorContainer);
@@ -1042,8 +1070,19 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
 
   const languages = Object.keys(field.label || {});
 
+  // Helper to normalize any lang code to 3-letter code if possible
+  const normalizeToThreeLetterCode = (lang: string, languageMap: Record<string, string>) => {
+    if (lang.length === 3) return lang; // already 3-letter
+    return languageMap[lang] || lang; // map 2-letter → 3-letter, or fallback
+  };
+
+  // Normalize mandatory languages once outside the loop
+  const normalizedMandatoryLangs = (state.mandatoryLanguages || []).map((l) =>
+    normalizeToThreeLetterCode(l, state.languageMap)
+  );
+
   languages.forEach((lang) => {
-    const normalizedLang = state.languageMap[lang] || lang;
+    const normalizedLang = normalizeToThreeLetterCode(lang, state.languageMap);
 
     const langWrapper = document.createElement('div');
     langWrapper.className = `form-field lang-${lang}`;
@@ -1074,14 +1113,15 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
       const value = input.value.trim();
 
       const currentLang = normalizedLang;
-      const defaultLang = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+      const defaultLang = normalizeToThreeLetterCode(state.languageMap[state.defaultLanguage] || state.defaultLanguage, state.languageMap);
 
       errorContainer.innerHTML = ''; // Clear previous errors
 
-      // -------------------------------
-      // ✅ Always perform required check first
-      // -------------------------------
-      if (field.required && !value) {
+      // Check if this language is mandatory (normalized)
+      const isMandatoryLang = normalizedMandatoryLangs.includes(currentLang);
+
+      // Required validation only for mandatory languages
+      if (isMandatoryLang && field.required && !value) {
         const requiredErrors = state.fallbackErrors?.required || {};
         const requiredError = getMultiLangText(
           requiredErrors,
@@ -1096,14 +1136,14 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
         isValid = false;
       }
 
-      // -------------------------------
-      // ✅ Regex validation next
-      // -------------------------------
+      // Regex validations
       if (isValid && Array.isArray(field.validators)) {
-        const langValidators = field.validators.filter(
-          (v) =>
-            !v.langCode || v.langCode === lang || v.langCode === currentLang
-        );
+        const langValidators = field.validators.filter((v) => {
+          if (!v.langCode) return true;
+
+          const normalizedValidatorLang = normalizeToThreeLetterCode(v.langCode, state.languageMap);
+          return normalizedValidatorLang === normalizedLang;
+        });
 
         for (let i = 0; i < langValidators.length; i++) {
           const validator = langValidators[i];
@@ -1118,12 +1158,11 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
               true
             );
 
-            // ✅ Fallback: if no matching error message in currentLang or defaultLang
             if (!errorMsg) {
               errorMsg = 'Invalid input';
             }
 
-            appendError(errorContainer, errorMsg || 'Invalid input');
+            appendError(errorContainer, errorMsg);
             lastError = i;
             isValid = false;
             break;

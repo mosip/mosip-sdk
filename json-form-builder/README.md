@@ -23,45 +23,61 @@ npm install json-form-builder
 ### Basic Usage
 
 ```javascript
-import { JsonFormBuilder } from 'anushase@json-form-builder';
+import { JsonFormBuilder } from "anushase@json-form-builder";
 
 const config = {
   schema: [
     {
-      id: 'name',
-      controlType: 'textbox',
+      id: "name",
+      controlType: "textbox",
       label: {
-        eng: 'Name',
-        fra: 'Nom'
+        eng: "Name",
+        fra: "Nom",
       },
-      required: true
-    }
+      required: true,
+    },
     // ... more fields
   ],
-  mandatoryLanguages: ['eng'],
-  optionalLanguages: ['fra']
+  errors: {
+    required: {
+      eng: "This field is required",
+      fra: "Ce champ est obligatoire",
+    },
+  },
+  language: {
+    mandatory: ["eng"],
+    optional: ["fra"],
+    langCodeMap: {
+      eng: "en",
+      fra: "fr",
+    },
+  },
 };
 
 const additionalConfig = {
   submitButton: {
-    label: 'Submit',
+    label: "Submit",
     action: (data) => {
-      console.log('Form data:', data);
-    }
+      console.log("Form data:", data);
+    },
   },
   language: {
-    currentLanguage: 'eng',
-    defaultLanguage: 'eng',
-    showLanguageSwitcher: true
+    currentLanguage: "eng",
+    defaultLanguage: "eng",
+    showLanguageSwitcher: true,
   },
   recaptcha: {
-    siteKey: 'your-recaptcha-site-key',
+    siteKey: "your-recaptcha-site-key",
     enabled: true,
-    language: 'en'
-  }
+    language: "eng",
+  },
+  language: {
+    currentLanguage: "fra",
+    defaultLanguage: "eng",
+  },
 };
 
-const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
+const formBuilder = JsonFormBuilder(config, "form-container", additionalConfig);
 formBuilder.render();
 ```
 
@@ -75,8 +91,8 @@ The form configuration object (`config`) has the following structure:
 interface FormConfig {
   schema: FormField[];
   allowedValues?: AllowedValues;
-  mandatoryLanguages?: string[];
-  optionalLanguages?: string[];
+  errors?: Errors;
+  language: LanguageSettings;
 }
 ```
 
@@ -94,7 +110,7 @@ interface AdditionalConfig {
     currentLanguage?: string;
     defaultLanguage?: string;
     showLanguageSwitcher?: boolean;
-    languageSwitcherPosition?: 'top' | 'bottom';
+    languageSwitcherPosition?: "top" | "bottom";
     availableLanguages?: string[];
     rtlLanguages?: string[];
   };
@@ -116,7 +132,7 @@ The form builder supports Google reCAPTCHA v2 integration. To enable reCAPTCHA:
 recaptcha: {
   siteKey: 'your-recaptcha-site-key', // Required
   enabled: true,                      // Optional, defaults to true
-  language: 'en'                      // Optional, defaults to form's current 
+  language: 'en'                      // Optional, defaults to form's current
 }
 ```
 
@@ -150,13 +166,15 @@ Fields can be validated using regular expressions:
 {
   id: 'email',
   controlType: 'textbox',
-  label: { eng: 'Email' },
+  label: { eng: 'Email', fra: 'E-mail' },
   required: true,
   validators: [
     {
-      type: 'regex',
-      validator: '^[^@]+@[^@]+\\.[^@]+$',
-      errorCode: 'Invalid email format'
+      regex: '^[^@]+@[^@]+\\.[^@]+$',
+      error: {
+        eng: 'Invalid email format',
+        fra: "Format d'e-mail invalide",
+      }
     }
   ]
 }
@@ -168,7 +186,7 @@ The form builder automatically handles RTL layouts for specified languages:
 
 ```javascript
 language: {
-  rtlLanguages: ['ara', 'ar', 'he', 'fa', 'ur']
+  rtlLanguages: ["ara", "ar", "he", "fa", "ur"];
 }
 ```
 
@@ -201,8 +219,8 @@ The form builder comes with default styles but can be customized using CSS. The 
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+- Node.js (v16 or higher)
+- npm (v7 or higher)
 
 ### Setup
 
@@ -221,6 +239,7 @@ npm run build
 ```
 
 This will generate:
+
 - UMD bundle (`dist/JsonFormBuilder.umd.js`)
 - ESM bundle (`dist/JsonFormBuilder.esm.js`)
 - Source maps for both bundles
