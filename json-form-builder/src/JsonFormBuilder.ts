@@ -191,6 +191,11 @@ const refreshLabels = (state: FormState): void => {
       errorContainer.textContent = ''; // clear error if none
     }
   });
+
+  const submitButton = state.container.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.textContent = state.submitLabel;
+  }
 };
 
 // Helper function to get label text with required indicator
@@ -217,7 +222,7 @@ const triggerAllEvents = (state: FormState) => {
 };
 
 // Update language and refresh labels
-const updateLanguage = (state: FormState, newLanguage: string): void => {
+const updateLanguage = (state: FormState, newLanguage: string, submitButtonLabel?: string): void => {
   const normalizedLang = newLanguage || state.languageMap[newLanguage];
   state.currentLanguage = normalizedLang;
   state.isRTL = state.rtlLanguages.includes(normalizedLang);
@@ -256,6 +261,9 @@ const updateLanguage = (state: FormState, newLanguage: string): void => {
     }
   }
 
+  if (submitButtonLabel) {
+    state.submitLabel = submitButtonLabel;
+  }
   refreshLabels(state);
   triggerAllEvents(state);
 };
@@ -604,13 +612,7 @@ const JsonFormBuilder = (
     let isValid = true;
 
     // Trigger validation on all inputs
-    form.querySelectorAll("input, select").forEach((el) => {
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-      if (!(el as HTMLInputElement | HTMLSelectElement).checkValidity()) {
-        isValid = false;
-      }
-    });
+    triggerAllEvents(state);
 
     // Validate reCAPTCHA if configured and enabled
     if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
@@ -686,7 +688,7 @@ const JsonFormBuilder = (
       render(state);
     },
     getFormData: (): FormData => getFormData(state),
-    updateLanguage: (newLanguage: string): void => updateLanguage(state, newLanguage)
+    updateLanguage: (newLanguage: string, submitButtonLabel: string): void => updateLanguage(state, newLanguage, submitButtonLabel)
   });
 };
 
@@ -789,9 +791,9 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
       appendError(errorContainer, requiredError);
       lastError = 'required';
       isValid = false;
-
-      // Regex validations
-    } else if (Array.isArray(field.validators)) {
+    }
+    // Regex validations
+    else if (value && Array.isArray(field.validators)) {
       for (let i = 0; i < field.validators.length; i++) {
         const validator = field.validators[i];
         if (validator.type === 'regex' && validator.validator) {
@@ -1135,9 +1137,8 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
         lastError = 'required';
         isValid = false;
       }
-
       // Regex validations
-      if (isValid && Array.isArray(field.validators)) {
+      else if (value && isValid && Array.isArray(field.validators)) {
         const langValidators = field.validators.filter((v) => {
           if (!v.langCode) return true;
 
@@ -1242,8 +1243,8 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
       appendError(errorContainer, requiredError);
       lastError = 'required';
       isValid = false;
-
-    } else if (Array.isArray(field.validators)) {
+    }
+    else if (value && Array.isArray(field.validators)) {
       for (let i = 0; i < field.validators.length; i++) {
         const validator = field.validators[i];
         if (validator.regex && !validator.regex.test(value)) {

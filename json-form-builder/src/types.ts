@@ -78,6 +78,7 @@ export interface Validator {
   error?: {
     [lang: string]: string;
   };
+  langCode?: string;
 }
 
 export interface FormState {

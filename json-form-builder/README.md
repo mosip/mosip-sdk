@@ -62,7 +62,7 @@ const additionalConfig = {
     },
   },
   language: {
-    currentLanguage: "eng",
+    currentLanguage: "fra",
     defaultLanguage: "eng",
     showLanguageSwitcher: true,
   },
@@ -70,10 +70,6 @@ const additionalConfig = {
     siteKey: "your-recaptcha-site-key",
     enabled: true,
     language: "eng",
-  },
-  language: {
-    currentLanguage: "fra",
-    defaultLanguage: "eng",
   },
 };
 
@@ -194,7 +190,7 @@ language: {
 
 - `render()`: Renders the form
 - `getFormData()`: Returns the current form data
-- `updateLanguage(newLanguage: string)`: Updates the form language and reCAPTCHA language
+- `updateLanguage(newLanguage: string, submitButtonLabel: string)`: Updates the form fields, submit button and reCAPTCHA language
 
 ## Styling
 

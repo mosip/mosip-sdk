@@ -116,7 +116,7 @@ describe('JsonFormBuilder', () => {
       const formBuilder = JsonFormBuilder(config, 'form-container', additionalConfig);
       await formBuilder.render();
 
-      formBuilder.updateLanguage('fra');
+      formBuilder.updateLanguage('fra', 'login');
       const fieldGroups = container.querySelectorAll('.form-field-group');
       const nameLabel = fieldGroups[0]?.querySelector('label');
       expect(nameLabel?.textContent).toContain('Nom');
