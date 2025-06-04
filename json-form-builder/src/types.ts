@@ -2,13 +2,6 @@ export interface Label {
   [key: string]: string;
 }
 
-export interface Validator {
-  type: 'regex';
-  validator: string;
-  errorCode: string;
-  langCode?: string;
-}
-
 export interface FormField {
   id: string;
   controlType: 'textbox' | 'password' | 'date' | 'dropdown';
