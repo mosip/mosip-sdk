@@ -29,9 +29,10 @@ describe('JsonFormBuilder', () => {
           required: true,
           validators: [
             {
-              type: 'regex',
-              validator: '^[a-zA-Z ]+$',
-              errorCode: 'Only letters and spaces allowed',
+              regex: /^[a-zA-Z ]+$/,
+              error: {
+                'eng': 'Only letters and spaces allowed'
+              },
               langCode: 'eng'
             }
           ]
@@ -48,9 +49,10 @@ describe('JsonFormBuilder', () => {
           required: true,
           validators: [
             {
-              type: 'regex',
-              validator: '^[^@]+@[^@]+\\.[^@]+$',
-              errorCode: 'Invalid email format'
+              regex: /^[^@]+@[^@]+\\.[^@]+$/,
+              error: {
+                'eng': 'Invalid email format'
+              }
             }
           ]
         }
@@ -89,7 +91,7 @@ describe('JsonFormBuilder', () => {
 
       expect(container.querySelector('form')).toBeTruthy();
       expect(container.querySelector('.language-switcher')).toBeTruthy();
-      
+
       // Check for form field groups (one per field)
       const fieldGroups = container.querySelectorAll('.form-field-group');
       expect(fieldGroups).toHaveLength(2);
