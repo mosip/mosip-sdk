@@ -295,6 +295,69 @@ const createLanguageSwitcher = (state: FormState): HTMLDivElement => {
   return container;
 };
 
+const handleRequiredValidation = (
+  state: FormState,
+  normalizedLang: string,
+  normalizedDefault: string,
+  errorContainer: HTMLDivElement
+): { lastError: 'required'; isValid: false } => {
+  const requiredErrors = state.fallbackErrors?.required || {};
+  const requiredError = getMultiLangText(
+    requiredErrors,
+    normalizedLang,
+    normalizedDefault,
+    state.languageMap,
+    true
+  ) || 'This field is required';
+
+  appendError(errorContainer, requiredError);
+  return { lastError: 'required', isValid: false };
+};
+
+const handleRegexValidation = (
+  validators: any[],
+  value: string,
+  currentLang: string,
+  defaultLang: string,
+  state: FormState,
+  errorContainer: HTMLDivElement,
+  useLangCode: boolean
+): { lastError: number | null; isValid: boolean } => {
+  const normalizeToThreeLetterCode = (lang: string, languageMap: Record<string, string>) => {
+    if (lang.length === 3) return lang;
+    return languageMap[lang] || lang;
+  };
+
+  const normalizedLang = currentLang; // normalize once
+  const filteredValidators = useLangCode
+    ? validators.filter((v) => {
+      if (!v.langCode) return true;
+      const normalizedValidatorLang = normalizeToThreeLetterCode(v.langCode, state.languageMap);
+      return normalizedValidatorLang === normalizedLang;
+    })
+    : validators;
+
+  for (let i = 0; i < filteredValidators.length; i++) {
+    const validator = filteredValidators[i];
+    const regex = validator.regex || (validator.validator && new RegExp(validator.validator));
+
+    if (regex && !regex.test(value)) {
+      let errorMsg = getMultiLangText(
+        validator.error,
+        currentLang,
+        defaultLang,
+        state.languageMap,
+        true
+      ) || 'Invalid input';
+
+      appendError(errorContainer, errorMsg);
+      return { lastError: i, isValid: false };
+    }
+  }
+
+  return { lastError: null, isValid: true };
+};
+
 const JsonFormBuilder = (
   config: FormConfig,
   containerId: string,
@@ -779,41 +842,23 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
 
     // Required validation (multilingual)
     if (field.required && !value) {
-      const requiredErrors = state.fallbackErrors?.required || {};
-      const requiredError = getMultiLangText(
-        requiredErrors,
-        normalizedLang,
-        normalizedDefault,
-        state.languageMap,
-        true
-      ) || 'This field is required';
-
-      appendError(errorContainer, requiredError);
-      lastError = 'required';
-      isValid = false;
+      const result = handleRequiredValidation(state, normalizedLang, normalizedDefault, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
     }
     // Regex validations
     else if (value && Array.isArray(field.validators)) {
-      for (let i = 0; i < field.validators.length; i++) {
-        const validator = field.validators[i];
-        if (validator.type === 'regex' && validator.validator) {
-          const regex = validator.regex || new RegExp(validator.validator);
-          if (!regex.test(value)) {
-            let errorMsg = getMultiLangText(
-              validator.error,
-              normalizedLang,
-              normalizedDefault,
-              state.languageMap,
-              true
-            ) || 'Invalid input';
-
-            appendError(errorContainer, errorMsg);
-            lastError = i;
-            isValid = false;
-            break;
-          }
-        }
-      }
+      const result = handleRegexValidation(
+        field.validators,
+        value,
+        normalizedLang,
+        normalizedDefault,
+        state,
+        errorContainer,
+        false
+      );
+      lastError = result.lastError;
+      isValid = result.isValid;
     }
 
     state.lastErrors = state.lastErrors || {};
@@ -943,18 +988,9 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
     appendError(errorContainer, '');
 
     if (field.required && !input.value) {
-      const requiredErrors = state.fallbackErrors?.required || {};
-      const requiredError = getMultiLangText(
-        requiredErrors,
-        normalizedLang,
-        normalizedDefault,
-        state.languageMap,
-        true
-      ) || 'This field is required';
-
-      appendError(errorContainer, requiredError);
-      lastError = 'required';
-      isValid = false;
+      const result = handleRequiredValidation(state, normalizedLang, normalizedDefault, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
     }
 
     state.lastErrors = state.lastErrors || {};
@@ -1026,14 +1062,9 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
     appendError(errorContainer, '');
 
     if (field.required && !select.value) {
-      const requiredErrors = state.fallbackErrors?.required || {};
-      const requiredError =
-        getMultiLangText(requiredErrors, currLang, defLang, state.languageMap, true) ||
-        'This field is required';
-
-      appendError(errorContainer, requiredError);
-      lastError = 'required';
-      isValid = false;
+      const result = handleRequiredValidation(state, currLang, defLang, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
     }
 
     state.lastErrors = state.lastErrors || {};
@@ -1124,51 +1155,24 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
 
       // Required validation only for mandatory languages
       if (isMandatoryLang && field.required && !value) {
-        const requiredErrors = state.fallbackErrors?.required || {};
-        const requiredError = getMultiLangText(
-          requiredErrors,
-          currentLang,
-          defaultLang,
-          state.languageMap,
-          true
-        ) || 'This field is required';
-
-        appendError(errorContainer, requiredError);
-        lastError = 'required';
-        isValid = false;
+        const result = handleRequiredValidation(state, currentLang, defaultLang, errorContainer);
+        lastError = result.lastError;
+        isValid = result.isValid;
       }
       // Regex validations
       else if (value && isValid && Array.isArray(field.validators)) {
-        const langValidators = field.validators.filter((v) => {
-          if (!v.langCode) return true;
 
-          const normalizedValidatorLang = normalizeToThreeLetterCode(v.langCode, state.languageMap);
-          return normalizedValidatorLang === normalizedLang;
-        });
-
-        for (let i = 0; i < langValidators.length; i++) {
-          const validator = langValidators[i];
-          const regex = validator.regex || (validator.validator && new RegExp(validator.validator));
-
-          if (regex && !regex.test(value)) {
-            let errorMsg = getMultiLangText(
-              validator.error,
-              currentLang,
-              defaultLang,
-              state.languageMap,
-              true
-            );
-
-            if (!errorMsg) {
-              errorMsg = 'Invalid input';
-            }
-
-            appendError(errorContainer, errorMsg);
-            lastError = i;
-            isValid = false;
-            break;
-          }
-        }
+        const result = handleRegexValidation(
+          field.validators,
+          value,
+          currentLang,
+          defaultLang,
+          state,
+          errorContainer,
+          true
+        );
+        lastError = result.lastError;
+        isValid = result.isValid;
       }
 
       // Store value in form state
@@ -1231,42 +1235,22 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
     const value = input.value.trim();
 
     if (field.required && !value) {
-      const requiredErrors = state.fallbackErrors?.required || {};
-      const requiredError = getMultiLangText(
-        requiredErrors,
-        normalizedLang,
-        normalizedDefault,
-        state.languageMap,
-        true
-      ) || 'This field is required';
-
-      appendError(errorContainer, requiredError);
-      lastError = 'required';
-      isValid = false;
+      const result = handleRequiredValidation(state, normalizedLang, normalizedDefault, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
     }
     else if (value && Array.isArray(field.validators)) {
-      for (let i = 0; i < field.validators.length; i++) {
-        const validator = field.validators[i];
-        if (validator.regex && !validator.regex.test(value)) {
-          let errorMsg = getMultiLangText(
-            validator.error,
-            normalizedLang,
-            normalizedDefault,
-            state.languageMap,
-            true
-          );
-
-          // ✅ Fallback: if no matching error message in currentLang or defaultLang
-          if (!errorMsg) {
-            errorMsg = 'Invalid input';
-          }
-
-          appendError(errorContainer, errorMsg || 'Invalid input');
-          lastError = i;
-          isValid = false;
-          break;
-        }
-      }
+      const result = handleRegexValidation(
+        field.validators,
+        value,
+        normalizedLang,
+        normalizedDefault,
+        state,
+        errorContainer,
+        false
+      );
+      lastError = result.lastError;
+      isValid = result.isValid;
     }
 
     state.lastErrors = state.lastErrors || {};
