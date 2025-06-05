@@ -2,13 +2,6 @@ export interface Label {
   [key: string]: string;
 }
 
-export interface Validator {
-  type: 'regex';
-  validator: string;
-  errorCode: string;
-  langCode?: string;
-}
-
 export interface FormField {
   id: string;
   controlType: 'textbox' | 'password' | 'date' | 'dropdown';
@@ -52,15 +45,33 @@ export interface AdditionalConfig {
   recaptcha?: ReCaptchaConfig;
 }
 
+export interface Errors {
+  [key: string]: { [language: string]: string };
+}
+
 export interface FormConfig {
   schema: FormField[];
   allowedValues?: AllowedValues;
-  mandatoryLanguages?: string[];
-  optionalLanguages?: string[];
+  errors?: Errors
+  language: LanguageSettings;
 }
 
 export interface FormData {
   [key: string]: string | { [key: string]: string } | undefined;
+}
+
+export interface LanguageSettings {
+  mandatory?: string[];
+  optional?: string[];
+  langCodeMap?: { [key: string]: string }; // for languageMap builder
+}
+
+export interface Validator {
+  regex?: RegExp;
+  error?: {
+    [lang: string]: string;
+  };
+  langCode?: string;
 }
 
 export interface FormState {
@@ -81,4 +92,7 @@ export interface FormState {
   rtlLanguages: string[];
   isRTL: boolean;
   recaptcha?: ReCaptchaConfig;
+  fallbackErrors: Errors;
+  lastErrors?: Record<string, 'required' | number | null>;
+  languageMap: { [key: string]: string }
 } 
