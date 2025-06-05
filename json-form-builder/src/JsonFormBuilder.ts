@@ -20,6 +20,15 @@ declare global {
   }
 }
 
+type LanguageMap = Record<string, string>;
+type LabelObject = Record<string, string>;
+
+/**
+ * Converts a one-way language map into a two-way map.
+ * This allows for bidirectional lookup where both keys and values are language codes.
+ * @param {Record<string, string>}oneWayMap A map where keys are language codes and values are their corresponding labels.
+ * @returns Two-way map where both keys and values are language codes, allowing for bidirectional lookup.
+ */
 function buildBidirectionalLanguageMap(
   oneWayMap: Record<string, string>
 ): Record<string, string> {
@@ -33,9 +42,16 @@ function buildBidirectionalLanguageMap(
   return twoWayMap;
 }
 
-type LanguageMap = Record<string, string>;
-type LabelObject = Record<string, string>;
-
+/**
+ * Gets the label text in the specified language from a multilingual labels object.
+ * It checks for the current language, its mapped variant, and falls back to the default language if necessary.
+ * @param {LabelObject|undefined} labels Labels object containing multilingual labels. 
+ * @param {string} lang current language code.
+ * @param {string} defaultLang Default language code to use if no label is found in the current language. 
+ * @param {LanguageMap} languageMap bidirectional map of language codes to their corresponding labels.
+ * @param {boolean} strictOnly If true, will not fallback to any label if the current language is not found. 
+ * @returns {string} The label text in the specified language, or an empty string if no label is found.
+ */
 const getMultiLangText = (
   labels: LabelObject | undefined,
   lang: string,
@@ -63,7 +79,11 @@ const getMultiLangText = (
   return Object.values(labels)[0] || "";
 };
 
-// Refresh all labels without losing form data
+/**
+ * Refreshes all labels in the form based on the current language and schema.
+ * It updates the labels for inputs, selects, and error messages according to the current language.
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ */
 const refreshLabels = (state: FormState): void => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
@@ -198,7 +218,12 @@ const refreshLabels = (state: FormState): void => {
   }
 };
 
-// Helper function to get label text with required indicator
+/**
+ * Helps to get the label text for a form field, including a required indicator if the field is marked as required.
+ * @param {FormState} state form state containing current language and default language
+ * @param {FormField} field form field object containing label and required properties
+ * @returns {string} The label text for the field, including a required indicator if applicable.
+ */
 const getLabelText = (state: FormState, field: FormField): string => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
@@ -212,6 +237,10 @@ const getLabelText = (state: FormState, field: FormField): string => {
   return labelText;
 };
 
+/**
+ * Triggers input and change events for all inputs in the form.
+ * @param {FormState} state The current form state containing the container and form data.
+ */
 const triggerAllEvents = (state: FormState) => {
   const inputs = state.container.querySelectorAll('input, select');
 
@@ -221,7 +250,12 @@ const triggerAllEvents = (state: FormState) => {
   });
 };
 
-// Update language and refresh labels
+/**
+ * Updates the current language of the form and refreshes all labels accordingly.
+ * @param {FormState} state Current form state containing schema, container, and other properties.  
+ * @param {string} newLanguage New language code to switch to.
+ * @param {string} submitButtonLabel Optional label for the submit button in the new language. 
+ */
 const updateLanguage = (state: FormState, newLanguage: string, submitButtonLabel?: string): void => {
   const normalizedLang = newLanguage || state.languageMap[newLanguage];
   state.currentLanguage = normalizedLang;
@@ -268,7 +302,11 @@ const updateLanguage = (state: FormState, newLanguage: string, submitButtonLabel
   triggerAllEvents(state);
 };
 
-// Create language switcher
+/**
+ * Creates a language switcher element that allows users to switch between available languages.
+ * @param state Current form state containing schema, container, and other properties.
+ * @returns {HTMLDivElement} A div element containing the language switcher with a label and select dropdown.
+ */
 const createLanguageSwitcher = (state: FormState): HTMLDivElement => {
   const container = document.createElement('div');
   container.className = 'language-switcher';
@@ -295,6 +333,14 @@ const createLanguageSwitcher = (state: FormState): HTMLDivElement => {
   return container;
 };
 
+/**
+ * Handles the required validation for a form field.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {string} normalizedLang Current language code normalized to a 3-letter code.
+ * @param {string} normalizedDefault Default language code normalized to a 3-letter code.
+ * @param {HTMLDivElement} errorContainer Error container element where error messages will be appended.
+ * @returns { lastError: 'required'; isValid: false }
+ */
 const handleRequiredValidation = (
   state: FormState,
   normalizedLang: string,
@@ -314,6 +360,17 @@ const handleRequiredValidation = (
   return { lastError: 'required', isValid: false };
 };
 
+/**
+ * Handles regex validation for a form field.
+ * @param {any[]} validators Validators array containing regex or validator functions.
+ * @param {string} value Value to validate against the regex.
+ * @param {string} currentLang Current language code normalized to a 3-letter code.
+ * @param {string} defaultLang Default language code normalized to a 3-letter code.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {HTMLDivElement} errorContainer Error container element where error messages will be appended.
+ * @param {boolean} useLangCode Language code usage flag to filter validators based on language.
+ * @returns { lastError: number | null; isValid: boolean }
+ */
 const handleRegexValidation = (
   validators: any[],
   value: string,
@@ -358,6 +415,11 @@ const handleRegexValidation = (
   return { lastError: null, isValid: true };
 };
 
+/**
+ * Gets the form data from the current state, normalizing language codes to 3-letter codes.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @returns {FormData} The collected form data with normalized language codes.
+ */
 const JsonFormBuilder = (
   config: FormConfig,
   containerId: string,
@@ -392,7 +454,10 @@ const JsonFormBuilder = (
     languageMap: buildBidirectionalLanguageMap(config.language.langCodeMap || {})
   };
 
-  // Load reCAPTCHA script
+  /**
+   * Loads the reCAPTCHA script asynchronously and checks if it is already loaded.
+   * @returns {Promise<boolean>} A promise that resolves to true if reCAPTCHA script is loaded successfully, false otherwise.
+   */
   const loadRecaptcha = (): Promise<boolean> => {
     return new Promise((resolve) => {
       // Check if script is already loaded
@@ -444,7 +509,9 @@ const JsonFormBuilder = (
     });
   };
 
-  // Add reCAPTCHA script
+  /**
+   * Adds the reCAPTCHA script to the document if reCAPTCHA is enabled and site key is provided.
+   */
   const addRecaptchaScript = async (): Promise<void> => {
     if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
       const success = await loadRecaptcha();
@@ -455,7 +522,9 @@ const JsonFormBuilder = (
     }
   };
 
-  // Add responsive styles
+  /**
+   * Adds responsive styles to the form elements to ensure they are displayed correctly on different screen sizes.
+   */
   const addResponsiveStyles = (): void => {
     const style = document.createElement('style');
     style.textContent = `
@@ -501,7 +570,9 @@ const JsonFormBuilder = (
     document.head.appendChild(style);
   };
 
-  // Add language switcher styles
+  /**
+   * Adds styles for the language switcher to ensure it is displayed correctly.
+   */
   const addLanguageSwitcherStyles = (): void => {
     const style = document.createElement('style');
     style.textContent = `
@@ -528,7 +599,9 @@ const JsonFormBuilder = (
     document.head.appendChild(style);
   };
 
-  // Add RTL styles
+  /**
+   * Adds styles for right-to-left (RTL) languages to ensure proper layout and alignment.
+   */
   const addRTLStyles = (): void => {
     const style = document.createElement('style');
     style.textContent = `
@@ -575,7 +648,10 @@ const JsonFormBuilder = (
     document.head.appendChild(style);
   };
 
-  // Update RTL state
+  /**
+   * Updates the RTL state of the form based on the current language.
+   * @param {string} language The language code to check if it is an RTL language.
+   */
   const updateRTLState = (language: string): void => {
     state.isRTL = state.rtlLanguages.includes(language);
     state.container.setAttribute('dir', state.isRTL ? 'rtl' : 'ltr');
@@ -585,6 +661,11 @@ const JsonFormBuilder = (
   // Initialize RTL state
   updateRTLState(state.currentLanguage);
 
+  /**
+   * Groups form fields by their alignment group.
+   * @param {FormState} state Current form state containing schema, container, and other properties.
+   * @returns {Record<string, FormField[]>} An object where keys are alignment group names and values are arrays of fields in that group.
+   */
   const render = (state: FormState): void => {
     const form = document.createElement('form');
     form.className = 'form';
@@ -668,6 +749,10 @@ const JsonFormBuilder = (
     }
   };
 
+  /**
+   * Validates the form and submits the data if valid.
+   * @param state Current form state containing schema, container, and other properties.
+   */
   const validateAndSubmit = (state: FormState): void => {
     const form = state.container.querySelector("form");
     if (!form) return;
@@ -755,12 +840,23 @@ const JsonFormBuilder = (
   });
 };
 
+/**
+ * Creates a new div element to be used as an error container.
+ * @returns {HTMLDivElement} A new div element to be used as an error container.
+ */
 const createErrorContainer = (): HTMLDivElement => {
   const errorContainer = document.createElement("div");
   errorContainer.className = "error-message";
   return errorContainer;
 };
 
+/**
+ * Appends an error message to the specified container.
+ * It creates an error icon and a text node, and appends them to the container.
+ * @param {HTMLDivElement} container Container element where the error message will be appended.
+ * @param {Label|string} message Message to display in the error container, can be a string or a multilingual label object.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ */
 const appendError = (
   container: HTMLDivElement,
   message: string | Label, // Label = { [langCode: string]: string }
@@ -800,6 +896,12 @@ const appendError = (
   }
 };
 
+/**
+ * Creates a password form element.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label and input.
+ */
 const createPasswordField = (state: FormState, field: FormField): HTMLDivElement => {
   const wrapper = document.createElement('div');
   wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
@@ -944,6 +1046,12 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
   return wrapper;
 };
 
+/**
+ * Creates a date input form element.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label and input.
+ */
 const createDateField = (state: FormState, field: FormField): HTMLDivElement => {
   const wrapper = document.createElement('div');
   wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
@@ -1013,6 +1121,12 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
   return wrapper;
 };
 
+/**
+ * Creates a dropdown select form element.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label and select dropdown.
+ */
 const createDropdownField = (state: FormState, field: FormField): HTMLDivElement => {
   const wrapper = document.createElement('div');
   wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
@@ -1089,6 +1203,13 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
   return wrapper;
 };
 
+/**
+ * This function creates a simple textbox form element that supports multilingual labels and validation.
+ * It handles multiple languages, required validation, and regex validation.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label and input.
+ */
 const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement => {
   const wrapper = document.createElement('div');
   wrapper.className = `form-field-group ${field.cssClasses?.join(' ') || ''}`;
@@ -1193,6 +1314,12 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
   return wrapper;
 };
 
+/**
+ * Creates a string input form element.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label and input.
+ */
 const createStringField = (state: FormState, field: FormField): HTMLDivElement => {
   const wrapper = document.createElement('div');
   wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
@@ -1272,6 +1399,13 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
   return wrapper;
 };
 
+/**
+ * Creates a form element based on the control type specified in the field.
+ * It supports various control types such as textbox, password, date, and dropdown.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form element based on the control type.
+ */
 const createFormElement = (state: FormState, field: FormField): HTMLDivElement => {
   // Set default type to 'string' if not specified
   const fieldType = field.type || 'string';
@@ -1290,6 +1424,12 @@ const createFormElement = (state: FormState, field: FormField): HTMLDivElement =
   }
 };
 
+/**
+ * Groups form fields by their alignment group.
+ * Each field can belong to a specific alignment group, or be assigned a solo group based on its ID.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @returns {[key: string]: FormField[]} An object where keys are alignment group names and values are arrays of fields in that group.
+ */
 const groupFields = (state: FormState): { [key: string]: FormField[] } =>
   state.schema.reduce((acc, field) => {
     const group = field.alignmentGroup || `solo_${field.id}`;
@@ -1298,6 +1438,12 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
     return acc;
   }, {} as { [key: string]: FormField[] });
 
+/**
+ * Gets the current form data from the state.
+ * This function returns a copy of the formData object to avoid direct mutations.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @returns {FormData} An object containing the current form data.
+ */
 const getFormData = (state: FormState): FormData => ({ ...state.formData });
 
 export { JsonFormBuilder }; 
