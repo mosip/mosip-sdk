@@ -6,14 +6,21 @@ import {
   SubmitButtonConfig,
   Label,
   AdditionalConfig,
-  LanguageConfig
-} from './types';
+  LanguageConfig,
+} from "./types";
 
 // Add TypeScript declaration for grecaptcha
 declare global {
   interface Window {
     grecaptcha?: {
-      render: (container: HTMLElement, options: { sitekey: string; callback?: (response: string) => void; 'expired-callback'?: () => void; }) => number;
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string;
+          callback?: (response: string) => void;
+          "expired-callback"?: () => void;
+        }
+      ) => number;
       getResponse: (widgetId?: number) => string;
       reset: (widgetId?: number) => void;
     };
@@ -45,11 +52,11 @@ function buildBidirectionalLanguageMap(
 /**
  * Gets the label text in the specified language from a multilingual labels object.
  * It checks for the current language, its mapped variant, and falls back to the default language if necessary.
- * @param {LabelObject|undefined} labels Labels object containing multilingual labels. 
+ * @param {LabelObject|undefined} labels Labels object containing multilingual labels.
  * @param {string} lang current language code.
- * @param {string} defaultLang Default language code to use if no label is found in the current language. 
+ * @param {string} defaultLang Default language code to use if no label is found in the current language.
  * @param {LanguageMap} languageMap bidirectional map of language codes to their corresponding labels.
- * @param {boolean} strictOnly If true, will not fallback to any label if the current language is not found. 
+ * @param {boolean} strictOnly If true, will not fallback to any label if the current language is not found.
  * @returns {string} The label text in the specified language, or an empty string if no label is found.
  */
 const getMultiLangText = (
@@ -65,7 +72,7 @@ const getMultiLangText = (
     lang,
     languageMap[lang],
     defaultLang,
-    languageMap[defaultLang]
+    languageMap[defaultLang],
   ].filter((v): v is string => typeof v === "string");
 
   for (const variant of langVariants) {
@@ -88,44 +95,63 @@ const refreshLabels = (state: FormState): void => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
 
-  state.schema.forEach(field => {
+  state.schema.forEach((field) => {
     const labelText = getLabelText(state, field);
 
-    if (field.type === 'simpleType') {
-      const fieldGroup = state.container.querySelector(`.form-field-group input[data-field-id="${field.id}"]`)?.closest('.form-field-group');
-      const mainLabel = fieldGroup?.querySelector('label');
+    if (field.type === "simpleType") {
+      const fieldGroup = state.container
+        .querySelector(`.form-field-group input[data-field-id="${field.id}"]`)
+        ?.closest(".form-field-group");
+      const mainLabel = fieldGroup?.querySelector("label");
       if (mainLabel) {
         mainLabel.innerHTML = labelText;
       }
 
-      const inputs = state.container.querySelectorAll(`input[data-field-id="${field.id}"]`);
-      inputs.forEach(input => {
-        const datasetLang = (input as HTMLInputElement).dataset.lang || '';
+      const inputs = state.container.querySelectorAll(
+        `input[data-field-id="${field.id}"]`
+      );
+      inputs.forEach((input) => {
+        const datasetLang = (input as HTMLInputElement).dataset.lang || "";
         const inputLang = datasetLang || lang;
 
-        const labelForLang = getMultiLangText(field.label, inputLang, defaultLang, state.languageMap);
+        const labelForLang = getMultiLangText(
+          field.label,
+          inputLang,
+          defaultLang,
+          state.languageMap
+        );
         (input as HTMLInputElement).placeholder = labelForLang;
       });
-
     } else {
-      const labelElement = state.container.querySelector(`label[for="${field.id}"]`);
+      const labelElement = state.container.querySelector(
+        `label[for="${field.id}"]`
+      );
       if (labelElement) {
         labelElement.innerHTML = labelText;
       }
 
-      const input = state.container.querySelector(`input#${field.id}`) as HTMLInputElement;
+      const input = state.container.querySelector(
+        `input#${field.id}`
+      ) as HTMLInputElement;
       if (input) {
-        input.placeholder = getMultiLangText(field.label, lang, defaultLang, state.languageMap);
+        input.placeholder = getMultiLangText(
+          field.label,
+          lang,
+          defaultLang,
+          state.languageMap
+        );
       }
 
-      if (field.controlType === 'password') {
+      if (field.controlType === "password") {
         const confirmLabel: Label = {};
-        Object.keys(field.label || {}).forEach(code => {
+        Object.keys(field.label || {}).forEach((code) => {
           const mapped = state.languageMap[code] || code;
           confirmLabel[mapped] = `Confirm ${field.label[code]}`;
         });
 
-        const confirmLabelElement = state.container.querySelector(`label[for="${field.id}_confirm"]`);
+        const confirmLabelElement = state.container.querySelector(
+          `label[for="${field.id}_confirm"]`
+        );
         if (confirmLabelElement) {
           confirmLabelElement.innerHTML = getLabelText(
             { ...state, schema: [{ ...field, label: confirmLabel }] },
@@ -133,49 +159,71 @@ const refreshLabels = (state: FormState): void => {
           );
         }
 
-        const confirmInput = state.container.querySelector(`input#${field.id}_confirm`) as HTMLInputElement;
+        const confirmInput = state.container.querySelector(
+          `input#${field.id}_confirm`
+        ) as HTMLInputElement;
         if (confirmInput) {
-          confirmInput.placeholder = getMultiLangText(confirmLabel, lang, defaultLang, state.languageMap);
+          confirmInput.placeholder = getMultiLangText(
+            confirmLabel,
+            lang,
+            defaultLang,
+            state.languageMap
+          );
         }
       }
     }
 
-    if (field.controlType === 'dropdown') {
-      const select = state.container.querySelector(`select#${field.id}`) as HTMLSelectElement;
+    if (field.controlType === "dropdown") {
+      const select = state.container.querySelector(
+        `select#${field.id}`
+      ) as HTMLSelectElement;
       if (select) {
         const selectedValue = select.value;
-        select.innerHTML = '';
+        select.innerHTML = "";
 
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.textContent = getMultiLangText(field.label, lang, defaultLang, state.languageMap) || 'Select an Option';
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent =
+          getMultiLangText(field.label, lang, defaultLang, state.languageMap) ||
+          "Select an Option";
         placeholder.disabled = true;
         placeholder.selected = true;
         placeholder.hidden = true;
         select.appendChild(placeholder);
 
-        Object.entries(state.allowedValues[field.id] || {}).forEach(([value, labels]) => {
-          const option = document.createElement('option');
-          option.value = value;
-          option.textContent = getMultiLangText(labels, lang, defaultLang, state.languageMap);
-          option.selected = value === selectedValue;
-          select.appendChild(option);
-        });
+        Object.entries(state.allowedValues[field.id] || {}).forEach(
+          ([value, labels]) => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = getMultiLangText(
+              labels,
+              lang,
+              defaultLang,
+              state.languageMap
+            );
+            option.selected = value === selectedValue;
+            select.appendChild(option);
+          }
+        );
       }
     }
 
-    const errorContainer = state.container.querySelector(`.form-field[data-field-id="${field.id}"] .error-container`);
+    const errorContainer = state.container.querySelector(
+      `.form-field[data-field-id="${field.id}"] .error-container`
+    );
 
     if (!state.lastErrors) state.lastErrors = {};
 
-    let lastError: 'required' | number | null = null;
+    let lastError: "required" | number | null = null;
 
     // Simple validation example for required and regex validators:
     if (field.required) {
       // find the input(s) for this field (assuming first input for simplicity)
-      const inputElement = state.container.querySelector(`input[data-field-id="${field.id}"]`) as HTMLInputElement | null;
+      const inputElement = state.container.querySelector(
+        `input[data-field-id="${field.id}"]`
+      ) as HTMLInputElement | null;
       if (inputElement && !inputElement.value.trim()) {
-        lastError = 'required';
+        lastError = "required";
       } else if (Array.isArray(field.validators) && inputElement) {
         for (let i = 0; i < field.validators.length; i++) {
           const validator = field.validators[i];
@@ -191,24 +239,41 @@ const refreshLabels = (state: FormState): void => {
 
     // Show error messages if error container exists and error present
     if (errorContainer && lastError != null) {
-      const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-      const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+      const normalizedLang =
+        state.languageMap[state.currentLanguage] || state.currentLanguage;
+      const normalizedDefault =
+        state.languageMap[state.defaultLanguage] || state.defaultLanguage;
 
-      let errorText = '';
+      let errorText = "";
 
-      if (lastError === 'required') {
+      if (lastError === "required") {
         const requiredErrors = state.fallbackErrors?.required || {};
-        errorText = getMultiLangText(requiredErrors, normalizedLang, normalizedDefault, state.languageMap) || 'Invalid value';
-      } else if (typeof lastError === 'number' && Array.isArray(field.validators)) {
+        errorText =
+          getMultiLangText(
+            requiredErrors,
+            normalizedLang,
+            normalizedDefault,
+            state.languageMap
+          ) || "Invalid value";
+      } else if (
+        typeof lastError === "number" &&
+        Array.isArray(field.validators)
+      ) {
         const validator = field.validators[lastError];
         if (validator && validator.error) {
-          errorText = getMultiLangText(validator.error, normalizedLang, normalizedDefault, state.languageMap) || 'Invalid value';
+          errorText =
+            getMultiLangText(
+              validator.error,
+              normalizedLang,
+              normalizedDefault,
+              state.languageMap
+            ) || "Invalid value";
         }
       }
 
       errorContainer.textContent = errorText;
     } else if (errorContainer) {
-      errorContainer.textContent = ''; // clear error if none
+      errorContainer.textContent = ""; // clear error if none
     }
   });
 
@@ -228,7 +293,12 @@ const getLabelText = (state: FormState, field: FormField): string => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
 
-  let labelText = getMultiLangText(field.label, lang, defaultLang, state.languageMap);
+  let labelText = getMultiLangText(
+    field.label,
+    lang,
+    defaultLang,
+    state.languageMap
+  );
 
   if (field.required) {
     labelText += '<span class="required">*</span>';
@@ -242,54 +312,65 @@ const getLabelText = (state: FormState, field: FormField): string => {
  * @param {FormState} state The current form state containing the container and form data.
  */
 const triggerAllEvents = (state: FormState) => {
-  const inputs = state.container.querySelectorAll('input, select');
+  const inputs = state.container.querySelectorAll("input, select");
 
-  inputs.forEach(input => {
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
+  inputs.forEach((input) => {
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
   });
 };
 
 /**
  * Updates the current language of the form and refreshes all labels accordingly.
- * @param {FormState} state Current form state containing schema, container, and other properties.  
+ * @param {FormState} state Current form state containing schema, container, and other properties.
  * @param {string} newLanguage New language code to switch to.
- * @param {string} submitButtonLabel Optional label for the submit button in the new language. 
+ * @param {string} submitButtonLabel Optional label for the submit button in the new language.
  */
-const updateLanguage = (state: FormState, newLanguage: string, submitButtonLabel?: string): void => {
+const updateLanguage = (
+  state: FormState,
+  newLanguage: string,
+  submitButtonLabel?: string
+): void => {
   const normalizedLang = newLanguage || state.languageMap[newLanguage];
   state.currentLanguage = normalizedLang;
   state.isRTL = state.rtlLanguages.includes(normalizedLang);
-  state.container.dir = state.isRTL ? 'rtl' : 'ltr';
-  state.container.style.direction = state.isRTL ? 'rtl' : 'ltr';
+  state.container.dir = state.isRTL ? "rtl" : "ltr";
+  state.container.style.direction = state.isRTL ? "rtl" : "ltr";
 
-  if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey && window.grecaptcha) {
-    const recaptchaContainer = document.getElementById('recaptcha-container');
+  if (
+    state.recaptcha?.enabled !== false &&
+    state.recaptcha?.siteKey &&
+    window.grecaptcha
+  ) {
+    const recaptchaContainer = document.getElementById("recaptcha-container");
     if (recaptchaContainer) {
-      const widgetId = recaptchaContainer.getAttribute('data-widget-id');
+      const widgetId = recaptchaContainer.getAttribute("data-widget-id");
       if (widgetId) {
         try {
           window.grecaptcha.reset(Number(widgetId));
 
-          const newContainer = document.createElement('div');
-          newContainer.id = 'recaptcha-container';
-          newContainer.className = 'recaptcha-container';
+          const newContainer = document.createElement("div");
+          newContainer.id = "recaptcha-container";
+          newContainer.className = "recaptcha-container";
 
-          recaptchaContainer.parentNode?.replaceChild(newContainer, recaptchaContainer);
+          recaptchaContainer.parentNode?.replaceChild(
+            newContainer,
+            recaptchaContainer
+          );
 
           const newWidgetId = window.grecaptcha.render(newContainer, {
             sitekey: state.recaptcha.siteKey,
-            callback: response => {
+            callback: (response) => {
               state.formData.recaptchaToken = response;
             },
-            'expired-callback': () => {
+            "expired-callback": () => {
               delete state.formData.recaptchaToken;
             },
           });
 
-          newContainer.setAttribute('data-widget-id', newWidgetId.toString());
+          newContainer.setAttribute("data-widget-id", newWidgetId.toString());
         } catch (error) {
-          console.error('Failed to update reCAPTCHA language:', error);
+          console.error("Failed to update reCAPTCHA language:", error);
         }
       }
     }
@@ -308,22 +389,22 @@ const updateLanguage = (state: FormState, newLanguage: string, submitButtonLabel
  * @returns {HTMLDivElement} A div element containing the language switcher with a label and select dropdown.
  */
 const createLanguageSwitcher = (state: FormState): HTMLDivElement => {
-  const container = document.createElement('div');
-  container.className = 'language-switcher';
+  const container = document.createElement("div");
+  container.className = "language-switcher";
 
-  const label = document.createElement('label');
-  label.textContent = 'Language: ';
+  const label = document.createElement("label");
+  label.textContent = "Language: ";
 
-  const select = document.createElement('select');
-  state.availableLanguages.forEach(lang => {
-    const option = document.createElement('option');
+  const select = document.createElement("select");
+  state.availableLanguages.forEach((lang) => {
+    const option = document.createElement("option");
     option.value = lang;
     option.textContent = lang.toUpperCase();
     option.selected = lang === state.currentLanguage;
     select.appendChild(option);
   });
 
-  select.addEventListener('change', (e) => {
+  select.addEventListener("change", (e) => {
     const target = e.target as HTMLSelectElement;
     updateLanguage(state, target.value);
   });
@@ -346,18 +427,19 @@ const handleRequiredValidation = (
   normalizedLang: string,
   normalizedDefault: string,
   errorContainer: HTMLDivElement
-): { lastError: 'required'; isValid: false } => {
+): { lastError: "required"; isValid: false } => {
   const requiredErrors = state.fallbackErrors?.required || {};
-  const requiredError = getMultiLangText(
-    requiredErrors,
-    normalizedLang,
-    normalizedDefault,
-    state.languageMap,
-    true
-  ) || 'This field is required';
+  const requiredError =
+    getMultiLangText(
+      requiredErrors,
+      normalizedLang,
+      normalizedDefault,
+      state.languageMap,
+      true
+    ) || "This field is required";
 
   appendError(errorContainer, requiredError);
-  return { lastError: 'required', isValid: false };
+  return { lastError: "required", isValid: false };
 };
 
 /**
@@ -380,7 +462,10 @@ const handleRegexValidation = (
   errorContainer: HTMLDivElement,
   useLangCode: boolean
 ): { lastError: number | null; isValid: boolean } => {
-  const normalizeToThreeLetterCode = (lang: string, languageMap: Record<string, string>) => {
+  const normalizeToThreeLetterCode = (
+    lang: string,
+    languageMap: Record<string, string>
+  ) => {
     if (lang.length === 3) return lang;
     return languageMap[lang] || lang;
   };
@@ -388,24 +473,30 @@ const handleRegexValidation = (
   const normalizedLang = currentLang; // normalize once
   const filteredValidators = useLangCode
     ? validators.filter((v) => {
-      if (!v.langCode) return true;
-      const normalizedValidatorLang = normalizeToThreeLetterCode(v.langCode, state.languageMap);
-      return normalizedValidatorLang === normalizedLang;
-    })
+        if (!v.langCode) return true;
+        const normalizedValidatorLang = normalizeToThreeLetterCode(
+          v.langCode,
+          state.languageMap
+        );
+        return normalizedValidatorLang === normalizedLang;
+      })
     : validators;
 
   for (let i = 0; i < filteredValidators.length; i++) {
     const validator = filteredValidators[i];
-    const regex = validator.regex || (validator.validator && new RegExp(validator.validator));
+    const regex =
+      validator.regex ||
+      (validator.validator && new RegExp(validator.validator));
 
     if (regex && !regex.test(value)) {
-      let errorMsg = getMultiLangText(
-        validator.error,
-        currentLang,
-        defaultLang,
-        state.languageMap,
-        true
-      ) || 'Invalid input';
+      let errorMsg =
+        getMultiLangText(
+          validator.error,
+          currentLang,
+          defaultLang,
+          state.languageMap,
+          true
+        ) || "Invalid input";
 
       appendError(errorContainer, errorMsg);
       return { lastError: i, isValid: false };
@@ -425,7 +516,9 @@ const JsonFormBuilder = (
   containerId: string,
   additionalConfig: AdditionalConfig
 ) => {
-  const container = document.getElementById(containerId) || document.querySelector(`#${containerId}`);
+  const container =
+    document.getElementById(containerId) ||
+    document.querySelector(`#${containerId}`);
   if (!container) {
     throw new Error(`Container with id "${containerId}" not found`);
   }
@@ -442,16 +535,28 @@ const JsonFormBuilder = (
     submitAction: additionalConfig.submitButton.action,
     currentLanguage: additionalConfig.language?.currentLanguage || "eng",
     defaultLanguage: additionalConfig.language?.defaultLanguage || "eng",
-    showLanguageSwitcher: additionalConfig.language?.showLanguageSwitcher || false,
-    languageSwitcherPosition: additionalConfig.language?.languageSwitcherPosition || 'top',
-    availableLanguages: additionalConfig.language?.availableLanguages ||
-      [...(config.language.mandatory || ["eng"]), ...(config.language.optional || [])],
-    rtlLanguages: additionalConfig.language?.rtlLanguages || ['ara', 'ar', 'he', 'fa', 'ur'],
+    showLanguageSwitcher:
+      additionalConfig.language?.showLanguageSwitcher || false,
+    languageSwitcherPosition:
+      additionalConfig.language?.languageSwitcherPosition || "top",
+    availableLanguages: additionalConfig.language?.availableLanguages || [
+      ...(config.language.mandatory || ["eng"]),
+      ...(config.language.optional || []),
+    ],
+    rtlLanguages: additionalConfig.language?.rtlLanguages || [
+      "ara",
+      "ar",
+      "he",
+      "fa",
+      "ur",
+    ],
     isRTL: false,
     recaptcha: additionalConfig.recaptcha,
     fallbackErrors: config.errors || {},
     lastErrors: {},
-    languageMap: buildBidirectionalLanguageMap(config.language.langCodeMap || {})
+    languageMap: buildBidirectionalLanguageMap(
+      config.language.langCodeMap || {}
+    ),
   };
 
   /**
@@ -470,7 +575,10 @@ const JsonFormBuilder = (
       if (document.querySelector('script[src*="recaptcha/api.js"]')) {
         // Wait for grecaptcha to be available
         const checkGrecaptcha = () => {
-          if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+          if (
+            window.grecaptcha &&
+            typeof window.grecaptcha.render === "function"
+          ) {
             resolve(true);
           } else {
             setTimeout(checkGrecaptcha, 100);
@@ -481,7 +589,7 @@ const JsonFormBuilder = (
       }
 
       // Create script element
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = `https://www.google.com/recaptcha/api.js?hl=${state.recaptcha?.language || state.currentLanguage}`;
       script.async = true;
       script.defer = true;
@@ -490,7 +598,10 @@ const JsonFormBuilder = (
       script.onload = () => {
         // Wait for grecaptcha to be available
         const checkGrecaptcha = () => {
-          if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+          if (
+            window.grecaptcha &&
+            typeof window.grecaptcha.render === "function"
+          ) {
             resolve(true);
           } else {
             setTimeout(checkGrecaptcha, 100);
@@ -501,7 +612,7 @@ const JsonFormBuilder = (
 
       // Add error handler
       script.onerror = () => {
-        console.error('Failed to load reCAPTCHA script');
+        console.error("Failed to load reCAPTCHA script");
         resolve(false);
       };
 
@@ -516,7 +627,7 @@ const JsonFormBuilder = (
     if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
       const success = await loadRecaptcha();
       if (!success) {
-        console.error('Failed to initialize reCAPTCHA');
+        console.error("Failed to initialize reCAPTCHA");
         state.recaptcha.enabled = false;
       }
     }
@@ -526,7 +637,7 @@ const JsonFormBuilder = (
    * Adds responsive styles to the form elements to ensure they are displayed correctly on different screen sizes.
    */
   const addResponsiveStyles = (): void => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       .form-group {
         display: flex;
@@ -574,7 +685,7 @@ const JsonFormBuilder = (
    * Adds styles for the language switcher to ensure it is displayed correctly.
    */
   const addLanguageSwitcherStyles = (): void => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       .language-switcher {
         display: flex;
@@ -603,7 +714,7 @@ const JsonFormBuilder = (
    * Adds styles for right-to-left (RTL) languages to ensure proper layout and alignment.
    */
   const addRTLStyles = (): void => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       [dir="rtl"] .form-group {
         flex-direction: row-reverse;
@@ -654,8 +765,8 @@ const JsonFormBuilder = (
    */
   const updateRTLState = (language: string): void => {
     state.isRTL = state.rtlLanguages.includes(language);
-    state.container.setAttribute('dir', state.isRTL ? 'rtl' : 'ltr');
-    state.container.style.direction = state.isRTL ? 'rtl' : 'ltr';
+    state.container.setAttribute("dir", state.isRTL ? "rtl" : "ltr");
+    state.container.style.direction = state.isRTL ? "rtl" : "ltr";
   };
 
   // Initialize RTL state
@@ -667,8 +778,8 @@ const JsonFormBuilder = (
    * @returns {Record<string, FormField[]>} An object where keys are alignment group names and values are arrays of fields in that group.
    */
   const render = (state: FormState): void => {
-    const form = document.createElement('form');
-    form.className = 'form';
+    const form = document.createElement("form");
+    form.className = "form";
 
     // Add language switcher if enabled
     if (state.showLanguageSwitcher) {
@@ -681,12 +792,12 @@ const JsonFormBuilder = (
 
     // Render each group
     Object.entries(groupedFields).forEach(([groupName, fields]) => {
-      const group = document.createElement('div');
-      group.className = 'form-group';
-      group.style.display = 'flex';
-      group.style.flexDirection = 'row';
+      const group = document.createElement("div");
+      group.className = "form-group";
+      group.style.display = "flex";
+      group.style.flexDirection = "row";
 
-      fields.forEach(field => {
+      fields.forEach((field) => {
         const fieldElement = createFormElement(state, field);
         group.appendChild(fieldElement);
       });
@@ -696,33 +807,37 @@ const JsonFormBuilder = (
 
     // Add reCAPTCHA if enabled
     if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
-      const recaptchaContainer = document.createElement('div');
-      recaptchaContainer.id = 'recaptcha-container';
-      recaptchaContainer.className = 'recaptcha-container';
+      const recaptchaContainer = document.createElement("div");
+      recaptchaContainer.id = "recaptcha-container";
+      recaptchaContainer.className = "recaptcha-container";
       form.appendChild(recaptchaContainer);
     }
 
     // Add submit button
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.className = 'form-button';
+    const submitButton = document.createElement("button");
+    submitButton.type = "submit";
+    submitButton.className = "form-button";
     submitButton.textContent = state.submitLabel;
     form.appendChild(submitButton);
 
     // Add form submit handler
-    form.addEventListener('submit', (e) => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
       validateAndSubmit(state);
     });
 
     // Clear container and append form
-    state.container.innerHTML = '';
+    state.container.innerHTML = "";
     state.container.appendChild(form);
 
     // Initialize reCAPTCHA if enabled
     if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
-      const recaptchaContainer = document.getElementById('recaptcha-container');
-      if (recaptchaContainer && window.grecaptcha && typeof window.grecaptcha.render === 'function') {
+      const recaptchaContainer = document.getElementById("recaptcha-container");
+      if (
+        recaptchaContainer &&
+        window.grecaptcha &&
+        typeof window.grecaptcha.render === "function"
+      ) {
         try {
           const widgetId = window.grecaptcha.render(recaptchaContainer, {
             sitekey: state.recaptcha.siteKey,
@@ -730,20 +845,23 @@ const JsonFormBuilder = (
               // Store the response in form data
               state.formData.recaptchaToken = response;
             },
-            'expired-callback': () => {
+            "expired-callback": () => {
               // Clear the token when it expires
               delete state.formData.recaptchaToken;
-            }
+            },
           });
           // Store the widget ID for later use
-          recaptchaContainer.setAttribute('data-widget-id', widgetId.toString());
+          recaptchaContainer.setAttribute(
+            "data-widget-id",
+            widgetId.toString()
+          );
         } catch (error) {
-          console.error('Failed to initialize reCAPTCHA:', error);
+          console.error("Failed to initialize reCAPTCHA:", error);
           // Disable reCAPTCHA if initialization fails
           state.recaptcha.enabled = false;
         }
       } else {
-        console.warn('reCAPTCHA not available or not properly initialized');
+        console.warn("reCAPTCHA not available or not properly initialized");
         state.recaptcha.enabled = false;
       }
     }
@@ -764,21 +882,27 @@ const JsonFormBuilder = (
 
     // Validate reCAPTCHA if configured and enabled
     if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
-      const recaptchaContainer = document.getElementById('recaptcha-container');
-      if (recaptchaContainer && window.grecaptcha && typeof window.grecaptcha.getResponse === 'function') {
-        const widgetId = recaptchaContainer.getAttribute('data-widget-id');
+      const recaptchaContainer = document.getElementById("recaptcha-container");
+      if (
+        recaptchaContainer &&
+        window.grecaptcha &&
+        typeof window.grecaptcha.getResponse === "function"
+      ) {
+        const widgetId = recaptchaContainer.getAttribute("data-widget-id");
         if (widgetId) {
           try {
-            const recaptchaResponse = window.grecaptcha.getResponse(Number(widgetId));
+            const recaptchaResponse = window.grecaptcha.getResponse(
+              Number(widgetId)
+            );
             if (!recaptchaResponse) {
               isValid = false;
-              const errorMessage = document.createElement('div');
-              errorMessage.className = 'error-message';
-              errorMessage.textContent = 'Please complete the reCAPTCHA';
+              const errorMessage = document.createElement("div");
+              errorMessage.className = "error-message";
+              errorMessage.textContent = "Please complete the reCAPTCHA";
               recaptchaContainer.appendChild(errorMessage);
             }
           } catch (error) {
-            console.error('Failed to validate reCAPTCHA:', error);
+            console.error("Failed to validate reCAPTCHA:", error);
             isValid = false;
           }
         }
@@ -802,11 +926,12 @@ const JsonFormBuilder = (
               state.formData[fieldId] = {};
             }
             if (input.value) {
-              (state.formData[fieldId] as { [key: string]: string })[normalizedLang] = input.value;
+              (state.formData[fieldId] as { [key: string]: string })[
+                normalizedLang
+              ] = input.value;
             }
           }
-        }
-        else if (input.id) {
+        } else if (input.id) {
           // Handle regular fields
           if (input.value) {
             state.formData[input.id] = input.value;
@@ -836,7 +961,8 @@ const JsonFormBuilder = (
       render(state);
     },
     getFormData: (): FormData => getFormData(state),
-    updateLanguage: (newLanguage: string, submitButtonLabel: string): void => updateLanguage(state, newLanguage, submitButtonLabel)
+    updateLanguage: (newLanguage: string, submitButtonLabel: string): void =>
+      updateLanguage(state, newLanguage, submitButtonLabel),
   });
 };
 
@@ -883,9 +1009,16 @@ const appendError = (
     const textNode = document.createElement("span");
     // If message is object, get multilingual text
     if (typeof message === "object" && state) {
-      const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-      const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
-      textNode.textContent = getMultiLangText(message, normalizedLang, normalizedDefault, state.languageMap);
+      const normalizedLang =
+        state.languageMap[state.currentLanguage] || state.currentLanguage;
+      const normalizedDefault =
+        state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+      textNode.textContent = getMultiLangText(
+        message,
+        normalizedLang,
+        normalizedDefault,
+        state.languageMap
+      );
     } else {
       textNode.textContent = message as string;
     }
@@ -902,18 +1035,21 @@ const appendError = (
  * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form field with its label and input.
  */
-const createPasswordField = (state: FormState, field: FormField): HTMLDivElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
+const createPasswordField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-  const label = document.createElement('label');
+  const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
   wrapper.appendChild(label);
 
-  const input = document.createElement('input');
-  input.className = 'input_box';
-  input.type = 'password';
+  const input = document.createElement("input");
+  input.className = "input_box";
+  input.type = "password";
   input.id = field.id;
   input.name = field.id;
   input.required = Boolean(field.required);
@@ -921,14 +1057,22 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
 
   // Language normalization helper function to get current normalized languages on each validation
   const getNormalizedLangs = () => {
-    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+    const normalizedLang =
+      state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const normalizedDefault =
+      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
     return { normalizedLang, normalizedDefault };
   };
 
   // Set initial placeholder with current language
-  const { normalizedLang: initLang, normalizedDefault: initDefault } = getNormalizedLangs();
-  input.placeholder = getMultiLangText(field.label, initLang, initDefault, state.languageMap);
+  const { normalizedLang: initLang, normalizedDefault: initDefault } =
+    getNormalizedLangs();
+  input.placeholder = getMultiLangText(
+    field.label,
+    initLang,
+    initDefault,
+    state.languageMap
+  );
 
   const errorContainer = createErrorContainer();
 
@@ -936,15 +1080,20 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
     const { normalizedLang, normalizedDefault } = getNormalizedLangs();
 
     let isValid = true;
-    let lastError: 'required' | number | null = null;
+    let lastError: "required" | number | null = null;
 
-    appendError(errorContainer, '');
+    appendError(errorContainer, "");
 
     const value = input.value.trim();
 
     // Required validation (multilingual)
     if (field.required && !value) {
-      const result = handleRequiredValidation(state, normalizedLang, normalizedDefault, errorContainer);
+      const result = handleRequiredValidation(
+        state,
+        normalizedLang,
+        normalizedDefault,
+        errorContainer
+      );
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -966,16 +1115,16 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
     state.lastErrors = state.lastErrors || {};
     state.lastErrors[field.id] = lastError;
 
-    input.setCustomValidity(isValid ? '' : 'Invalid input');
-    input.classList.toggle('error', !isValid);
+    input.setCustomValidity(isValid ? "" : "Invalid input");
+    input.classList.toggle("error", !isValid);
   };
 
-  input.addEventListener('input', validateInput);
+  input.addEventListener("input", validateInput);
 
-  input.addEventListener('change', (e) => {
+  input.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
     state.formData[field.id] = target.value;
-    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event("input"));
   });
 
   wrapper.appendChild(input);
@@ -983,60 +1132,71 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
 
   // ---- Confirm Password Field ----
 
-  const confirmField = document.createElement('div');
-  confirmField.className = 'form-field';
+  const confirmField = document.createElement("div");
+  confirmField.className = "form-field";
 
   // Build confirm password label with "Confirm" prefix for all languages
   const confirmLabel: Label = {};
-  Object.keys(field.label).forEach(lang => {
+  Object.keys(field.label).forEach((lang) => {
     confirmLabel[lang] = `Confirm ${field.label[lang]}`;
   });
 
-  const confirmLabelElement = document.createElement('label');
-  confirmLabelElement.innerHTML = getMultiLangText(confirmLabel, initLang, initDefault, state.languageMap);
+  const confirmLabelElement = document.createElement("label");
+  confirmLabelElement.innerHTML = getMultiLangText(
+    confirmLabel,
+    initLang,
+    initDefault,
+    state.languageMap
+  );
   confirmLabelElement.htmlFor = `${field.id}_confirm`;
   confirmField.appendChild(confirmLabelElement);
 
-  const confirmInput = document.createElement('input');
-  confirmInput.className = 'input_box';
-  confirmInput.type = 'password';
+  const confirmInput = document.createElement("input");
+  confirmInput.className = "input_box";
+  confirmInput.type = "password";
   confirmInput.id = `${field.id}_confirm`;
   confirmInput.name = `${field.id}_confirm`;
   confirmInput.required = Boolean(field.required);
-  confirmInput.placeholder = getMultiLangText(confirmLabel, initLang, initDefault, state.languageMap);
+  confirmInput.placeholder = getMultiLangText(
+    confirmLabel,
+    initLang,
+    initDefault,
+    state.languageMap
+  );
 
   const confirmError = createErrorContainer();
 
   const validateConfirm = () => {
     const { normalizedLang, normalizedDefault } = getNormalizedLangs();
 
-    appendError(confirmError, '');
+    appendError(confirmError, "");
 
     if (confirmInput.value !== input.value) {
       const mismatchErrors = state.fallbackErrors?.passwordMismatch || {};
-      const mismatchError = getMultiLangText(
-        mismatchErrors,
-        normalizedLang,
-        normalizedDefault,
-        state.languageMap,
-        true
-      ) || 'Passwords do not match';
+      const mismatchError =
+        getMultiLangText(
+          mismatchErrors,
+          normalizedLang,
+          normalizedDefault,
+          state.languageMap,
+          true
+        ) || "Passwords do not match";
 
       appendError(confirmError, mismatchError);
       confirmInput.setCustomValidity(mismatchError);
-      confirmInput.classList.add('error');
+      confirmInput.classList.add("error");
     } else {
-      confirmInput.setCustomValidity('');
-      confirmInput.classList.remove('error');
+      confirmInput.setCustomValidity("");
+      confirmInput.classList.remove("error");
     }
   };
 
-  confirmInput.addEventListener('input', validateConfirm);
+  confirmInput.addEventListener("input", validateConfirm);
 
-  confirmInput.addEventListener('change', (e) => {
+  confirmInput.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
     state.formData[`${field.id}_confirm`] = target.value;
-    confirmInput.dispatchEvent(new Event('input'));
+    confirmInput.dispatchEvent(new Event("input"));
   });
 
   confirmField.appendChild(confirmInput);
@@ -1052,18 +1212,21 @@ const createPasswordField = (state: FormState, field: FormField): HTMLDivElement
  * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form field with its label and input.
  */
-const createDateField = (state: FormState, field: FormField): HTMLDivElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
+const createDateField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-  const label = document.createElement('label');
+  const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
   wrapper.appendChild(label);
 
-  const input = document.createElement('input');
-  input.className = 'input_box';
-  input.type = 'date';
+  const input = document.createElement("input");
+  input.className = "input_box";
+  input.type = "date";
   input.id = field.id;
   input.name = field.id;
   input.required = Boolean(field.required);
@@ -1071,8 +1234,10 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
 
   // Use current language normalized each time for validation, not just once here
   const getNormalizedLangs = () => {
-    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+    const normalizedLang =
+      state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const normalizedDefault =
+      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
     return { normalizedLang, normalizedDefault };
   };
 
@@ -1091,12 +1256,17 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
     const { normalizedLang, normalizedDefault } = getNormalizedLangs();
 
     let isValid = true;
-    let lastError: 'required' | null = null;
+    let lastError: "required" | null = null;
 
-    appendError(errorContainer, '');
+    appendError(errorContainer, "");
 
     if (field.required && !input.value) {
-      const result = handleRequiredValidation(state, normalizedLang, normalizedDefault, errorContainer);
+      const result = handleRequiredValidation(
+        state,
+        normalizedLang,
+        normalizedDefault,
+        errorContainer
+      );
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -1104,15 +1274,15 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
     state.lastErrors = state.lastErrors || {};
     state.lastErrors[field.id] = lastError;
 
-    input.setCustomValidity(isValid ? '' : 'Invalid input');
-    input.classList.toggle('error', !isValid);
+    input.setCustomValidity(isValid ? "" : "Invalid input");
+    input.classList.toggle("error", !isValid);
   };
 
-  input.addEventListener('input', validate);
-  input.addEventListener('change', (e) => {
+  input.addEventListener("input", validate);
+  input.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
     state.formData[field.id] = target.value;
-    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event("input"));
   });
 
   wrapper.appendChild(input);
@@ -1127,56 +1297,79 @@ const createDateField = (state: FormState, field: FormField): HTMLDivElement => 
  * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form field with its label and select dropdown.
  */
-const createDropdownField = (state: FormState, field: FormField): HTMLDivElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
+const createDropdownField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-  const label = document.createElement('label');
+  const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
   wrapper.appendChild(label);
 
-  const select = document.createElement('select');
-  select.className = 'input_box select-placeholder';
+  const select = document.createElement("select");
+  select.className = "input_box select-placeholder";
   select.id = field.id;
   select.name = field.id;
   select.required = Boolean(field.required);
   select.dataset.fieldId = field.id;
 
-  const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-  const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+  const normalizedLang =
+    state.languageMap[state.currentLanguage] || state.currentLanguage;
+  const normalizedDefault =
+    state.languageMap[state.defaultLanguage] || state.defaultLanguage;
 
   // Placeholder
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
   placeholder.textContent =
-    getMultiLangText(field.label, normalizedLang, normalizedDefault, state.languageMap) ||
-    'Select an Option';
+    getMultiLangText(
+      field.label,
+      normalizedLang,
+      normalizedDefault,
+      state.languageMap
+    ) || "Select an Option";
   placeholder.disabled = true;
   placeholder.selected = true;
   placeholder.hidden = true;
   select.appendChild(placeholder);
 
   // Options
-  Object.entries(state.allowedValues[field.id] || {}).forEach(([value, labels]) => {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = getMultiLangText(labels, normalizedLang, normalizedDefault, state.languageMap);
-    select.appendChild(option);
-  });
+  Object.entries(state.allowedValues[field.id] || {}).forEach(
+    ([value, labels]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = getMultiLangText(
+        labels,
+        normalizedLang,
+        normalizedDefault,
+        state.languageMap
+      );
+      select.appendChild(option);
+    }
+  );
 
   const errorContainer = createErrorContainer();
 
   const validateSelect = () => {
-    const currLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const defLang = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+    const currLang =
+      state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const defLang =
+      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
 
     let isValid = true;
-    let lastError: 'required' | null = null;
-    appendError(errorContainer, '');
+    let lastError: "required" | null = null;
+    appendError(errorContainer, "");
 
     if (field.required && !select.value) {
-      const result = handleRequiredValidation(state, currLang, defLang, errorContainer);
+      const result = handleRequiredValidation(
+        state,
+        currLang,
+        defLang,
+        errorContainer
+      );
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -1184,18 +1377,18 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
     state.lastErrors = state.lastErrors || {};
     state.lastErrors[field.id] = lastError;
 
-    select.setCustomValidity(isValid ? '' : 'Invalid input');
-    select.classList.toggle('error', !isValid);
+    select.setCustomValidity(isValid ? "" : "Invalid input");
+    select.classList.toggle("error", !isValid);
   };
 
-  select.addEventListener('change', (e) => {
+  select.addEventListener("change", (e) => {
     const target = e.target as HTMLSelectElement;
     state.formData[field.id] = target.value;
-    select.style.color = target.value ? 'black' : '';
+    select.style.color = target.value ? "black" : "";
     validateSelect();
   });
 
-  select.addEventListener('input', validateSelect);
+  select.addEventListener("input", validateSelect);
 
   wrapper.appendChild(select);
   wrapper.appendChild(errorContainer);
@@ -1210,11 +1403,14 @@ const createDropdownField = (state: FormState, field: FormField): HTMLDivElement
  * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form field with its label and input.
  */
-const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = `form-field-group ${field.cssClasses?.join(' ') || ''}`;
+const createSimpleTextbox = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field-group ${field.cssClasses?.join(" ") || ""}`;
 
-  const mainLabel = document.createElement('label');
+  const mainLabel = document.createElement("label");
   mainLabel.innerHTML = getLabelText(state, field);
   wrapper.appendChild(mainLabel);
 
@@ -1225,7 +1421,10 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
   const languages = Object.keys(field.label || {});
 
   // Helper to normalize any lang code to 3-letter code if possible
-  const normalizeToThreeLetterCode = (lang: string, languageMap: Record<string, string>) => {
+  const normalizeToThreeLetterCode = (
+    lang: string,
+    languageMap: Record<string, string>
+  ) => {
     if (lang.length === 3) return lang; // already 3-letter
     return languageMap[lang] || lang; // map 2-letter → 3-letter, or fallback
   };
@@ -1238,12 +1437,12 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
   languages.forEach((lang) => {
     const normalizedLang = normalizeToThreeLetterCode(lang, state.languageMap);
 
-    const langWrapper = document.createElement('div');
+    const langWrapper = document.createElement("div");
     langWrapper.className = `form-field lang-${lang}`;
 
-    const input = document.createElement('input');
-    input.className = 'input_box';
-    input.type = 'text';
+    const input = document.createElement("input");
+    input.className = "input_box";
+    input.type = "text";
     input.id = `${field.id}_${lang}`;
     input.name = `${field.id}_${lang}`;
     input.dataset.lang = lang;
@@ -1263,26 +1462,33 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
 
     const validate = () => {
       let isValid = true;
-      let lastError: 'required' | number | null = null;
+      let lastError: "required" | number | null = null;
       const value = input.value.trim();
 
       const currentLang = normalizedLang;
-      const defaultLang = normalizeToThreeLetterCode(state.languageMap[state.defaultLanguage] || state.defaultLanguage, state.languageMap);
+      const defaultLang = normalizeToThreeLetterCode(
+        state.languageMap[state.defaultLanguage] || state.defaultLanguage,
+        state.languageMap
+      );
 
-      errorContainer.innerHTML = ''; // Clear previous errors
+      errorContainer.innerHTML = ""; // Clear previous errors
 
       // Check if this language is mandatory (normalized)
       const isMandatoryLang = normalizedMandatoryLangs.includes(currentLang);
 
       // Required validation only for mandatory languages
       if (isMandatoryLang && field.required && !value) {
-        const result = handleRequiredValidation(state, currentLang, defaultLang, errorContainer);
+        const result = handleRequiredValidation(
+          state,
+          currentLang,
+          defaultLang,
+          errorContainer
+        );
         lastError = result.lastError;
         isValid = result.isValid;
       }
       // Regex validations
       else if (value && isValid && Array.isArray(field.validators)) {
-
         const result = handleRegexValidation(
           field.validators,
           value,
@@ -1297,18 +1503,19 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
       }
 
       // Store value in form state
-      (state.formData[field.id] as Record<string, string>)[normalizedLang] = input.value;
+      (state.formData[field.id] as Record<string, string>)[normalizedLang] =
+        input.value;
 
       // Store last error type
       state.lastErrors = state.lastErrors || {};
       state.lastErrors[`${field.id}_${lang}`] = lastError;
 
-      input.setCustomValidity(isValid ? '' : 'Invalid input');
-      input.classList.toggle('error', !isValid);
+      input.setCustomValidity(isValid ? "" : "Invalid input");
+      input.classList.toggle("error", !isValid);
     };
 
-    input.addEventListener('input', validate);
-    input.addEventListener('change', validate);
+    input.addEventListener("input", validate);
+    input.addEventListener("change", validate);
   });
 
   return wrapper;
@@ -1320,26 +1527,31 @@ const createSimpleTextbox = (state: FormState, field: FormField): HTMLDivElement
  * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form field with its label and input.
  */
-const createStringField = (state: FormState, field: FormField): HTMLDivElement => {
-  const wrapper = document.createElement('div');
-  wrapper.className = `form-field ${field.cssClasses?.join(' ') || ''}`;
+const createStringField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-  const label = document.createElement('label');
+  const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
   wrapper.appendChild(label);
 
-  const input = document.createElement('input');
-  input.className = 'input_box';
-  input.type = 'text';
+  const input = document.createElement("input");
+  input.className = "input_box";
+  input.type = "text";
   input.id = field.id;
   input.name = field.id;
   input.required = Boolean(field.required);
   input.dataset.fieldId = field.id;
 
   // Set placeholder once here; update dynamically elsewhere if needed
-  const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-  const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+  const normalizedLang =
+    state.languageMap[state.currentLanguage] || state.currentLanguage;
+  const normalizedDefault =
+    state.languageMap[state.defaultLanguage] || state.defaultLanguage;
 
   input.placeholder = getMultiLangText(
     field.label,
@@ -1350,23 +1562,29 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
 
   const errorContainer = createErrorContainer();
 
-  input.addEventListener('input', () => {
+  input.addEventListener("input", () => {
     // Move language normalization here to always use current language
-    const normalizedLang = state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const normalizedDefault = state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+    const normalizedLang =
+      state.languageMap[state.currentLanguage] || state.currentLanguage;
+    const normalizedDefault =
+      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
 
     let isValid = true;
-    let lastError: 'required' | number | null = null;
-    appendError(errorContainer, '');
+    let lastError: "required" | number | null = null;
+    appendError(errorContainer, "");
 
     const value = input.value.trim();
 
     if (field.required && !value) {
-      const result = handleRequiredValidation(state, normalizedLang, normalizedDefault, errorContainer);
+      const result = handleRequiredValidation(
+        state,
+        normalizedLang,
+        normalizedDefault,
+        errorContainer
+      );
       lastError = result.lastError;
       isValid = result.isValid;
-    }
-    else if (value && Array.isArray(field.validators)) {
+    } else if (value && Array.isArray(field.validators)) {
       const result = handleRegexValidation(
         field.validators,
         value,
@@ -1383,14 +1601,14 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
     state.lastErrors = state.lastErrors || {};
     state.lastErrors[field.id] = lastError;
 
-    input.setCustomValidity(isValid ? '' : 'Invalid input');
-    input.classList.toggle('error', !isValid);
+    input.setCustomValidity(isValid ? "" : "Invalid input");
+    input.classList.toggle("error", !isValid);
   });
 
-  input.addEventListener('change', (e) => {
+  input.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
     state.formData[field.id] = target.value;
-    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event("input"));
   });
 
   wrapper.appendChild(input);
@@ -1406,18 +1624,23 @@ const createStringField = (state: FormState, field: FormField): HTMLDivElement =
  * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form element based on the control type.
  */
-const createFormElement = (state: FormState, field: FormField): HTMLDivElement => {
+const createFormElement = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
   // Set default type to 'string' if not specified
-  const fieldType = field.type || 'string';
+  const fieldType = field.type || "string";
 
   switch (field.controlType) {
-    case 'textbox':
-      return fieldType === 'simpleType' ? createSimpleTextbox(state, field) : createStringField(state, field);
-    case 'password':
+    case "textbox":
+      return fieldType === "simpleType"
+        ? createSimpleTextbox(state, field)
+        : createStringField(state, field);
+    case "password":
       return createPasswordField(state, field);
-    case 'date':
+    case "date":
       return createDateField(state, field);
-    case 'dropdown':
+    case "dropdown":
       return createDropdownField(state, field);
     default:
       throw new Error(`Unsupported control type: ${field.controlType}`);
@@ -1431,12 +1654,15 @@ const createFormElement = (state: FormState, field: FormField): HTMLDivElement =
  * @returns {[key: string]: FormField[]} An object where keys are alignment group names and values are arrays of fields in that group.
  */
 const groupFields = (state: FormState): { [key: string]: FormField[] } =>
-  state.schema.reduce((acc, field) => {
-    const group = field.alignmentGroup || `solo_${field.id}`;
-    acc[group] = acc[group] || [];
-    acc[group].push(field);
-    return acc;
-  }, {} as { [key: string]: FormField[] });
+  state.schema.reduce(
+    (acc, field) => {
+      const group = field.alignmentGroup || `solo_${field.id}`;
+      acc[group] = acc[group] || [];
+      acc[group].push(field);
+      return acc;
+    },
+    {} as { [key: string]: FormField[] }
+  );
 
 /**
  * Gets the current form data from the state.
@@ -1446,4 +1672,4 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  */
 const getFormData = (state: FormState): FormData => ({ ...state.formData });
 
-export { JsonFormBuilder }; 
+export { JsonFormBuilder };
