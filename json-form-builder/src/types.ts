@@ -11,12 +11,14 @@ export interface FormField {
   validators?: Validator[];
   alignmentGroup?: string;
   cssClasses?: string[];
+  placeholder?: Label;
+  disabled?: boolean;
 }
 
 export interface AllowedValues {
   [key: string]: {
     [key: string]: Label;
-  };
+  } | string;
 }
 
 export interface SubmitButtonConfig {
