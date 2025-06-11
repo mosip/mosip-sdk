@@ -50,6 +50,42 @@ function buildBidirectionalLanguageMap(
 }
 
 /**
+ * Create password visibility icon based on the show parameter.
+ * if false, it will show the "visibility" icon which can be used to show password,
+ * otherwise it will show the "visibility_off" icon which can be used to hide password.
+ * @param show Boolean indicating whether to show the password or not.
+ * @returns {SVGSVGElement} representing the password visibility icon.
+ */
+const createPasswordIcon = (show: boolean): SVGSVGElement => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  svg.setAttribute("viewBox", "0 0 22.634 17");
+  svg.setAttribute("width", "22.634");
+  svg.setAttribute("height", "17");
+
+  if (show) {
+    path.setAttribute("id", "visibility_off_FILL0_wght400_GRAD0_opsz48");
+    path.setAttribute("transform", "translate(-40 863)");
+    path.setAttribute(
+      "d",
+      "M55.15-853.529l-1.132-1.132a2.552,2.552,0,0,0-.694-3.035,2.748,2.748,0,0,0-2.958-.617l-1.132-1.132a3.109,3.109,0,0,1,.977-.412,4.758,4.758,0,0,1,1.106-.129,4.218,4.218,0,0,1,3.1,1.273,4.218,4.218,0,0,1,1.273,3.1,4.5,4.5,0,0,1-.141,1.119A3.4,3.4,0,0,1,55.15-853.529Zm3.318,3.318-1.029-1.029a12.058,12.058,0,0,0,2.2-2.07,8.264,8.264,0,0,0,1.376-2.3,10.267,10.267,0,0,0-3.858-4.514,10.1,10.1,0,0,0-5.581-1.659,12.367,12.367,0,0,0-2.212.206,8.219,8.219,0,0,0-1.775.489L46.4-862.3a11.666,11.666,0,0,1,2.3-.72,12.727,12.727,0,0,1,2.739-.309,11.611,11.611,0,0,1,6.726,2.1,12.154,12.154,0,0,1,4.463,5.62,12.707,12.707,0,0,1-1.723,3.009A12.422,12.422,0,0,1,58.467-850.211Zm1.492,5.813-4.321-4.244a9.993,9.993,0,0,1-2.032.553,13.6,13.6,0,0,1-2.289.193,11.793,11.793,0,0,1-6.816-2.1,12.286,12.286,0,0,1-4.5-5.62,11.673,11.673,0,0,1,1.428-2.611,14.62,14.62,0,0,1,2.225-2.43l-3.241-3.241L41.492-865l19.471,19.471ZM44.707-859.573a9.469,9.469,0,0,0-1.839,1.826,8.465,8.465,0,0,0-1.273,2.135,10.3,10.3,0,0,0,3.948,4.514,10.991,10.991,0,0,0,5.98,1.659,13.487,13.487,0,0,0,1.672-.1,4,4,0,0,0,1.235-.309L52.783-851.5a2.693,2.693,0,0,1-.694.193,5.015,5.015,0,0,1-.772.064,4.253,4.253,0,0,1-3.086-1.26,4.185,4.185,0,0,1-1.286-3.112,4.686,4.686,0,0,1,.064-.772,3.15,3.15,0,0,1,.193-.694ZM52.552-855.921ZM49.568-854.429Z"
+    );
+  } else {
+    path.setAttribute("id", "visibility_FILL0_wght400_GRAD0_opsz48");
+    path.setAttribute("transform", "translate(-40 800)");
+    path.setAttribute(
+      "d",
+      "M51.32-787.911a4.21,4.21,0,0,0,3.1-1.276,4.225,4.225,0,0,0,1.273-3.1,4.21,4.21,0,0,0-1.276-3.1,4.225,4.225,0,0,0-3.1-1.273,4.21,4.21,0,0,0-3.1,1.276,4.225,4.225,0,0,0-1.273,3.1,4.21,4.21,0,0,0,1.276,3.1A4.225,4.225,0,0,0,51.32-787.911Zm-.009-1.492a2.764,2.764,0,0,1-2.039-.842,2.794,2.794,0,0,1-.836-2.045,2.764,2.764,0,0,1,.842-2.039,2.794,2.794,0,0,1,2.045-.836,2.764,2.764,0,0,1,2.039.842,2.794,2.794,0,0,1,.836,2.045,2.764,2.764,0,0,1-.842,2.039A2.794,2.794,0,0,1,51.311-789.4Zm.006,4.836a11.528,11.528,0,0,1-6.79-2.135A13,13,0,0,1,40-792.284a13.006,13.006,0,0,1,4.527-5.582A11.529,11.529,0,0,1,51.317-800a11.529,11.529,0,0,1,6.79,2.135,13.006,13.006,0,0,1,4.527,5.582,13,13,0,0,1-4.527,5.581A11.528,11.528,0,0,1,51.317-784.568ZM51.317-792.284Zm0,6.173A10.351,10.351,0,0,0,57.04-787.8a10.932,10.932,0,0,0,3.974-4.488,10.943,10.943,0,0,0-3.97-4.488,10.33,10.33,0,0,0-5.723-1.685,10.351,10.351,0,0,0-5.727,1.685,11.116,11.116,0,0,0-4,4.488,11.127,11.127,0,0,0,4,4.488A10.33,10.33,0,0,0,51.313-786.111Z"
+    );
+  }
+
+  svg.appendChild(path);
+
+  return svg;
+};
+
+/**
  * Gets the label text in the specified language from a multilingual labels object.
  * It checks for the current language, its mapped variant, and falls back to the default language if necessary.
  * @param {LabelObject|undefined} labels Labels object containing multilingual labels.
@@ -744,6 +780,21 @@ const JsonFormBuilder = (
         display: flex;
         justify-content: center;
       }
+      
+      .password-container {
+        position: relative;
+      }
+
+      .password-eye-icon {
+        position: absolute;
+        right: 0.75rem; /* Position from the right edge of the input */
+        transform: translateY(120%); /* Adjust for perfect vertical centering */
+        cursor: pointer;
+        color: #6B7280; /* A neutral gray color */
+        font-size: 1.25rem; /* Adjust icon size */
+        line-height: 1; /* Ensure icon doesn't affect line height */
+        user-select: none;
+        }
     `;
     document.head.appendChild(style);
   };
@@ -821,6 +872,11 @@ const JsonFormBuilder = (
         [dir="rtl"] .form-group {
           flex-direction: column;
         }
+      }
+
+      [dir="rtl"] .password-eye-icon {
+        left: 0.75rem;
+        right: unset;
       }
     `;
     document.head.appendChild(style);
@@ -1107,7 +1163,7 @@ const createPasswordField = (
   field: FormField
 ): HTMLDivElement => {
   const wrapper = document.createElement("div");
-  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
+  wrapper.className = `form-field password-container ${field.cssClasses?.join(" ") || ""}`;
 
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
@@ -1115,7 +1171,7 @@ const createPasswordField = (
   wrapper.appendChild(label);
 
   const input = document.createElement("input");
-  input.className = "input_box";
+  input.className = "input_box password-input";
   input.type = "password";
   input.id = field.id;
   input.name = field.id;
@@ -1123,6 +1179,24 @@ const createPasswordField = (
   input.dataset.fieldId = field.id;
 
   input.placeholder = getMultiLangTextV2(state, field.placeholder);
+
+  const eyeIconSpan = document.createElement("span");
+  eyeIconSpan.id = `${field.id}_eye`;
+  eyeIconSpan.className = "password-eye-icon";
+
+  let eyeIconImg = createPasswordIcon(false);
+  eyeIconSpan.appendChild(eyeIconImg);
+
+  eyeIconSpan.addEventListener("click", () => {
+    eyeIconSpan.innerHTML = "";
+    if (input.type === "password") {
+      input.type = "text";
+      eyeIconSpan.appendChild(createPasswordIcon(true));
+    } else {
+      input.type = "password";
+      eyeIconSpan.appendChild(createPasswordIcon(false));
+    }
+  });
 
   const errorContainer = createErrorContainer();
 
@@ -1181,12 +1255,13 @@ const createPasswordField = (
   });
 
   wrapper.appendChild(input);
+  wrapper.appendChild(eyeIconSpan);
   wrapper.appendChild(errorContainer);
 
   // ---- Confirm Password Field ----
 
   const confirmField = document.createElement("div");
-  confirmField.className = "form-field";
+  confirmField.className = "form-field password-container";
 
   // Build confirm password label with "Confirm" prefix for all languages
   const confirmLabel: Label = {};
@@ -1213,6 +1288,24 @@ const createPasswordField = (
   confirmInput.name = `${field.id}_confirm`;
   confirmInput.required = Boolean(field.required);
   confirmInput.placeholder = getMultiLangTextV2(state, confirmPlaceholder);
+
+  const confirmEyeIconSpan = document.createElement("span");
+  confirmEyeIconSpan.id = `${field.id}_confirm_eye`;
+  confirmEyeIconSpan.className = "password-eye-icon";
+
+  let confirmEyeIconImg = createPasswordIcon(false);
+  confirmEyeIconSpan.appendChild(confirmEyeIconImg);
+
+  confirmEyeIconSpan.addEventListener("click", () => {
+    confirmEyeIconSpan.innerHTML = "";
+    if (confirmInput.type === "password") {
+      confirmInput.type = "text";
+      confirmEyeIconSpan.appendChild(createPasswordIcon(true));
+    } else {
+      confirmInput.type = "password";
+      confirmEyeIconSpan.appendChild(createPasswordIcon(false));
+    }
+  });
 
   const confirmError = createErrorContainer();
 
@@ -1243,10 +1336,15 @@ const createPasswordField = (
   });
 
   confirmField.appendChild(confirmInput);
+  confirmField.appendChild(confirmEyeIconSpan);
   confirmField.appendChild(confirmError);
-  wrapper.appendChild(confirmField);
 
-  return wrapper;
+  const parentNode = document.createElement("div");
+  parentNode.className = "form-field-group";
+  parentNode.appendChild(wrapper);
+  parentNode.appendChild(confirmField);
+
+  return parentNode;
 };
 
 /**
