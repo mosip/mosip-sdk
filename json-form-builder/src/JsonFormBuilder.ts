@@ -344,8 +344,8 @@ const refreshLabels = (state: FormState): void => {
         lastError = "required";
       } else if (Array.isArray(field.validators) && inputElement) {
         for (let i = 0; i < field.validators.length; i++) {
-          const validator = field.validators[i];
-          if (validator.regex && !validator.regex.test(inputElement.value)) {
+          const validator = new RegExp(field.validators[i]?.regex || "");
+          if (!validator.test(inputElement.value)) {
             lastError = i;
             break;
           }
@@ -587,9 +587,7 @@ const handleRegexValidation = (
 
   for (let i = 0; i < filteredValidators.length; i++) {
     const validator = filteredValidators[i];
-    const regex =
-      validator.regex ||
-      (validator.validator && new RegExp(validator.validator));
+    const regex = new RegExp(validator.regex || validator.validator);
 
     if (regex && !regex.test(value)) {
       let errorMsg =

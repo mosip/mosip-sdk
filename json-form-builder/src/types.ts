@@ -69,7 +69,7 @@ export interface LanguageSettings {
 }
 
 export interface Validator {
-  regex?: RegExp;
+  regex?: RegExp | string;
   error?: {
     [lang: string]: string;
   };
