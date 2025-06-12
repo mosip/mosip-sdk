@@ -528,18 +528,18 @@ const createLanguageSwitcher = (state: FormState): HTMLDivElement => {
  */
 const handleRequiredValidation = (
   state: FormState,
-  normalizedLang: string,
-  normalizedDefault: string,
-  errorContainer: HTMLDivElement
+  errorContainer: HTMLDivElement,
+  normalizedLang: string = "",
+  normalizedDefault: string = ""
 ): { lastError: "required"; isValid: false } => {
   const requiredErrors = state.fallbackErrors?.required || {};
   const requiredError =
-    getMultiLangText(
+    getMultiLangTextV2(
+      state,
       requiredErrors,
+      true,
       normalizedLang,
-      normalizedDefault,
-      state.languageMap,
-      true
+      normalizedDefault
     ) || "This field is required";
 
   appendError(errorContainer, requiredError);
@@ -1217,25 +1217,12 @@ const createCheckboxField = (
 
   // Optional: Add an event listener to see it working
   checkbox.addEventListener("change", function () {
-    console.log(`Checkbox is now: ${this.checked ? "Checked" : "Unchecked"}`);
-    console.log(this.checked);
-
     let isValid = true;
     let lastError: "required" | number | null = null;
     appendError(errorContainer, "");
 
     if (field.required && !this.checked) {
-      const normalizedLang =
-        state.languageMap[state.currentLanguage] || state.currentLanguage;
-      const normalizedDefault =
-        state.languageMap[state.defaultLanguage] || state.defaultLanguage;
-
-      const result = handleRequiredValidation(
-        state,
-        normalizedLang,
-        normalizedDefault,
-        errorContainer
-      );
+      const result = handleRequiredValidation(state, errorContainer);
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -1319,12 +1306,7 @@ const createPasswordField = (
 
     // Required validation (multilingual)
     if (field.required && !value) {
-      const result = handleRequiredValidation(
-        state,
-        normalizedLang,
-        normalizedDefault,
-        errorContainer
-      );
+      const result = handleRequiredValidation(state, errorContainer);
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -1477,35 +1459,19 @@ const createDateField = (
   input.required = Boolean(field.required);
   input.dataset.fieldId = field.id;
 
-  // Use current language normalized each time for validation, not just once here
-  const getNormalizedLangs = () => {
-    const normalizedLang =
-      state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const normalizedDefault =
-      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
-    return { normalizedLang, normalizedDefault };
-  };
-
   // Placeholder (optional for date input)
   input.placeholder = getMultiLangTextV2(state, field.placeholder);
 
   const errorContainer = createErrorContainer();
 
   const validate = () => {
-    const { normalizedLang, normalizedDefault } = getNormalizedLangs();
-
     let isValid = true;
     let lastError: "required" | null = null;
 
     appendError(errorContainer, "");
 
     if (field.required && !input.value) {
-      const result = handleRequiredValidation(
-        state,
-        normalizedLang,
-        normalizedDefault,
-        errorContainer
-      );
+      const result = handleRequiredValidation(state, errorContainer);
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -1593,22 +1559,12 @@ const createDropdownField = (
   const errorContainer = createErrorContainer();
 
   const validateSelect = () => {
-    const currLang =
-      state.languageMap[state.currentLanguage] || state.currentLanguage;
-    const defLang =
-      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
-
     let isValid = true;
     let lastError: "required" | null = null;
     appendError(errorContainer, "");
 
     if (field.required && !select.value) {
-      const result = handleRequiredValidation(
-        state,
-        currLang,
-        defLang,
-        errorContainer
-      );
+      const result = handleRequiredValidation(state, errorContainer);
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -1718,12 +1674,7 @@ const createSimpleTextbox = (
 
       // Required validation only for mandatory languages
       if (isMandatoryLang && field.required && !value) {
-        const result = handleRequiredValidation(
-          state,
-          currentLang,
-          defaultLang,
-          errorContainer
-        );
+        const result = handleRequiredValidation(state, errorContainer);
         lastError = result.lastError;
         isValid = result.isValid;
       }
@@ -1809,12 +1760,7 @@ const createStringField = (
     const value = input.value.trim();
 
     if (field.required && !value) {
-      const result = handleRequiredValidation(
-        state,
-        normalizedLang,
-        normalizedDefault,
-        errorContainer
-      );
+      const result = handleRequiredValidation(state, errorContainer);
       lastError = result.lastError;
       isValid = result.isValid;
     } else if (value && Array.isArray(field.validators)) {
