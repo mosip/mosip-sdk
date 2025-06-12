@@ -53,9 +53,9 @@ export interface Errors {
 
 export interface FormConfig {
   schema: FormField[];
+  language: LanguageSettings;
   allowedValues?: AllowedValues;
   errors?: Errors
-  language: LanguageSettings;
 }
 
 export interface FormData {
@@ -63,9 +63,9 @@ export interface FormData {
 }
 
 export interface LanguageSettings {
-  mandatory?: string[];
+  mandatory: string[];
+  langCodeMap: { [key: string]: string }; // for languageMap builder
   optional?: string[];
-  langCodeMap?: { [key: string]: string }; // for languageMap builder
 }
 
 export interface Validator {
