@@ -4,7 +4,7 @@ export interface Label {
 
 export interface FormField {
   id: string;
-  controlType: 'textbox' | 'password' | 'date' | 'dropdown';
+  controlType: 'textbox' | 'password' | 'date' | 'dropdown' | 'checkbox';
   type?: 'string' | 'simpleType';
   label: Label;
   required?: boolean;

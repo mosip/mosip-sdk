@@ -142,6 +142,7 @@ const disableField = (field: HTMLInputElement | HTMLSelectElement): void => {
   field.addEventListener("keydown", preventDefaultFn);
   field.addEventListener("cut", preventDefaultFn);
   field.addEventListener("paste", preventDefaultFn);
+  field.addEventListener("click", preventDefaultFn);
 };
 
 /**
@@ -792,7 +793,31 @@ const JsonFormBuilder = (
         font-size: 1.25rem; /* Adjust icon size */
         line-height: 1; /* Ensure icon doesn't affect line height */
         user-select: none;
-        }
+      }
+
+      .checkbox-container {
+        display: flex; /* Use flexbox to align checkbox and label */
+        gap: 1rem; /* Space between checkbox and label (Tailwind gap-2) */
+        align-items: center; /* Vertically center the checkbox and label */
+      }
+
+      .checkbox-container input[type="checkbox"] {
+        width: 1.25rem; /* Tailwind w-5 */
+        height: 1.25rem; /* Tailwind h-5 */
+        border: 1px solid #d1d5db; /* Tailwind border-gray-300 */
+        border-radius: 2px; /* Tailwind rounded */
+        cursor: pointer;
+        flex-shrink: 0; /* Prevent checkbox from shrinking */
+      }
+
+      .checkbox-container label {
+        font-size: 14px; /* Tailwind text-base */
+        font-weight: 500; /* Tailwind font-medium */
+        line-height: 1; /* Tailwind leading-relaxed */
+        color: #1f2937; /* Tailwind text-gray-900 */
+        cursor: pointer;
+        user-select: none; /* Prevent text selection when clicking label */
+      }
     `;
     document.head.appendChild(style);
   };
@@ -875,6 +900,10 @@ const JsonFormBuilder = (
       [dir="rtl"] .password-eye-icon {
         left: 0.75rem;
         right: unset;
+      }
+
+      [dir="rtl"] .checkbox-container {
+        flex-direction: row-reverse; /* Align checkbox and label in RTL */
       }
     `;
     document.head.appendChild(style);
@@ -1148,6 +1177,83 @@ const appendError = (
     container.appendChild(icon);
     container.appendChild(textNode);
   }
+};
+
+/**
+ * Creates a checkbox form element.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label and checkbox input.
+ */
+const createCheckboxField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field checkbox-container ${field.cssClasses?.join(" ") || ""}`;
+
+  const label = document.createElement("label");
+  label.htmlFor = field.id;
+  label.innerHTML = getLabelText(state, field);
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = field.id;
+  checkbox.className = "checkbox-input";
+  checkbox.name = field.id;
+  checkbox.required = Boolean(field.required);
+  checkbox.dataset.fieldId = field.id;
+  checkbox.checked = Boolean(state.allowedValues?.[field.id] || false);
+
+  if (field.disabled || false) {
+    disableField(checkbox);
+  }
+
+  const errorContainer = createErrorContainer();
+
+  wrapper.appendChild(checkbox);
+  wrapper.appendChild(label);
+  // wrapper.appendChild(errorContainer);
+
+  // Optional: Add an event listener to see it working
+  checkbox.addEventListener("change", function () {
+    console.log(`Checkbox is now: ${this.checked ? "Checked" : "Unchecked"}`);
+    console.log(this.checked);
+
+    let isValid = true;
+    let lastError: "required" | number | null = null;
+    appendError(errorContainer, "");
+
+    if (field.required && !this.checked) {
+      const normalizedLang =
+        state.languageMap[state.currentLanguage] || state.currentLanguage;
+      const normalizedDefault =
+        state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+
+      const result = handleRequiredValidation(
+        state,
+        normalizedLang,
+        normalizedDefault,
+        errorContainer
+      );
+      lastError = result.lastError;
+      isValid = result.isValid;
+    }
+
+    state.lastErrors = state.lastErrors || {};
+    state.lastErrors[field.id] = lastError;
+
+    checkbox.setCustomValidity(isValid ? "" : "Invalid input");
+    checkbox.classList.toggle("error", !isValid);
+  });
+
+  const parentNode = document.createElement("div");
+  parentNode.className = "form-field-group";
+
+  parentNode.appendChild(wrapper);
+  parentNode.appendChild(errorContainer);
+
+  return parentNode;
 };
 
 /**
@@ -1769,6 +1875,8 @@ const createFormElement = (
       return createDateField(state, field);
     case "dropdown":
       return createDropdownField(state, field);
+    case "checkbox":
+      return createCheckboxField(state, field);
     default:
       throw new Error(`Unsupported control type: ${field.controlType}`);
   }
