@@ -13,6 +13,7 @@ export interface FormField {
   cssClasses?: string[];
   placeholder?: Label;
   disabled?: boolean;
+  info?: Label
 }
 
 export interface AllowedValues {

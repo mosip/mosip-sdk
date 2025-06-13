@@ -84,6 +84,110 @@ const createPasswordIcon = (show: boolean): SVGSVGElement => {
 };
 
 /**
+ * Creares an SVG element representing an info icon.
+ * @returns {SVGSVGElement} returns an SVG element with the info icon.
+ */
+const createInfoIconSvg = (): SVGSVGElement => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  svg.setAttribute("viewBox", "0 0 18.5 18.5");
+  svg.setAttribute("width", "18.5");
+  svg.setAttribute("height", "18.5");
+
+  g.setAttribute("id", "info_FILL0_wght400_GRAD0_opsz48");
+  g.setAttribute("transform", "translate(0.25 0.25)");
+
+  path.setAttribute("id", "info_FILL0_wght400_GRAD0_opsz48-2");
+  path.setAttribute("data-name", "info_FILL0_wght400_GRAD0_opsz48");
+  path.setAttribute("transform", "translate(-80 880)");
+  path.setAttribute("fill", "#333");
+  path.setAttribute("stroke", "#333");
+  path.setAttribute("stroke-width", "0.5");
+  path.setAttribute(
+    "d",
+    "M88.393-866.5h1.35v-5.4h-1.35ZM89-873.565a.731.731,0,0,0,.529-.207.685.685,0,0,0,.214-.513.752.752,0,0,0-.213-.545.707.707,0,0,0-.529-.22.708.708,0,0,0-.529.22.751.751,0,0,0-.214.545.686.686,0,0,0,.213.513A.729.729,0,0,0,89-873.565ZM89.006-862a8.712,8.712,0,0,1-3.5-.709,9.145,9.145,0,0,1-2.863-1.935,9.14,9.14,0,0,1-1.935-2.865,8.728,8.728,0,0,1-.709-3.5,8.728,8.728,0,0,1,.709-3.5,9,9,0,0,1,1.935-2.854,9.237,9.237,0,0,1,2.865-1.924,8.728,8.728,0,0,1,3.5-.709,8.728,8.728,0,0,1,3.5.709,9.1,9.1,0,0,1,2.854,1.924,9.089,9.089,0,0,1,1.924,2.858,8.749,8.749,0,0,1,.709,3.5,8.712,8.712,0,0,1-.709,3.5,9.192,9.192,0,0,1-1.924,2.859,9.087,9.087,0,0,1-2.857,1.935A8.707,8.707,0,0,1,89.006-862Zm.005-1.35a7.348,7.348,0,0,0,5.411-2.239,7.4,7.4,0,0,0,2.228-5.422,7.374,7.374,0,0,0-2.223-5.411A7.376,7.376,0,0,0,89-878.65a7.4,7.4,0,0,0-5.411,2.223A7.357,7.357,0,0,0,81.35-871a7.372,7.372,0,0,0,2.239,5.411A7.385,7.385,0,0,0,89.011-863.35ZM89-871Z"
+  );
+
+  g.appendChild(path);
+  svg.appendChild(g);
+
+  return svg;
+};
+
+/**
+ * Create Info icon for a form field
+ */
+const createInfoIcon = (infoMessage: string): HTMLSpanElement => {
+  const infoContainer = document.createElement("span");
+  infoContainer.className = "info-container";
+
+  const infoSpan = document.createElement("span");
+  infoSpan.className = "info-icon";
+  infoSpan.appendChild(createInfoIconSvg());
+
+  const infoDetail = document.createElement("div");
+  infoDetail.className = "info-detail";
+  infoDetail.setAttribute("aria-hidden", "true"); // Initially hidden
+
+  const infoDetailArrow = document.createElement("span");
+  infoDetailArrow.className = "info-detail-arrow";
+  infoDetailArrow.innerHTML = `<svg class="fill-[#FFFFFF] stroke-[#BCBCBC]" width="10" height="5" viewBox="0 0 30 10" preserveAspectRatio="none" style="display: block;"><polygon points="0,0 30,0 15,10"></polygon></svg>`;
+
+  const showInfo = () => {
+    infoDetail.classList.add("active");
+    infoDetail.setAttribute("aria-hidden", "false");
+  };
+
+  // Function to hide the info detail
+  const hideInfo = () => {
+    infoDetail.classList.remove("active");
+    infoDetail.setAttribute("aria-hidden", "true");
+  };
+
+  const hideAllInfo = () => {
+    const allInfoDetails = document.querySelectorAll(".info-detail.active");
+    allInfoDetails.forEach((detail) => {
+      (detail as HTMLDivElement).classList.remove("active");
+      (detail as HTMLDivElement).setAttribute("aria-hidden", "true");
+    });
+  };
+
+  infoSpan.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isActive = infoDetail.classList.contains("active");
+    hideAllInfo(); // Hide all other info details
+    if (!isActive) {
+      showInfo();
+    }
+  });
+
+  // Close when clicking outside the info detail box
+  document.addEventListener("click", (event) => {
+    // Check if the click was outside the current info container
+    if (
+      !document.contains(event.target as Node) &&
+      infoDetail.classList.contains("active")
+    ) {
+      hideInfo();
+    }
+  });
+
+  // Optional: Close with Escape key
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && infoDetail.classList.contains("active")) {
+      hideInfo();
+    }
+  });
+
+  infoDetail.append(infoMessage, infoDetailArrow);
+  infoSpan.appendChild(infoDetail);
+  infoContainer.appendChild(infoSpan);
+
+  return infoContainer;
+};
+/**
  * Prevents the default action of an event.
  * @param {Event} e Event to prevent default action for.
  */
@@ -170,6 +274,11 @@ const refreshLabels = (state: FormState): void => {
       const mainLabel = fieldGroup?.querySelector("label");
       if (mainLabel) {
         mainLabel.innerHTML = labelText;
+
+        if (field.info) {
+          const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+          mainLabel.appendChild(infoIcon);
+        }
       }
 
       const inputs = state.container.querySelectorAll(
@@ -193,6 +302,11 @@ const refreshLabels = (state: FormState): void => {
       );
       if (labelElement) {
         labelElement.innerHTML = labelText;
+
+        if (field.info) {
+          const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+          labelElement.appendChild(infoIcon);
+        }
       }
 
       const input = state.container.querySelector(
@@ -235,9 +349,12 @@ const refreshLabels = (state: FormState): void => {
         const confirmInput = state.container.querySelector(
           `input#${field.id}_confirm`
         ) as HTMLInputElement;
-        
+
         if (confirmInput) {
-          confirmInput.placeholder = confirmPlaceholder[lang] || confirmPlaceholder[state.languageMap[lang]] || "";
+          confirmInput.placeholder =
+            confirmPlaceholder[lang] ||
+            confirmPlaceholder[state.languageMap[lang]] ||
+            "";
         }
       }
     }
@@ -318,8 +435,7 @@ const refreshLabels = (state: FormState): void => {
 
       if (lastError === "required") {
         const requiredErrors = state.fallbackErrors?.required || {};
-        errorText =
-          getMultiLangText(state, requiredErrors) || "Invalid value";
+        errorText = getMultiLangText(state, requiredErrors) || "Invalid value";
       } else if (
         typeof lastError === "number" &&
         Array.isArray(field.validators)
@@ -723,6 +839,33 @@ const JsonFormBuilder = (
         margin-bottom: 0.5rem;
       }
 
+      .form-field label,
+      .form-field-group label {
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 600;
+      }
+        
+      .form-field .input_box::placeholder,
+      .form-field .input_box::-moz-placeholder,
+      .form-field .input_box:-ms-input-placeholder,
+      .form-field .input_box::-webkit-input-placeholder,
+      .form-field input[type="date"]::-webkit-datetime-edit-text,
+      .form-field select option:first-child {
+        color: #a0a8ac;
+        font: 500 14px/21px Inter,sans-serif;
+      }
+
+      .form-field .input_box.error {
+        border-color: #fe6b6b;
+      }
+
+      .form-field .input_box.error:focus-visible,
+      .form-field .input_box.error:focus,
+      .form-field .input_box.error:focus-within {
+        border-color: #fe6b6b !important;
+      }
+
       .form-field-group {
         flex: 1;
         min-width: 250px;
@@ -786,6 +929,76 @@ const JsonFormBuilder = (
         color: #1f2937; /* Tailwind text-gray-900 */
         cursor: pointer;
         user-select: none; /* Prevent text selection when clicking label */
+      }
+
+      /* Info Icon Styling */
+      .info-container {
+          position: relative; /* Allows info-detail to be positioned relative to this */
+          display: inline-block; /* So it doesn't take full width */
+          vertical-align: middle; /* Align with text */
+          margin-left: 5px;
+      }
+
+      .info-icon {
+          cursor: pointer;
+          font-weight: bold;
+          display: inline-flex; /* For centering the 'i' */
+          align-items: center;
+          justify-content: center;
+          vertical-align: text-top;
+          height: 1rem;
+          width: 1rem;
+      }
+
+
+      /* Info Detail Box Styling */
+      .info-detail {
+          font-size: 12px;
+          line-height: 16px;
+          font-weight: 400;
+          display: none; /* Hidden by default */
+          position: absolute;
+          top: 100%; /* Position below the icon */
+          left: 50%; /* Center horizontally relative to icon */
+          transform: translate(10%, -60%); /* Adjust to true center */
+          min-width: 250px;
+          max-width: 350px;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 8px 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000; /* Ensure it's above other content */
+          opacity: 0; /* For fade in/out effect */
+          visibility: hidden; /* For proper hiding without taking up space */
+          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      }
+
+      .info-detail-arrow {
+        position: absolute;
+        left: 0px;
+        transform-origin: 0px 0px;
+        transform: translateY(50%) rotate(90deg) translateX(-50%);
+        top: 50%;
+      }
+      
+      @media screen and (max-width: 640px) {
+        .info-detail {
+          transform: translate(-40%, 5%); /* Adjust for smaller screens */
+        }
+
+        .info-detail-arrow {
+          transform-origin: center 0px;
+          transform: rotate(180deg);
+          left: 94px;
+          top: 0px;
+        }
+      }
+
+      .info-detail.active {
+          display: block; /* Show when active */
+          opacity: 1;
+          visibility: visible;
       }
     `;
     document.head.appendChild(style);
@@ -1219,6 +1432,12 @@ const createPasswordField = (
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
   wrapper.appendChild(label);
 
   const input = document.createElement("input");
@@ -1402,6 +1621,12 @@ const createDateField = (
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
   wrapper.appendChild(label);
 
   const input = document.createElement("input");
@@ -1465,10 +1690,16 @@ const createDropdownField = (
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
   wrapper.appendChild(label);
 
   const select = document.createElement("select");
-  select.className = "input_box select-placeholder";
+  select.className = "input_box select-input";
   select.id = field.id;
   select.name = field.id;
   select.required = Boolean(field.required);
@@ -1476,6 +1707,7 @@ const createDropdownField = (
 
   // Placeholder
   const placeholder = document.createElement("option");
+  placeholder.className = "select-placeholder";
   placeholder.value = "";
   placeholder.textContent =
     getMultiLangText(state, field.placeholder) || "Select an Option";
@@ -1545,6 +1777,12 @@ const createSimpleTextbox = (
 
   const mainLabel = document.createElement("label");
   mainLabel.innerHTML = getLabelText(state, field);
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    mainLabel.appendChild(infoIcon);
+  }
+
   wrapper.appendChild(mainLabel);
 
   if (!state.formData[field.id]) {
@@ -1666,6 +1904,12 @@ const createStringField = (
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
   wrapper.appendChild(label);
 
   const input = document.createElement("input");
