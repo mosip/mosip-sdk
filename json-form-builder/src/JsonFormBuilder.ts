@@ -5,6 +5,7 @@ import {
   FormData,
   Label,
   AdditionalConfig,
+  AdditionalSchema,
 } from "./types";
 
 // Add TypeScript declaration for grecaptcha
@@ -323,11 +324,28 @@ const refreshLabels = (state: FormState): void => {
       }
 
       if (field.controlType === "password") {
-        const confirmLabel: Label = {};
-        Object.keys(field.label || {}).forEach((code) => {
-          const mapped = state.languageMap[code] || code;
-          confirmLabel[mapped] = `Confirm ${field.label[code]}`;
-        });
+        const confirmId = `${field.id}_confirm`;
+        let confirmLabel: Label = {};
+        let confirmPlaceholder: Label = {};
+        // checking if additionalSchema has confirm field details
+        // If it does, use those details; otherwise, build a default confirm label and placeholder
+        if (state.additionalSchema && state.additionalSchema[confirmId]) {
+          confirmLabel = state.additionalSchema[confirmId].label;
+          confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
+        } else {
+          // If no additionalSchema, take value from label & placeholder of password field
+          Object.keys(field.label || {}).forEach((code) => {
+            const mapped = state.languageMap[code] || code;
+            confirmLabel[mapped] = `Confirm ${field.label[code]}`;
+          });
+
+          Object.keys(field.placeholder || {}).forEach((code) => {
+            const mapped = state.languageMap[code] || code;
+            if (field.placeholder) {
+              confirmPlaceholder[mapped] = `Confirm ${field.placeholder[code]}`;
+            }
+          });
+        }
 
         const confirmLabelElement = state.container.querySelector(
           `label[for="${field.id}_confirm"]`
@@ -335,26 +353,18 @@ const refreshLabels = (state: FormState): void => {
         if (confirmLabelElement) {
           confirmLabelElement.innerHTML = getLabelText(
             { ...state, schema: [{ ...field, label: confirmLabel }] },
-            { ...field, label: confirmLabel }
+            { ...field, label: confirmLabel },
+            confirmLabel
           );
         }
 
-        const confirmPlaceholder: Label = {};
-        Object.keys(field.placeholder || {}).forEach((code) => {
-          const mapped = state.languageMap[code] || code;
-          if (field.placeholder) {
-            confirmPlaceholder[mapped] = `Confirm ${field.placeholder[code]}`;
-          }
-        });
         const confirmInput = state.container.querySelector(
           `input#${field.id}_confirm`
         ) as HTMLInputElement;
 
         if (confirmInput) {
           confirmInput.placeholder =
-            confirmPlaceholder[lang] ||
-            confirmPlaceholder[state.languageMap[lang]] ||
-            "";
+            getMultiLangText(state, confirmPlaceholder) || "";
         }
       }
     }
@@ -463,19 +473,20 @@ const refreshLabels = (state: FormState): void => {
  * Helps to get the label text for a form field, including a required indicator if the field is marked as required.
  * @param {FormState} state form state containing current language and default language
  * @param {FormField} field form field object containing label and required properties
+ *  @param {LabelObject} additionalLabel Optional additional label object to use instead of the field's label.
  * @returns {string} The label text for the field, including a required indicator if applicable.
  */
-const getLabelText = (state: FormState, field: FormField): string => {
+const getLabelText = (
+  state: FormState,
+  field: FormField,
+  additionalLabel?: LabelObject
+): string => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
 
-  let labelText = getMultiLangText(
-    state,
-    field.label,
-    false,
-    lang,
-    defaultLang
-  );
+  const labels = additionalLabel || field.label;
+
+  let labelText = getMultiLangText(state, labels, false, lang, defaultLang);
 
   if (field.required) {
     labelText += '<span class="required">*</span>';
@@ -506,13 +517,18 @@ const triggerAllEvents = (state: FormState) => {
 const updateLanguage = (
   state: FormState,
   newLanguage: string,
-  submitButtonLabel?: string
+  submitButtonLabel?: string,
+  additionalSchema?: AdditionalSchema
 ): void => {
   const normalizedLang = newLanguage || state.languageMap[newLanguage];
   state.currentLanguage = normalizedLang;
   state.isRTL = state.rtlLanguages.includes(normalizedLang);
   state.container.dir = state.isRTL ? "rtl" : "ltr";
   state.container.style.direction = state.isRTL ? "rtl" : "ltr";
+
+  if (additionalSchema) {
+    state.additionalSchema = additionalSchema;
+  }
 
   if (
     state.recaptcha?.enabled !== false &&
@@ -744,6 +760,7 @@ const JsonFormBuilder = (
     languageMap: buildBidirectionalLanguageMap(
       config.language.langCodeMap || {}
     ),
+    additionalSchema: additionalConfig.additionalSchema || {},
   };
 
   /**
@@ -1293,8 +1310,12 @@ const JsonFormBuilder = (
       render(state);
     },
     getFormData: (): FormData => getFormData(state),
-    updateLanguage: (newLanguage: string, submitButtonLabel: string): void =>
-      updateLanguage(state, newLanguage, submitButtonLabel),
+    updateLanguage: (
+      newLanguage: string,
+      submitButtonLabel?: string,
+      additionalSchema?: AdditionalSchema
+    ): void =>
+      updateLanguage(state, newLanguage, submitButtonLabel, additionalSchema),
   });
 };
 
@@ -1518,32 +1539,41 @@ const createPasswordField = (
 
   // ---- Confirm Password Field ----
 
+  const confirmId = `${field.id}_confirm`;
+
   const confirmField = document.createElement("div");
   confirmField.className = "form-field password-container";
 
-  // Build confirm password label with "Confirm" prefix for all languages
-  const confirmLabel: Label = {};
-  Object.keys(field.label).forEach((lang) => {
-    confirmLabel[lang] = `Confirm ${field.label[lang]}`;
-  });
+  let confirmLabel: Label = {};
+  let confirmPlaceholder: Label = {};
+  // checking if additionalSchema has confirm field details
+  // If it does, use those details; otherwise, build a default confirm label and placeholder
+  if (state.additionalSchema && state.additionalSchema[confirmId]) {
+    confirmLabel = state.additionalSchema[confirmId].label;
+    confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
+  } else {
+    // If no additionalSchema, take value from label & placeholder of password field
+    Object.keys(field.label).forEach((lang) => {
+      confirmLabel[lang] = `Confirm ${field.label[lang]}`;
+    });
 
-  const confirmPlaceholder: Label = {};
-  Object.keys(field.placeholder || {}).forEach((lang) => {
-    if (field.placeholder !== undefined) {
-      confirmPlaceholder[lang] = `Confirm ${field.placeholder[lang]}`;
-    }
-  });
+    Object.keys(field.placeholder || {}).forEach((lang) => {
+      if (field.placeholder !== undefined) {
+        confirmPlaceholder[lang] = `Confirm ${field.placeholder[lang]}`;
+      }
+    });
+  }
 
   const confirmLabelElement = document.createElement("label");
-  confirmLabelElement.innerHTML = getMultiLangText(state, confirmLabel);
-  confirmLabelElement.htmlFor = `${field.id}_confirm`;
+  confirmLabelElement.htmlFor = confirmId;
+  confirmLabelElement.innerHTML = getLabelText(state, field, confirmLabel);
   confirmField.appendChild(confirmLabelElement);
 
   const confirmInput = document.createElement("input");
   confirmInput.className = "input_box";
   confirmInput.type = "password";
-  confirmInput.id = `${field.id}_confirm`;
-  confirmInput.name = `${field.id}_confirm`;
+  confirmInput.id = confirmId;
+  confirmInput.name = confirmId;
   confirmInput.required = Boolean(field.required);
   confirmInput.placeholder = getMultiLangText(state, confirmPlaceholder);
 
