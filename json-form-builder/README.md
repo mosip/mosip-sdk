@@ -282,7 +282,7 @@ This will generate:
     ```bash
     npm link
     ```
-2. Now go the application, where you want to use `json-form-builder` library, and run the below command
+2. Now go to the application, where you want to use `json-form-builder` library, and run the below command
     ```bash
     npm link @anushase/json-form-builder
     ```
