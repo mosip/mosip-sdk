@@ -109,4 +109,5 @@ export interface FormState {
   lastErrors?: Record<string, "required" | number | null>;
   languageMap: { [key: string]: string };
   additionalSchema?: AdditionalSchema;
+  isSubmitting: boolean;
 }
