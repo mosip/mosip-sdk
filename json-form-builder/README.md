@@ -34,6 +34,23 @@ const config = {
         eng: "Name",
         fra: "Nom",
       },
+      placeholder: {
+        eng: "Enter your name",
+        fra: "Entrez votre nom"
+      },
+      validator: [
+        {
+          regex: "^[a-zA-Z]{4,35}$",
+          error: {
+            eng: "Name should contain letters and must be of length between 4 to 35",
+            fra: "Le nom doit contenir des lettres et doit avoir une longueur comprise entre 4 et 35"
+          }
+        }
+      ],
+      info: {
+        eng: "Your name should contain letters only and should be of length between 4 to 35",
+        fra: "Votre nom doit contenir uniquement des lettres et doit avoir une longueur comprise entre 4 et 35"
+      }
       required: true,
     },
     // ... more fields
@@ -86,9 +103,9 @@ The form configuration object (`config`) has the following structure:
 ```typescript
 interface FormConfig {
   schema: FormField[];
+  language: LanguageSettings;
   allowedValues?: AllowedValues;
   errors?: Errors;
-  language: LanguageSettings;
 }
 ```
 
@@ -115,6 +132,14 @@ interface AdditionalConfig {
     enabled?: boolean;
     language?: string;
   };
+  additionalSchema?: {
+    // additional schema is for passing some schema's label & placeholder on later
+    // stage of form rendering, here id will be the same id given in the schema
+    [id: string]: {
+      label: Label;
+      placeholder: Label;
+    };
+  }
 }
 ```
 
@@ -153,6 +178,7 @@ The form builder supports the following field types:
 - Password
 - Date
 - Dropdown
+- Checkbox
 
 ## Validation
 
@@ -190,7 +216,7 @@ language: {
 
 - `render()`: Renders the form
 - `getFormData()`: Returns the current form data
-- `updateLanguage(newLanguage: string, submitButtonLabel: string)`: Updates the form fields, submit button and reCAPTCHA language
+- `updateLanguage(newLanguage: string, submitButtonLabel: string, additonalSchema?: AdditionalSchema)`: Updates the form fields, submit button and reCAPTCHA language
 
 ## Styling
 
@@ -203,6 +229,14 @@ The form builder comes with default styles but can be customized using CSS. The 
 - `.input_box`: Input elements
 - `.language-switcher`: Language selection container
 - `.recaptcha-container`: reCAPTCHA widget container
+- `.password-container`: Password container
+- `.password-eye-icon`: Eye icon of password input
+- `.checkbox-container`: Checkbox Container
+- `.info-container`: Info icon container
+- `.info-icon`: Info icon besides Input Label
+- `.info-detail`: Info box open after clicking Info icon
+- `.info-detail-arrow`: Small arrow comes with Info box
+
 
 ## Browser Support
 
@@ -240,6 +274,22 @@ This will generate:
 - ESM bundle (`dist/JsonFormBuilder.esm.js`)
 - Source maps for both bundles
 - TypeScript declaration files
+
+### Development with an actual Application
+#### This should be used only in local for development purpose only
+
+1. First link the current `json-form-builder` library, with below command
+    ```bash
+    npm link
+    ```
+2. Now go to the application, where you want to use `json-form-builder` library, and run the below command
+    ```bash
+    npm link @anushase/json-form-builder
+    ```
+3. This will create a link between the library and application, after that if any changes has been done in the library, just run the below command and it will reflect in the application as well
+    ```bash
+    npm run build
+    ```
 
 ### Development Mode
 
