@@ -13,6 +13,13 @@ interface OidcConfigProp {
   display?: string;
   max_age?: number;
   prompt?: string;
+  mockRpUIPublicUrl?: string;
+  par_callback?: (clientId: string) => Promise<string>; 
+  par_callback_timeout?: number; 
+}
+
+interface CallbackFunctionProp {
+  (clientId: string): Promise<string>;
 }
 
 interface ButtonConfigProp {
@@ -44,4 +51,4 @@ interface ISignInWithEsignetProps {
   style: { [key: string]: string };
 }
 
-export { OidcConfigProp, ButtonConfigProp, ISignInWithEsignetProps };
+export { OidcConfigProp, CallbackFunctionProp ,ButtonConfigProp, ISignInWithEsignetProps };
