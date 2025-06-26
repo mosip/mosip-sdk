@@ -129,7 +129,7 @@ const createPasswordIcon = (show: boolean): SVGSVGElement => {
 };
 
 /**
- * Creares an SVG element representing an info icon.
+ * Creates an SVG element representing an info icon.
  * @param {number | string} size size of the info icon in px
  * @returns {SVGSVGElement} returns an SVG element with the info icon.
  */
@@ -238,7 +238,7 @@ const createInfoIcon = (infoMessage: string): HTMLSpanElement => {
  * Get caps lock span
  * @param {FormState} state Current form state containing schema, container, and other properties.
  * @param {FormField} field form field object containing label and required properties
- * @returns {HTMLSpanElement} returns a span element for caps lock warning
+ * @returns {HTMLSpanElement} returns a span element for caps lock info
  */
 const getCapsLockSpan = (
   state: FormState,
@@ -261,7 +261,7 @@ const getCapsLockSpan = (
 };
 
 /**
- * Toggle caps lock warning on click of caps lock button
+ * Toggle caps lock info on click of caps lock button
  * @param {KeyboardEvent | MouseEvent} event event from click or keyup
  * @param {HTMLSpanElement} capsLockSpan span element of the caps lock span
  */
@@ -1137,7 +1137,7 @@ const JsonFormBuilder = (
       }
 
       .caps-lock-span {
-        font-size: 12px;
+        font-size: small;
         color: #2D86BA;
         align-items: center;
       }
