@@ -1213,6 +1213,35 @@ const JsonFormBuilder = (
       [dir="rtl"] .checkbox-container {
         flex-direction: row-reverse; /* Align checkbox and label in RTL */
       }
+
+      [dir="rtl"] .info-container {
+        margin-left: unset;
+        margin-right: 5px;
+      }
+
+      [dir="rtl"] .info-detail {
+        transform: translate(-110%, -60%);
+      } 
+
+      [dir="rtl"] .info-detail-arrow {
+        left: unset;
+        right: 0px;
+        transform-origin: 3px -7px;
+        transform: translateY(50%) rotate(-90deg) translateX(-50%);
+      }
+
+      @media screen and (max-width: 640px) {
+        [dir="rtl"] .info-detail {
+          transform: translate(-70%, 5%); /* Adjust for smaller screens */
+        }
+
+        [dir="rtl"] .info-detail-arrow {
+          transform-origin: center 0px;
+          transform: rotate(180deg);
+          left: unset;
+          right: 28%
+        }
+      }
     `;
     document.head.appendChild(style);
   };
