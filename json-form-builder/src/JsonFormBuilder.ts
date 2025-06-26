@@ -232,6 +232,35 @@ const createInfoIcon = (infoMessage: string): HTMLSpanElement => {
 
   return infoContainer;
 };
+
+/**
+ * Get caps lock span
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @returns {HTMLSpanElement} returns a span element for caps lock warning
+ */
+const getCapsLockSpan = (state: FormState): HTMLSpanElement => {
+  const capsLockSpan = document.createElement("span");
+  capsLockSpan.className = "caps-lock-style";
+  capsLockSpan.textContent =
+    getMultiLangText(state, state.fallbackErrors?.capsLock) ||
+    "Caps Lock is on";
+  capsLockSpan.style.display = "none";
+  return capsLockSpan;
+};
+
+/**
+ * Toggle caps lock warning on click of caps lock button
+ * @param {KeyboardEvent | MouseEvent} event event from click or keyup
+ * @param {HTMLSpanElement} capsLockSpan span element of the caps lock span
+ */
+const checkCapsLock = (
+  event: KeyboardEvent | MouseEvent,
+  capsLockSpan: HTMLSpanElement
+) =>
+  (capsLockSpan.style.display = event.getModifierState("CapsLock")
+    ? "block"
+    : "none");
+
 /**
  * Prevents the default action of an event.
  * @param {Event} e Event to prevent default action for.
@@ -342,6 +371,7 @@ const refreshLabels = (state: FormState): void => {
         );
       });
     } else {
+      // changing label text after language update
       const labelElement = state.container.querySelector(
         `label[for="${field.id}"]`
       );
@@ -351,6 +381,15 @@ const refreshLabels = (state: FormState): void => {
         if (field.info) {
           const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
           labelElement.appendChild(infoIcon);
+        }
+
+        // changing caps lock text after language update
+        const capsLockSpan =
+          labelElement.parentElement?.querySelector(".caps-lock-style");
+        if (capsLockSpan) {
+          capsLockSpan.textContent =
+            getMultiLangText(state, state.fallbackErrors?.capsLock) ||
+            "Caps Lock is on";
         }
       }
 
@@ -400,6 +439,17 @@ const refreshLabels = (state: FormState): void => {
             { ...field, label: confirmLabel },
             confirmLabel
           );
+
+          // changing caps lock text after language update
+          const confirmCapsLockSpan =
+            confirmLabelElement.parentElement?.querySelector(
+              ".caps-lock-style"
+            );
+          if (confirmCapsLockSpan) {
+            confirmCapsLockSpan.textContent =
+              getMultiLangText(state, state.fallbackErrors?.capsLock) ||
+              "Caps Lock is on";
+          }
         }
 
         const confirmInput = state.container.querySelector(
@@ -963,7 +1013,7 @@ const JsonFormBuilder = (
       .password-eye-icon {
         position: absolute;
         right: 0.75rem; /* Position from the right edge of the input */
-        transform: translateY(120%); /* Adjust for perfect vertical centering */
+        transform: translateY(230%); /* Adjust for perfect vertical centering */
         cursor: pointer;
         color: #6B7280; /* A neutral gray color */
         font-size: 1.25rem; /* Adjust icon size */
@@ -1063,6 +1113,18 @@ const JsonFormBuilder = (
           display: block; /* Show when active */
           opacity: 1;
           visibility: visible;
+      }
+
+      .label-div-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+      }
+
+      .caps-lock-style {
+        font-size: 10px;
+        font-weight: 600;
+        color: red
       }
     `;
     document.head.appendChild(style);
@@ -1510,16 +1572,24 @@ const createPasswordField = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field password-container ${field.cssClasses?.join(" ") || ""}`;
 
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  const capsLockSpan = getCapsLockSpan(state);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     label.appendChild(infoIcon);
   }
 
-  wrapper.appendChild(label);
+  labelDiv.appendChild(label);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
 
   const input = document.createElement("input");
   input.className = "input_box password-input";
@@ -1550,6 +1620,9 @@ const createPasswordField = (
   });
 
   const errorContainer = createErrorContainer();
+
+  input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+  input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
 
   const validateInput = () => {
     let isValid = true;
@@ -1626,10 +1699,19 @@ const createPasswordField = (
     });
   }
 
+  const confirmLabelDiv = document.createElement("div");
+  confirmLabelDiv.className = "label-div-display";
+
   const confirmLabelElement = document.createElement("label");
   confirmLabelElement.htmlFor = confirmId;
   confirmLabelElement.innerHTML = getLabelText(state, field, confirmLabel);
-  confirmField.appendChild(confirmLabelElement);
+
+  const confirmCapsLockSpan = getCapsLockSpan(state);
+
+  confirmLabelDiv.appendChild(confirmLabelElement);
+  confirmLabelDiv.appendChild(confirmCapsLockSpan);
+
+  confirmField.appendChild(confirmLabelDiv);
 
   const confirmInput = document.createElement("input");
   confirmInput.className = "input_box";
@@ -1656,6 +1738,13 @@ const createPasswordField = (
       confirmEyeIconSpan.appendChild(createPasswordIcon(false));
     }
   });
+
+  confirmInput.addEventListener("click", (e) =>
+    checkCapsLock(e, confirmCapsLockSpan)
+  );
+  confirmInput.addEventListener("keyup", (e) =>
+    checkCapsLock(e, confirmCapsLockSpan)
+  );
 
   const confirmError = createErrorContainer();
 
@@ -1867,15 +1956,24 @@ const createSimpleTextbox = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field-group ${field.cssClasses?.join(" ") || ""}`;
 
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
   const mainLabel = document.createElement("label");
   mainLabel.innerHTML = getLabelText(state, field);
+
+  const capsLockSpan = getCapsLockSpan(state);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     mainLabel.appendChild(infoIcon);
   }
 
-  wrapper.appendChild(mainLabel);
+  
+  labelDiv.appendChild(mainLabel);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
 
   if (!state.formData[field.id]) {
     state.formData[field.id] = {};
@@ -1975,6 +2073,8 @@ const createSimpleTextbox = (
 
     input.addEventListener("input", validate);
     input.addEventListener("change", validate);
+    input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan))
+    input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan))
   });
 
   return wrapper;
@@ -1993,16 +2093,24 @@ const createStringField = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  const capsLockSpan = getCapsLockSpan(state);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     label.appendChild(infoIcon);
   }
 
-  wrapper.appendChild(label);
+  labelDiv.appendChild(label);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
 
   const input = document.createElement("input");
   input.className = "input_box";
@@ -2019,6 +2127,11 @@ const createStringField = (
   }
 
   const errorContainer = createErrorContainer();
+
+  if (!field.disabled) {
+    input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+    input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+  }
 
   input.addEventListener("input", () => {
     let isValid = true;
