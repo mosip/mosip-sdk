@@ -130,16 +130,17 @@ const createPasswordIcon = (show: boolean): SVGSVGElement => {
 
 /**
  * Creares an SVG element representing an info icon.
+ * @param {number | string} size size of the info icon in px
  * @returns {SVGSVGElement} returns an SVG element with the info icon.
  */
-const createInfoIconSvg = (): SVGSVGElement => {
+const createInfoIconSvg = (size: number | string = 18.5): SVGSVGElement => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
   svg.setAttribute("viewBox", "0 0 18.5 18.5");
-  svg.setAttribute("width", "18.5");
-  svg.setAttribute("height", "18.5");
+  svg.setAttribute("width", size.toString());
+  svg.setAttribute("height", size.toString());
 
   g.setAttribute("id", "info_FILL0_wght400_GRAD0_opsz48");
   g.setAttribute("transform", "translate(0.25 0.25)");
@@ -147,8 +148,8 @@ const createInfoIconSvg = (): SVGSVGElement => {
   path.setAttribute("id", "info_FILL0_wght400_GRAD0_opsz48-2");
   path.setAttribute("data-name", "info_FILL0_wght400_GRAD0_opsz48");
   path.setAttribute("transform", "translate(-80 880)");
-  path.setAttribute("fill", "#333");
-  path.setAttribute("stroke", "#333");
+  path.setAttribute("fill", "currentColor");
+  path.setAttribute("stroke", "currentColor");
   path.setAttribute("stroke-width", "0.5");
   path.setAttribute(
     "d",
@@ -236,14 +237,25 @@ const createInfoIcon = (infoMessage: string): HTMLSpanElement => {
 /**
  * Get caps lock span
  * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field form field object containing label and required properties
  * @returns {HTMLSpanElement} returns a span element for caps lock warning
  */
-const getCapsLockSpan = (state: FormState): HTMLSpanElement => {
+const getCapsLockSpan = (
+  state: FormState,
+  field: FormField
+): HTMLSpanElement => {
   const capsLockSpan = document.createElement("span");
-  capsLockSpan.className = "caps-lock-style";
-  capsLockSpan.textContent =
-    getMultiLangText(state, state.fallbackErrors?.capsLock) ||
-    "Caps Lock is on";
+  if (field?.capsLock) {
+    capsLockSpan.className = "caps-lock-span";
+    const capsInfoIcon = document.createElement("span");
+    capsInfoIcon.className = "caps-lock-icon";
+    capsInfoIcon.appendChild(createInfoIconSvg(12));
+    const capsTextSpan = document.createElement("span");
+    capsTextSpan.className = "caps-lock-text";
+    capsTextSpan.textContent = getMultiLangText(state, field.capsLock);
+    capsLockSpan.appendChild(capsInfoIcon);
+    capsLockSpan.appendChild(capsTextSpan);
+  }
   capsLockSpan.style.display = "none";
   return capsLockSpan;
 };
@@ -258,7 +270,7 @@ const checkCapsLock = (
   capsLockSpan: HTMLSpanElement
 ) =>
   (capsLockSpan.style.display = event.getModifierState("CapsLock")
-    ? "block"
+    ? "inline-flex"
     : "none");
 
 /**
@@ -353,6 +365,12 @@ const refreshLabels = (state: FormState): void => {
           const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
           mainLabel.appendChild(infoIcon);
         }
+
+        const capsLockText =
+          mainLabel.parentElement?.querySelector(".caps-lock-text");
+        if (field?.capsLock && capsLockText) {
+          capsLockText.textContent = getMultiLangText(state, field.capsLock);
+        }
       }
 
       const inputs = state.container.querySelectorAll(
@@ -384,12 +402,10 @@ const refreshLabels = (state: FormState): void => {
         }
 
         // changing caps lock text after language update
-        const capsLockSpan =
-          labelElement.parentElement?.querySelector(".caps-lock-style");
-        if (capsLockSpan) {
-          capsLockSpan.textContent =
-            getMultiLangText(state, state.fallbackErrors?.capsLock) ||
-            "Caps Lock is on";
+        const capsLockText =
+          labelElement.parentElement?.querySelector(".caps-lock-text");
+        if (field?.capsLock && capsLockText) {
+          capsLockText.textContent = getMultiLangText(state, field.capsLock);
         }
       }
 
@@ -441,14 +457,13 @@ const refreshLabels = (state: FormState): void => {
           );
 
           // changing caps lock text after language update
-          const confirmCapsLockSpan =
-            confirmLabelElement.parentElement?.querySelector(
-              ".caps-lock-style"
+          const confirmCapsTextSpan =
+            confirmLabelElement.parentElement?.querySelector(".caps-lock-text");
+          if (field?.capsLock && confirmCapsTextSpan) {
+            confirmCapsTextSpan.textContent = getMultiLangText(
+              state,
+              field.capsLock
             );
-          if (confirmCapsLockSpan) {
-            confirmCapsLockSpan.textContent =
-              getMultiLangText(state, state.fallbackErrors?.capsLock) ||
-              "Caps Lock is on";
           }
         }
 
@@ -1121,10 +1136,14 @@ const JsonFormBuilder = (
         align-items: end;
       }
 
-      .caps-lock-style {
-        font-size: 10px;
-        font-weight: 600;
-        color: red
+      .caps-lock-span {
+        font-size: 12px;
+        color: #2D86BA;
+        align-items: center;
+      }
+      
+      .caps-lock-text {
+        margin-left: 4px;
       }
     `;
     document.head.appendChild(style);
@@ -1241,6 +1260,11 @@ const JsonFormBuilder = (
           left: unset;
           right: 28%
         }
+      }
+
+      [dir="rtl"] .caps-lock-text {
+        margin-right: 4px;
+        margin-left: unset;
       }
     `;
     document.head.appendChild(style);
@@ -1608,7 +1632,7 @@ const createPasswordField = (
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
 
-  const capsLockSpan = getCapsLockSpan(state);
+  const capsLockSpan = getCapsLockSpan(state, field);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
@@ -1650,8 +1674,10 @@ const createPasswordField = (
 
   const errorContainer = createErrorContainer();
 
-  input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
-  input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+  if (field?.capsLock) {
+    input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+    input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+  }
 
   const validateInput = () => {
     let isValid = true;
@@ -1735,7 +1761,7 @@ const createPasswordField = (
   confirmLabelElement.htmlFor = confirmId;
   confirmLabelElement.innerHTML = getLabelText(state, field, confirmLabel);
 
-  const confirmCapsLockSpan = getCapsLockSpan(state);
+  const confirmCapsLockSpan = getCapsLockSpan(state, field);
 
   confirmLabelDiv.appendChild(confirmLabelElement);
   confirmLabelDiv.appendChild(confirmCapsLockSpan);
@@ -1768,12 +1794,14 @@ const createPasswordField = (
     }
   });
 
-  confirmInput.addEventListener("click", (e) =>
-    checkCapsLock(e, confirmCapsLockSpan)
-  );
-  confirmInput.addEventListener("keyup", (e) =>
-    checkCapsLock(e, confirmCapsLockSpan)
-  );
+  if (field?.capsLock) {
+    confirmInput.addEventListener("click", (e) =>
+      checkCapsLock(e, confirmCapsLockSpan)
+    );
+    confirmInput.addEventListener("keyup", (e) =>
+      checkCapsLock(e, confirmCapsLockSpan)
+    );
+  }
 
   const confirmError = createErrorContainer();
 
@@ -1991,14 +2019,13 @@ const createSimpleTextbox = (
   const mainLabel = document.createElement("label");
   mainLabel.innerHTML = getLabelText(state, field);
 
-  const capsLockSpan = getCapsLockSpan(state);
+  const capsLockSpan = getCapsLockSpan(state, field);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     mainLabel.appendChild(infoIcon);
   }
 
-  
   labelDiv.appendChild(mainLabel);
   labelDiv.appendChild(capsLockSpan);
 
@@ -2102,8 +2129,10 @@ const createSimpleTextbox = (
 
     input.addEventListener("input", validate);
     input.addEventListener("change", validate);
-    input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan))
-    input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan))
+    if (field?.capsLock) {
+      input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+      input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+    }
   });
 
   return wrapper;
@@ -2129,7 +2158,7 @@ const createStringField = (
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
 
-  const capsLockSpan = getCapsLockSpan(state);
+  const capsLockSpan = getCapsLockSpan(state, field);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
@@ -2157,7 +2186,7 @@ const createStringField = (
 
   const errorContainer = createErrorContainer();
 
-  if (!field.disabled) {
+  if (!field.disabled && field?.capsLock) {
     input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
     input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
   }

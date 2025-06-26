@@ -14,6 +14,7 @@ export interface FormField {
   placeholder?: Label;
   disabled?: boolean;
   info?: Label;
+  capsLock?: Label;
 }
 
 export interface AllowedValues {
