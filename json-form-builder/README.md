@@ -38,10 +38,7 @@ const config = {
         eng: "Enter your name",
         fra: "Entrez votre nom"
       },
-      capsLock: {
-        eng: "Caps Lock is on",
-        fra: "Verr Maj activé"
-      }
+      capsLockCheck: true,
       validator: [
         {
           regex: "^[a-zA-Z]{4,35}$",
@@ -64,6 +61,10 @@ const config = {
       eng: "This field is required",
       fra: "Ce champ est obligatoire",
     },
+    capsLock: {
+      eng: "Caps Lock is on",
+      fra: "Verr Maj activé"
+    }
   },
   language: {
     mandatory: ["eng"],

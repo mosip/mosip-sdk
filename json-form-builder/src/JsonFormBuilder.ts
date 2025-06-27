@@ -245,14 +245,16 @@ const getCapsLockSpan = (
   field: FormField
 ): HTMLSpanElement => {
   const capsLockSpan = document.createElement("span");
-  if (field?.capsLock) {
+  if (field?.capsLockCheck) {
     capsLockSpan.className = "caps-lock-span";
     const capsInfoIcon = document.createElement("span");
     capsInfoIcon.className = "caps-lock-icon";
     capsInfoIcon.appendChild(createInfoIconSvg(12));
     const capsTextSpan = document.createElement("span");
     capsTextSpan.className = "caps-lock-text";
-    capsTextSpan.textContent = getMultiLangText(state, field.capsLock);
+    capsTextSpan.textContent =
+      getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+      "Caps Lock is on";
     capsLockSpan.appendChild(capsInfoIcon);
     capsLockSpan.appendChild(capsTextSpan);
   }
@@ -368,8 +370,10 @@ const refreshLabels = (state: FormState): void => {
 
         const capsLockText =
           mainLabel.parentElement?.querySelector(".caps-lock-text");
-        if (field?.capsLock && capsLockText) {
-          capsLockText.textContent = getMultiLangText(state, field.capsLock);
+        if (field?.capsLockCheck && capsLockText) {
+          capsLockText.textContent =
+            getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+            "Caps Lock is on";
         }
       }
 
@@ -404,8 +408,10 @@ const refreshLabels = (state: FormState): void => {
         // changing caps lock text after language update
         const capsLockText =
           labelElement.parentElement?.querySelector(".caps-lock-text");
-        if (field?.capsLock && capsLockText) {
-          capsLockText.textContent = getMultiLangText(state, field.capsLock);
+        if (field?.capsLockCheck && capsLockText) {
+          capsLockText.textContent =
+            getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+            "Caps Lock is on";
         }
       }
 
@@ -459,11 +465,10 @@ const refreshLabels = (state: FormState): void => {
           // changing caps lock text after language update
           const confirmCapsTextSpan =
             confirmLabelElement.parentElement?.querySelector(".caps-lock-text");
-          if (field?.capsLock && confirmCapsTextSpan) {
-            confirmCapsTextSpan.textContent = getMultiLangText(
-              state,
-              field.capsLock
-            );
+          if (field?.capsLockCheck && confirmCapsTextSpan) {
+            confirmCapsTextSpan.textContent =
+              getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+              "Caps Lock is on";
           }
         }
 
@@ -1674,7 +1679,7 @@ const createPasswordField = (
 
   const errorContainer = createErrorContainer();
 
-  if (field?.capsLock) {
+  if (field?.capsLockCheck) {
     input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
     input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
   }
@@ -1794,7 +1799,7 @@ const createPasswordField = (
     }
   });
 
-  if (field?.capsLock) {
+  if (field?.capsLockCheck) {
     confirmInput.addEventListener("click", (e) =>
       checkCapsLock(e, confirmCapsLockSpan)
     );
@@ -2129,7 +2134,7 @@ const createSimpleTextbox = (
 
     input.addEventListener("input", validate);
     input.addEventListener("change", validate);
-    if (field?.capsLock) {
+    if (field?.capsLockCheck) {
       input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
       input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
     }
@@ -2186,7 +2191,7 @@ const createStringField = (
 
   const errorContainer = createErrorContainer();
 
-  if (!field.disabled && field?.capsLock) {
+  if (!field.disabled && field?.capsLockCheck) {
     input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
     input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
   }
