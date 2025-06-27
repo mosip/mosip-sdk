@@ -38,6 +38,10 @@ const config = {
         eng: "Enter your name",
         fra: "Entrez votre nom"
       },
+      capsLock: {
+        eng: "Caps Lock is on",
+        fra: "Verr Maj activé"
+      }
       validator: [
         {
           regex: "^[a-zA-Z]{4,35}$",
@@ -236,6 +240,10 @@ The form builder comes with default styles but can be customized using CSS. The 
 - `.info-icon`: Info icon besides Input Label
 - `.info-detail`: Info box open after clicking Info icon
 - `.info-detail-arrow`: Small arrow comes with Info box
+- `.label-div-display`: Label container div which contain label, info icon & caps lock info
+- `.caps-lock-span`: Caps lock container
+- `.caps-lock-icon`: Caps lock icon
+- `.caps-lock-text`: Caps lock text
 
 
 ## Browser Support
