@@ -19,7 +19,7 @@ interface OidcConfigProp {
 }
 
 interface CallbackFunctionProp {
-  (clientId: string): Promise<string>;
+  (clientId: string, state?: string, ui_locales?: string): Promise<string>;
 }
 
 interface ButtonConfigProp {

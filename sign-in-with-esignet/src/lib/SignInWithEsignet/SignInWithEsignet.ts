@@ -381,13 +381,6 @@ function buildErrorRedirectUrl(
   )}&error=${encodeURIComponent(errorCode)}`;
 }
 
-function extractRequestUriValue(requestUri: string): string {
-  if (requestUri && requestUri.includes(":")) {
-    return requestUri.substring(requestUri.lastIndexOf(":") + 1);
-  }
-  return requestUri;
-}
-
 function promiseWithTimeout<T>(
   promise: Promise<T>,
   ms: number
@@ -408,7 +401,11 @@ async function par_callback(
     return errorMessage.clientIdMissing;
   }
   try {
-    return await callbackFunction(oidcConfig.client_id);
+    return await callbackFunction(
+      oidcConfig.client_id,
+      oidcConfig.state,
+      oidcConfig.ui_locales
+    );
   } catch (error) {
     return errorMessage.requestUriFailed;
   }
@@ -451,8 +448,11 @@ const SignInWithEsignet = async ({
           typeof result === "string" &&
           result.startsWith("urn:ietf:params:oauth:request_uri:")
         ) {
-          const requestUriValue = extractRequestUriValue(result);
-          urlToNavigate = `${oidcConfig.authorizeUri}?client_id=${oidcConfig.client_id}&request_uri=${requestUriValue}`;
+          urlToNavigate = `${
+            oidcConfig.authorizeUri
+          }?client_id=${encodeURIComponent(
+            oidcConfig.client_id
+          )}&request_uri=${encodeURIComponent(result)}`;
           window.location.href = urlToNavigate;
           return;
         }
