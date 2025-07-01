@@ -129,17 +129,18 @@ const createPasswordIcon = (show: boolean): SVGSVGElement => {
 };
 
 /**
- * Creares an SVG element representing an info icon.
+ * Creates an SVG element representing an info icon.
+ * @param {number | string} size size of the info icon in px
  * @returns {SVGSVGElement} returns an SVG element with the info icon.
  */
-const createInfoIconSvg = (): SVGSVGElement => {
+const createInfoIconSvg = (size: number | string = 18.5): SVGSVGElement => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
   svg.setAttribute("viewBox", "0 0 18.5 18.5");
-  svg.setAttribute("width", "18.5");
-  svg.setAttribute("height", "18.5");
+  svg.setAttribute("width", size.toString());
+  svg.setAttribute("height", size.toString());
 
   g.setAttribute("id", "info_FILL0_wght400_GRAD0_opsz48");
   g.setAttribute("transform", "translate(0.25 0.25)");
@@ -147,8 +148,8 @@ const createInfoIconSvg = (): SVGSVGElement => {
   path.setAttribute("id", "info_FILL0_wght400_GRAD0_opsz48-2");
   path.setAttribute("data-name", "info_FILL0_wght400_GRAD0_opsz48");
   path.setAttribute("transform", "translate(-80 880)");
-  path.setAttribute("fill", "#333");
-  path.setAttribute("stroke", "#333");
+  path.setAttribute("fill", "currentColor");
+  path.setAttribute("stroke", "currentColor");
   path.setAttribute("stroke-width", "0.5");
   path.setAttribute(
     "d",
@@ -232,6 +233,48 @@ const createInfoIcon = (infoMessage: string): HTMLSpanElement => {
 
   return infoContainer;
 };
+
+/**
+ * Get caps lock span
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field form field object containing label and required properties
+ * @returns {HTMLSpanElement} returns a span element for caps lock info
+ */
+const getCapsLockSpan = (
+  state: FormState,
+  field: FormField
+): HTMLSpanElement => {
+  const capsLockSpan = document.createElement("span");
+  if (field?.capsLockCheck) {
+    capsLockSpan.className = "caps-lock-span";
+    const capsInfoIcon = document.createElement("span");
+    capsInfoIcon.className = "caps-lock-icon";
+    capsInfoIcon.appendChild(createInfoIconSvg(12));
+    const capsTextSpan = document.createElement("span");
+    capsTextSpan.className = "caps-lock-text";
+    capsTextSpan.textContent =
+      getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+      "Caps Lock is on";
+    capsLockSpan.appendChild(capsInfoIcon);
+    capsLockSpan.appendChild(capsTextSpan);
+  }
+  capsLockSpan.style.display = "none";
+  return capsLockSpan;
+};
+
+/**
+ * Toggle caps lock info on click of caps lock button
+ * @param {KeyboardEvent | MouseEvent} event event from click or keyup
+ * @param {HTMLSpanElement} capsLockSpan span element of the caps lock span
+ */
+const checkCapsLock = (
+  event: KeyboardEvent | MouseEvent,
+  capsLockSpan: HTMLSpanElement
+) =>
+  (capsLockSpan.style.display = event.getModifierState("CapsLock")
+    ? "inline-flex"
+    : "none");
+
 /**
  * Prevents the default action of an event.
  * @param {Event} e Event to prevent default action for.
@@ -324,6 +367,14 @@ const refreshLabels = (state: FormState): void => {
           const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
           mainLabel.appendChild(infoIcon);
         }
+
+        const capsLockText =
+          mainLabel.parentElement?.querySelector(".caps-lock-text");
+        if (field?.capsLockCheck && capsLockText) {
+          capsLockText.textContent =
+            getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+            "Caps Lock is on";
+        }
       }
 
       const inputs = state.container.querySelectorAll(
@@ -342,6 +393,7 @@ const refreshLabels = (state: FormState): void => {
         );
       });
     } else {
+      // changing label text after language update
       const labelElement = state.container.querySelector(
         `label[for="${field.id}"]`
       );
@@ -351,6 +403,15 @@ const refreshLabels = (state: FormState): void => {
         if (field.info) {
           const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
           labelElement.appendChild(infoIcon);
+        }
+
+        // changing caps lock text after language update
+        const capsLockText =
+          labelElement.parentElement?.querySelector(".caps-lock-text");
+        if (field?.capsLockCheck && capsLockText) {
+          capsLockText.textContent =
+            getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+            "Caps Lock is on";
         }
       }
 
@@ -400,6 +461,15 @@ const refreshLabels = (state: FormState): void => {
             { ...field, label: confirmLabel },
             confirmLabel
           );
+
+          // changing caps lock text after language update
+          const confirmCapsTextSpan =
+            confirmLabelElement.parentElement?.querySelector(".caps-lock-text");
+          if (field?.capsLockCheck && confirmCapsTextSpan) {
+            confirmCapsTextSpan.textContent =
+              getMultiLangText(state, state.fallbackErrors?.capsLock || {}) ||
+              "Caps Lock is on";
+          }
         }
 
         const confirmInput = state.container.querySelector(
@@ -963,7 +1033,7 @@ const JsonFormBuilder = (
       .password-eye-icon {
         position: absolute;
         right: 0.75rem; /* Position from the right edge of the input */
-        transform: translateY(120%); /* Adjust for perfect vertical centering */
+        transform: translateY(230%); /* Adjust for perfect vertical centering */
         cursor: pointer;
         color: #6B7280; /* A neutral gray color */
         font-size: 1.25rem; /* Adjust icon size */
@@ -1064,6 +1134,22 @@ const JsonFormBuilder = (
           opacity: 1;
           visibility: visible;
       }
+
+      .label-div-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+      }
+
+      .caps-lock-span {
+        font-size: small;
+        color: #2D86BA;
+        align-items: center;
+      }
+      
+      .caps-lock-text {
+        margin-left: 4px;
+      }
     `;
     document.head.appendChild(style);
   };
@@ -1150,6 +1236,40 @@ const JsonFormBuilder = (
 
       [dir="rtl"] .checkbox-container {
         flex-direction: row-reverse; /* Align checkbox and label in RTL */
+      }
+
+      [dir="rtl"] .info-container {
+        margin-left: unset;
+        margin-right: 5px;
+      }
+
+      [dir="rtl"] .info-detail {
+        transform: translate(-110%, -60%);
+      } 
+
+      [dir="rtl"] .info-detail-arrow {
+        left: unset;
+        right: 0px;
+        transform-origin: 3px -7px;
+        transform: translateY(50%) rotate(-90deg) translateX(-50%);
+      }
+
+      @media screen and (max-width: 640px) {
+        [dir="rtl"] .info-detail {
+          transform: translate(-70%, 5%); /* Adjust for smaller screens */
+        }
+
+        [dir="rtl"] .info-detail-arrow {
+          transform-origin: center 0px;
+          transform: rotate(180deg);
+          left: unset;
+          right: 28%
+        }
+      }
+
+      [dir="rtl"] .caps-lock-text {
+        margin-right: 4px;
+        margin-left: unset;
       }
     `;
     document.head.appendChild(style);
@@ -1510,16 +1630,24 @@ const createPasswordField = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field password-container ${field.cssClasses?.join(" ") || ""}`;
 
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  const capsLockSpan = getCapsLockSpan(state, field);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     label.appendChild(infoIcon);
   }
 
-  wrapper.appendChild(label);
+  labelDiv.appendChild(label);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
 
   const input = document.createElement("input");
   input.className = "input_box password-input";
@@ -1550,6 +1678,11 @@ const createPasswordField = (
   });
 
   const errorContainer = createErrorContainer();
+
+  if (field?.capsLockCheck) {
+    input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+    input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+  }
 
   const validateInput = () => {
     let isValid = true;
@@ -1626,10 +1759,19 @@ const createPasswordField = (
     });
   }
 
+  const confirmLabelDiv = document.createElement("div");
+  confirmLabelDiv.className = "label-div-display";
+
   const confirmLabelElement = document.createElement("label");
   confirmLabelElement.htmlFor = confirmId;
   confirmLabelElement.innerHTML = getLabelText(state, field, confirmLabel);
-  confirmField.appendChild(confirmLabelElement);
+
+  const confirmCapsLockSpan = getCapsLockSpan(state, field);
+
+  confirmLabelDiv.appendChild(confirmLabelElement);
+  confirmLabelDiv.appendChild(confirmCapsLockSpan);
+
+  confirmField.appendChild(confirmLabelDiv);
 
   const confirmInput = document.createElement("input");
   confirmInput.className = "input_box";
@@ -1656,6 +1798,15 @@ const createPasswordField = (
       confirmEyeIconSpan.appendChild(createPasswordIcon(false));
     }
   });
+
+  if (field?.capsLockCheck) {
+    confirmInput.addEventListener("click", (e) =>
+      checkCapsLock(e, confirmCapsLockSpan)
+    );
+    confirmInput.addEventListener("keyup", (e) =>
+      checkCapsLock(e, confirmCapsLockSpan)
+    );
+  }
 
   const confirmError = createErrorContainer();
 
@@ -1867,15 +2018,23 @@ const createSimpleTextbox = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field-group ${field.cssClasses?.join(" ") || ""}`;
 
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
   const mainLabel = document.createElement("label");
   mainLabel.innerHTML = getLabelText(state, field);
+
+  const capsLockSpan = getCapsLockSpan(state, field);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     mainLabel.appendChild(infoIcon);
   }
 
-  wrapper.appendChild(mainLabel);
+  labelDiv.appendChild(mainLabel);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
 
   if (!state.formData[field.id]) {
     state.formData[field.id] = {};
@@ -1975,6 +2134,10 @@ const createSimpleTextbox = (
 
     input.addEventListener("input", validate);
     input.addEventListener("change", validate);
+    if (field?.capsLockCheck) {
+      input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+      input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+    }
   });
 
   return wrapper;
@@ -1993,16 +2156,24 @@ const createStringField = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
   const label = document.createElement("label");
   label.innerHTML = getLabelText(state, field);
   label.htmlFor = field.id;
+
+  const capsLockSpan = getCapsLockSpan(state, field);
 
   if (field.info) {
     const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
     label.appendChild(infoIcon);
   }
 
-  wrapper.appendChild(label);
+  labelDiv.appendChild(label);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
 
   const input = document.createElement("input");
   input.className = "input_box";
@@ -2019,6 +2190,11 @@ const createStringField = (
   }
 
   const errorContainer = createErrorContainer();
+
+  if (!field.disabled && field?.capsLockCheck) {
+    input.addEventListener("click", (e) => checkCapsLock(e, capsLockSpan));
+    input.addEventListener("keyup", (e) => checkCapsLock(e, capsLockSpan));
+  }
 
   input.addEventListener("input", () => {
     let isValid = true;
