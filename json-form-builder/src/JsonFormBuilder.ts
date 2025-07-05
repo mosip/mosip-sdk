@@ -1096,7 +1096,7 @@ const JsonFormBuilder = (
       .password-eye-icon {
         position: absolute;
         right: 0.75rem; /* Position from the right edge of the input */
-        transform: translateY(230%); /* Adjust for perfect vertical centering */
+        transform: translateY(130%); /* Adjust for perfect vertical centering */
         cursor: pointer;
         color: #6B7280; /* A neutral gray color */
         font-size: 1.25rem; /* Adjust icon size */
