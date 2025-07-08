@@ -1232,6 +1232,7 @@ const JsonFormBuilder = (
       .phone-div-display {
         position: relative;
         display: flex;
+        direction: ltr;
       }
 
       /* Dropdown Content (Hidden by Default) */
@@ -2477,13 +2478,15 @@ const createPhoneField = (
       "ArrowRight",
       "Delete",
     ];
+
+    const allowedMukltiKeys = ["a", "c", "x", "v"]; // 'v' is for paste
     const keyCode = event.key;
 
     const multiKeyChecking = (key: string, ctrl: boolean) => {
       // Removed 'value' as it's not used here for paste
       if (
         ctrl &&
-        (key === "a" || key === "c" || key === "x" || key === "v") // 'v' is handled in the paste event
+        allowedMukltiKeys.includes(keyCode.toLowerCase()) // 'v' is handled in the paste event
       ) {
         return true;
       }
@@ -2492,11 +2495,10 @@ const createPhoneField = (
 
     if (
       !allowedKeyCodes.includes(keyCode) &&
-      !multiKeyChecking(keyCode, event.ctrlKey)
+      !multiKeyChecking(keyCode, event.ctrlKey) &&
+      !/[0-9]/.test(event.key)
     ) {
-      if (!/[0-9]/.test(event.key)) {
-        event.preventDefault();
-      }
+      event.preventDefault();
     }
   });
 
