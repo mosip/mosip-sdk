@@ -263,6 +263,69 @@ const getCapsLockSpan = (
 };
 
 /**
+ * Get prefix from a list of prefixes based on the phone number.
+ * @param {string[] | undefined} prefixList list of prefixes to check against the phone number
+ * @param {string} phoneNumber phone number to check against the prefixes
+ * @returns returns the first matching prefix from the list or the first prefix as default
+ */
+const getPrefix = (
+  prefixList: string[] | undefined,
+  phoneNumber: string | null | undefined
+): string => {
+  if (!prefixList || prefixList.length === 0) return "";
+
+  if (!phoneNumber || typeof phoneNumber !== "string") {
+    // If phoneNumber is null or undefined, return the first prefix as default
+    return prefixList[0];
+  }
+
+  // Check if the phone number starts with any of the prefixes
+  for (const prefix of prefixList) {
+    if (phoneNumber.startsWith(prefix)) {
+      return prefix;
+    }
+  }
+
+  // If no prefix matches, return the first prefix as default
+  return prefixList[0];
+};
+
+/**
+ * Creates a prefix dropdown element for a form field.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @param {FormField} field object containing prefix options
+ * @param {HTMLInputElement} prefixButton Prefix button element to update with selected prefix
+ * @returns {HTMLDivElement | null} Prefix dropdown element or null if no prefixes are available
+ */
+const createPrefixDropdown = (
+  state: FormState,
+  field: FormField,
+  prefixButton: HTMLInputElement
+): HTMLDivElement | null => {
+  if (field.prefix && field.prefix.length > 1) {
+    const prefixDropdown = document.createElement("div");
+    prefixDropdown.className = "prefix-dropdown";
+
+    field.prefix.forEach((prefix) => {
+      const prefixOption = document.createElement("a");
+      prefixOption.className = "prefix-option";
+      prefixOption.textContent = prefix;
+      prefixOption.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (prefixButton) {
+          prefixButton.value = prefix;
+          state.formData[`${field.id}_prefix`] = prefix;
+        }
+        prefixDropdown.classList.remove("show");
+      });
+      prefixDropdown.appendChild(prefixOption);
+    });
+    return prefixDropdown;
+  }
+  return null;
+};
+
+/**
  * Toggle caps lock info on click of caps lock button
  * @param {KeyboardEvent | MouseEvent} event event from click or keyup
  * @param {HTMLSpanElement} capsLockSpan span element of the caps lock span
@@ -1033,7 +1096,7 @@ const JsonFormBuilder = (
       .password-eye-icon {
         position: absolute;
         right: 0.75rem; /* Position from the right edge of the input */
-        transform: translateY(230%); /* Adjust for perfect vertical centering */
+        transform: translateY(130%); /* Adjust for perfect vertical centering */
         cursor: pointer;
         color: #6B7280; /* A neutral gray color */
         font-size: 1.25rem; /* Adjust icon size */
@@ -1150,6 +1213,68 @@ const JsonFormBuilder = (
       .caps-lock-text {
         margin-left: 4px;
       }
+
+      /* Prefix for phone number input */
+      .prefix-button {
+        cursor: pointer;
+        text-align: right;
+        padding: 0.5em 0.75em !important;
+        width: 64px !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
+
+      .prefix-button:disabled {
+        cursor: default;
+      }
+
+      /* The container <div> - needed to position the dropdown content */
+      .phone-div-display {
+        position: relative;
+        display: flex;
+        direction: ltr;
+      }
+
+      /* Dropdown Content (Hidden by Default) */
+      .prefix-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%; /* Position below the button */
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+      }
+
+      /* Links inside the dropdown */
+      .prefix-dropdown a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+
+      /* Change color of dropdown links on hover */
+      .prefix-dropdown a:hover {
+        background-color: #ddd;
+      }
+
+      .prefix-option {
+        cursor: pointer;
+      }
+
+      /* Show the dropdown menu (use JS to add this class to the .prefix-dropdown container
+      when the user clicks on the dropdown button) */
+      .show {
+        display:block;
+      }
+
+      .input_box ~ .input_box {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-left: none !important;
+      }
+      /* prefix for phone number input */
     `;
     document.head.appendChild(style);
   };
@@ -1459,7 +1584,8 @@ const JsonFormBuilder = (
         } else if (input.id) {
           // Handle regular fields
           if (input.value) {
-            state.formData[input.id] = input.value;
+            state.formData[input.id] =
+              (state.formData[`${input.id}_prefix`] || "") + input.value;
           }
         }
       });
@@ -1470,7 +1596,6 @@ const JsonFormBuilder = (
       } else {
         state.isSubmitting = false;
         formButton.innerHTML = state.submitLabel;
-        console.log("Form data:", data);
       }
     } else {
       state.isSubmitting = false;
@@ -2239,6 +2364,194 @@ const createStringField = (
 };
 
 /**
+ * This function creates a phone input form element with a prefix dropdown if applicable.
+ * @param {FormState} state state of the form containing schema, container, and other properties.
+ * @param {FormField} field field object containing type, id, label, required, and other properties.
+ * @returns {HTMLDivElement} A div element containing the form field with its label, input, and prefix dropdown.
+ */
+const createPhoneField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
+
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
+  const label = document.createElement("label");
+  label.innerHTML = getLabelText(state, field);
+  label.htmlFor = field.id;
+
+  const capsLockSpan = getCapsLockSpan(state, field);
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
+  labelDiv.appendChild(label);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
+
+  const inputDiv = document.createElement("div");
+  inputDiv.className = "phone-div-display";
+
+  let prefixButton: HTMLInputElement | null = null;
+
+  const prefixValue = getPrefix(
+    field.prefix,
+    (state.allowedValues[field.id] as string) || ""
+  );
+
+  if (prefixValue) {
+    prefixButton = document.createElement("input");
+    prefixButton.type = "text";
+    prefixButton.className = "input_box prefix-button";
+
+    // if allowedValues exist, use that as the prefix
+    // otherwise, use the first prefix value if available
+    prefixButton.value = prefixValue;
+    state.formData[`${field.id}_prefix`] = prefixValue; // Initialize formData with prefix
+
+    // Add event listener to toggle dropdown on click
+    prefixButton.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      if (field.prefix && field.prefix.length > 1) {
+        const dropdown = wrapper.querySelector(".prefix-dropdown");
+        dropdown?.classList.toggle("show");
+      }
+    });
+
+    inputDiv.appendChild(prefixButton);
+    inputDiv.appendChild(document.createElement("hr"));
+
+    if (field.disabled || false) {
+      disableField(prefixButton);
+    } else {
+      const prefixDropdown = createPrefixDropdown(state, field, prefixButton);
+      if (prefixDropdown) {
+        inputDiv.appendChild(prefixDropdown);
+      }
+    }
+  }
+
+  const input = document.createElement("input");
+  input.className = "input_box phone_input";
+  input.type = "tel";
+  input.id = field.id;
+  input.name = field.id;
+  input.required = Boolean(field.required);
+  input.dataset.fieldId = field.id;
+  // remove prefixValue from allowedValues string
+  if (
+    state.allowedValues[field.id] &&
+    typeof state.allowedValues[field.id] === "string"
+  ) {
+    input.value = (state.allowedValues[field.id] as string)
+      .replace(prefixValue || "", "")
+      .trim();
+  }
+  input.placeholder = getMultiLangText(state, field.placeholder);
+
+  inputDiv.appendChild(input);
+
+  if (field.disabled || false) {
+    disableField(input);
+  }
+
+  const errorContainer = createErrorContainer();
+
+  // allow only digit in input field
+  // TODO: when pasting user able to add alphabet as well
+  // had to stop that
+  input.addEventListener("keydown", (event) => {
+    const allowedKeyCodes = [
+      "Backspace",
+      "Tab",
+      "Control",
+      "End",
+      "Home",
+      "ArrowLeft",
+      "ArrowRight",
+      "Delete",
+    ];
+
+    const allowedMultiKeys = ["a", "c", "x", "v"]; // 'v' is for paste
+    const keyCode = event.key;
+
+    const multiKeyChecking = (key: string, ctrl: boolean) => {
+      // Removed 'value' as it's not used here for paste
+      if (
+        ctrl &&
+        allowedMultiKeys.includes(key.toLowerCase()) // 'v' is handled in the paste event
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    if (
+      !allowedKeyCodes.includes(keyCode) &&
+      !multiKeyChecking(keyCode, event.ctrlKey) &&
+      !/[0-9]/.test(event.key)
+    ) {
+      event.preventDefault();
+    }
+  });
+
+  input.addEventListener("input", () => {
+    let isValid = true;
+    let lastError: "required" | number | null = null;
+    appendError(errorContainer, "");
+
+    const value = input.value.trim();
+
+    if (field.required && !value) {
+      const result = handleRequiredValidation(state, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
+    } else if (value && Array.isArray(field.validators)) {
+      const result = handleRegexValidation(
+        state,
+        errorContainer,
+        field.validators,
+        value,
+        false
+      );
+      lastError = result.lastError;
+      isValid = result.isValid;
+    }
+
+    state.lastErrors = state.lastErrors || {};
+    state.lastErrors[field.id] = lastError;
+
+    input.setCustomValidity(isValid ? "" : "Invalid input");
+    input.classList.toggle("error", !isValid);
+    if (prefixButton) {
+      // Update formData with prefix and input value
+      state.formData[field.id] = `${prefixButton.value}${input.value}`;
+      prefixButton.setCustomValidity(isValid ? "" : "Invalid input");
+      prefixButton.classList.toggle("error", !isValid);
+    }
+  });
+
+  input.addEventListener("change", (e) => {
+    const target = e.target as HTMLInputElement;
+    state.formData[field.id] =
+      (prefixButton ? prefixButton.value : "") + target.value;
+    input.dispatchEvent(new Event("input"));
+  });
+
+  wrapper.appendChild(inputDiv);
+  wrapper.appendChild(errorContainer);
+
+  return wrapper;
+};
+
+/**
  * Creates a form element based on the control type specified in the field.
  * It supports various control types such as textbox, password, date, and dropdown.
  * @param {FormState} state Current form state containing schema, container, and other properties.
@@ -2265,6 +2578,8 @@ const createFormElement = (
       return createDropdownField(state, field);
     case "checkbox":
       return createCheckboxField(state, field);
+    case "phone":
+      return createPhoneField(state, field);
     default:
       throw new Error(`Unsupported control type: ${field.controlType}`);
   }
@@ -2295,4 +2610,20 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  */
 const getFormData = (state: FormState): FormData => ({ ...state.formData });
 
+/**
+ * This function listens for click events on the window and closes any open prefix dropdowns
+ * @param event event object from the click event
+ */
+window.onclick = function (event) {
+  if (event.target && !(event.target as any).matches(".prefix-button")) {
+    const dropdowns = document.getElementsByClassName("prefix-dropdown");
+    let i;
+    for (i = 0; i < dropdowns.length; i++) {
+      const openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains("show")) {
+        openDropdown.classList.remove("show");
+      }
+    }
+  }
+};
 export { JsonFormBuilder };
