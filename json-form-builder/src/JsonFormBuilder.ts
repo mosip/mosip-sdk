@@ -2479,14 +2479,14 @@ const createPhoneField = (
       "Delete",
     ];
 
-    const allowedMukltiKeys = ["a", "c", "x", "v"]; // 'v' is for paste
+    const allowedMultiKeys = ["a", "c", "x", "v"]; // 'v' is for paste
     const keyCode = event.key;
 
     const multiKeyChecking = (key: string, ctrl: boolean) => {
       // Removed 'value' as it's not used here for paste
       if (
         ctrl &&
-        allowedMukltiKeys.includes(keyCode.toLowerCase()) // 'v' is handled in the paste event
+        allowedMultiKeys.includes(keyCode.toLowerCase()) // 'v' is handled in the paste event
       ) {
         return true;
       }
