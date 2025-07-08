@@ -2486,7 +2486,7 @@ const createPhoneField = (
       // Removed 'value' as it's not used here for paste
       if (
         ctrl &&
-        allowedMultiKeys.includes(keyCode.toLowerCase()) // 'v' is handled in the paste event
+        allowedMultiKeys.includes(key.toLowerCase()) // 'v' is handled in the paste event
       ) {
         return true;
       }
