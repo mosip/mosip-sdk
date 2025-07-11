@@ -1,5 +1,6 @@
 import {
   ButtonConfigProp,
+  CallbackFunctionProp,
   ISignInWithEsignetProps,
   OidcConfigProp,
 } from "./ISignInWithEsignetProps";
@@ -9,6 +10,7 @@ import {
   defaultButtonLabel,
   defaultShapes,
   defaultThemes,
+  errorMessage,
   validDisplays,
   validPrompt,
   validResponseTypes,
@@ -302,12 +304,20 @@ const createButton = (
   buttonStyle: { [key: string]: string },
   logoPath: string,
   errorMsg: string,
-  type: string | undefined
+  type: string | undefined,
+  onClickHandler?: (event: MouseEvent) => void
 ): HTMLElement => {
   //Button
-  var anchor = document.createElement("a");
-  anchor.href = urlToNavigate;
-  anchor.style.textDecoration = "none";
+  let anchor: HTMLElement;
+  if (onClickHandler) {
+    anchor = document.createElement("button");
+    (anchor as HTMLButtonElement).type = "button";
+    anchor.addEventListener("click", onClickHandler);
+  } else {
+    anchor = document.createElement("a");
+    (anchor as HTMLAnchorElement).href = urlToNavigate;
+    anchor.style.textDecoration = "none";
+  }
 
   var outerDiv = document.createElement("div");
 
@@ -361,9 +371,49 @@ const createButton = (
   return anchor;
 };
 
-const SignInWithEsignet = ({
+function buildErrorRedirectUrl(
+  errorDescription: string,
+  errorCode: string = "request_uri_error",
+  baseUrl: string
+): string {
+  return `${baseUrl}?error_description=${encodeURIComponent(
+    errorDescription
+  )}&error=${encodeURIComponent(errorCode)}`;
+}
+
+function promiseWithTimeout<T>(
+  promise: Promise<T>,
+  ms: number
+): Promise<T | "timeout"> {
+  return Promise.race([
+    promise,
+    new Promise<"timeout">((resolve) =>
+      setTimeout(() => resolve("timeout"), ms)
+    ),
+  ]);
+}
+
+async function par_callback(
+  callbackFunction: CallbackFunctionProp,
+  oidcConfig: OidcConfigProp
+): Promise<string> {
+  if (!oidcConfig.client_id) {
+    return errorMessage.clientIdMissing;
+  }
+  try {
+    return await callbackFunction(
+      oidcConfig.client_id,
+      oidcConfig.state,
+      oidcConfig.ui_locales
+    );
+  } catch (error) {
+    return errorMessage.requestUriFailed;
+  }
+}
+
+const SignInWithEsignet = async ({
   ...props
-}: ISignInWithEsignetProps): HTMLElement => {
+}: ISignInWithEsignetProps): Promise<HTMLElement> => {
   let { oidcConfig, buttonConfig, signInElement, style } = props;
 
   if (signInElement == null) {
@@ -373,8 +423,58 @@ const SignInWithEsignet = ({
   //validate input
   let errorMsg = validateInput(oidcConfig);
   let urlToNavigate = "#";
-  if (!errorMsg) {
-    urlToNavigate = buildRedirectURL(oidcConfig);
+  let onClickHandler: ((event: MouseEvent) => void) | undefined = undefined;
+  if (
+    oidcConfig &&
+    oidcConfig.par_callback &&
+    typeof oidcConfig.par_callback === "function"
+  ) {
+    onClickHandler = async (event: MouseEvent) => {
+      event.preventDefault();
+      try {
+        const result = await promiseWithTimeout(
+          par_callback(oidcConfig.par_callback!, oidcConfig),
+          oidcConfig.par_callback_timeout || 5000 // default timeout of 5 seconds
+        );
+        if (result === "timeout") {
+          window.location.href = buildErrorRedirectUrl(
+            errorMessage.requestUriTimeout,
+            "request_uri_timeout",
+            oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
+          );
+          return;
+        }
+        if (
+          typeof result === "string" &&
+          result.startsWith("urn:ietf:params:oauth:request_uri:")
+        ) {
+          urlToNavigate = `${
+            oidcConfig.authorizeUri
+          }?client_id=${encodeURIComponent(
+            oidcConfig.client_id
+          )}&request_uri=${encodeURIComponent(result)}`;
+          window.location.href = urlToNavigate;
+          return;
+        }
+        window.location.href = buildErrorRedirectUrl(
+          errorMessage.requestUriFailed,
+          "request_uri_error",
+          oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
+        );
+        return;
+      } catch (error) {
+        window.location.href = buildErrorRedirectUrl(
+          errorMessage.requestUriFailed,
+          "request_uri_error",
+          oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
+        );
+        return;
+      }
+    };
+  } else {
+    if (!errorMsg) {
+      urlToNavigate = buildRedirectURL(oidcConfig);
+    }
   }
 
   if (!buttonConfig) {
@@ -401,8 +501,7 @@ const SignInWithEsignet = ({
     buttonClasses = buildButtonClasses(buttonConfig);
     buttonStyle = buildButtonStyles(baseStyle, buttonConfig);
   }
-
-  var button = createButton(
+  const button = createButton(
     label,
     urlToNavigate,
     buttonCustomStyle,
@@ -410,15 +509,19 @@ const SignInWithEsignet = ({
     buttonStyle,
     logoPath,
     errorMsg,
-    buttonConfig.type
+    buttonConfig.type,
+    onClickHandler
   );
   signInElement.innerHTML = "";
   signInElement.appendChild(button);
+
   return signInElement;
 };
 
-const init = ({ ...props }: ISignInWithEsignetProps): HTMLElement => {
-  return SignInWithEsignet(props);
+const init = async ({
+  ...props
+}: ISignInWithEsignetProps): Promise<HTMLElement> => {
+  return await SignInWithEsignet(props);
 };
 
 export default init;

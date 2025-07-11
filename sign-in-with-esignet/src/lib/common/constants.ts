@@ -20,6 +20,13 @@ const buttonTypes = {
   icon: "icon",
 };
 
+const errorMessage = {
+  requestUriTimeout: "Request timed out while fetching Request URI. Please try again later.",
+  requestUriFailed: "Failed to get Request URI. Please try again later.",
+  clientIdMissing: "Client ID missing.",
+  generic: "An unexpected error occurred. Please try again.",
+};
+
 const defaultButtonLabel = "Sign in with e-Signet";
 
 export {
@@ -30,4 +37,5 @@ export {
   defaultShapes,
   buttonTypes,
   defaultButtonLabel,
+  errorMessage
 };
