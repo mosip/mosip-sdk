@@ -374,11 +374,18 @@ const createButton = (
 function buildErrorRedirectUrl(
   errorDescription: string,
   errorCode: string = "request_uri_error",
-  baseUrl: string
-): string {
-  return `${baseUrl}?error_description=${encodeURIComponent(
-    errorDescription
-  )}&error=${encodeURIComponent(errorCode)}`;
+  oidcConfig: OidcConfigProp
+): void {
+  const params = new URLSearchParams();
+  if (errorDescription) params.set("error_description", errorDescription);
+  params.set("error", errorCode);
+  const fallbackUrl = `?${params.toString()}`
+  if (!oidcConfig.redirect_uri) {
+    window.location.href = fallbackUrl
+    return;
+  }
+
+  window.location.replace(`${oidcConfig.redirect_uri}?${params.toString()}`);
 }
 
 function promiseWithTimeout<T>(
@@ -411,6 +418,13 @@ async function par_callback(
   }
 }
 
+function getTimeoutMs(timeout: unknown, fallback: number = 5000): number {
+  const parsed = typeof timeout === "string" ? parseInt(timeout, 10) : timeout;
+  return typeof parsed === "number" && Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : fallback;
+}
+
 const SignInWithEsignet = async ({
   ...props
 }: ISignInWithEsignetProps): Promise<HTMLElement> => {
@@ -431,45 +445,37 @@ const SignInWithEsignet = async ({
   ) {
     onClickHandler = async (event: MouseEvent) => {
       event.preventDefault();
-      try {
-        const result = await promiseWithTimeout(
-          par_callback(oidcConfig.par_callback!, oidcConfig),
-          oidcConfig.par_callback_timeout || 5000 // default timeout of 5 seconds
-        );
-        if (result === "timeout") {
-          window.location.href = buildErrorRedirectUrl(
-            errorMessage.requestUriTimeout,
-            "request_uri_timeout",
-            oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
-          );
-          return;
-        }
-        if (
-          typeof result === "string" &&
-          result.startsWith("urn:ietf:params:oauth:request_uri:")
-        ) {
-          urlToNavigate = `${
-            oidcConfig.authorizeUri
-          }?client_id=${encodeURIComponent(
-            oidcConfig.client_id
-          )}&request_uri=${encodeURIComponent(result)}`;
-          window.location.href = urlToNavigate;
-          return;
-        }
-        window.location.href = buildErrorRedirectUrl(
-          errorMessage.requestUriFailed,
-          "request_uri_error",
-          oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
-        );
-        return;
-      } catch (error) {
-        window.location.href = buildErrorRedirectUrl(
-          errorMessage.requestUriFailed,
-          "request_uri_error",
-          oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
+      const timeoutMs = getTimeoutMs(oidcConfig.par_callback_timeout, 5000);
+      const result = await promiseWithTimeout(
+        par_callback(oidcConfig.par_callback!, oidcConfig),
+        timeoutMs
+      );
+      if (result === "timeout") {
+        buildErrorRedirectUrl(
+          errorMessage.requestUriTimeout,
+          "request_uri_timeout",
+          oidcConfig
         );
         return;
       }
+      if (
+        typeof result === "string" &&
+        result.startsWith("urn:ietf:params:oauth:request_uri:")
+      ) {
+        urlToNavigate = `${
+          oidcConfig.authorizeUri
+        }?client_id=${encodeURIComponent(
+          oidcConfig.client_id
+        )}&request_uri=${encodeURIComponent(result)}`;
+        window.location.href = urlToNavigate;
+        return;
+      }
+      buildErrorRedirectUrl(
+        errorMessage.requestUriFailed,
+        "request_uri_error",
+        oidcConfig
+      );
+      return;
     };
   } else {
     if (!errorMsg) {
