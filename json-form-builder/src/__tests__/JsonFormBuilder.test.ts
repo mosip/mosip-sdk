@@ -59,7 +59,12 @@ describe('JsonFormBuilder', () => {
       ],
       language: {
         mandatory: ["eng"],
-        optional: ['fra', 'ara']
+        optional: ['fra', 'ara'],
+        langCodeMap: {
+          eng: 'en',
+          fra: 'fr',
+          ara: 'ar'
+        }
       }
     };
 

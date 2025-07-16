@@ -4,19 +4,26 @@ export interface Label {
 
 export interface FormField {
   id: string;
-  controlType: 'textbox' | 'password' | 'date' | 'dropdown';
-  type?: 'string' | 'simpleType';
+  controlType: "textbox" | "password" | "date" | "dropdown" | "checkbox" | "phone";
+  type?: "string" | "simpleType";
   label: Label;
   required?: boolean;
   validators?: Validator[];
   alignmentGroup?: string;
   cssClasses?: string[];
+  placeholder?: Label;
+  disabled?: boolean;
+  info?: Label;
+  capsLockCheck?: boolean;
+  prefix?: string[];
 }
 
 export interface AllowedValues {
-  [key: string]: {
-    [key: string]: Label;
-  };
+  [key: string]:
+    | {
+        [key: string]: Label;
+      }
+    | string;
 }
 
 export interface SubmitButtonConfig {
@@ -28,7 +35,7 @@ export interface LanguageConfig {
   currentLanguage?: string;
   defaultLanguage?: string;
   showLanguageSwitcher?: boolean;
-  languageSwitcherPosition?: 'top' | 'bottom';
+  languageSwitcherPosition?: "top" | "bottom";
   availableLanguages?: string[];
   rtlLanguages?: string[];
 }
@@ -39,10 +46,18 @@ export interface ReCaptchaConfig {
   language?: string;
 }
 
+export interface AdditionalSchema {
+  [id: string]: {
+    label: Label;
+    placeholder: Label;
+  };
+}
+
 export interface AdditionalConfig {
   submitButton: SubmitButtonConfig;
   language?: LanguageConfig;
   recaptcha?: ReCaptchaConfig;
+  additionalSchema?: AdditionalSchema;
 }
 
 export interface Errors {
@@ -51,9 +66,9 @@ export interface Errors {
 
 export interface FormConfig {
   schema: FormField[];
-  allowedValues?: AllowedValues;
-  errors?: Errors
   language: LanguageSettings;
+  allowedValues?: AllowedValues;
+  errors?: Errors;
 }
 
 export interface FormData {
@@ -61,13 +76,13 @@ export interface FormData {
 }
 
 export interface LanguageSettings {
-  mandatory?: string[];
+  mandatory: string[];
+  langCodeMap: { [key: string]: string }; // for languageMap builder
   optional?: string[];
-  langCodeMap?: { [key: string]: string }; // for languageMap builder
 }
 
 export interface Validator {
-  regex?: RegExp;
+  regex?: RegExp | string;
   error?: {
     [lang: string]: string;
   };
@@ -87,12 +102,14 @@ export interface FormState {
   currentLanguage: string;
   defaultLanguage: string;
   showLanguageSwitcher: boolean;
-  languageSwitcherPosition: 'top' | 'bottom';
+  languageSwitcherPosition: "top" | "bottom";
   availableLanguages: string[];
   rtlLanguages: string[];
   isRTL: boolean;
   recaptcha?: ReCaptchaConfig;
   fallbackErrors: Errors;
-  lastErrors?: Record<string, 'required' | number | null>;
-  languageMap: { [key: string]: string }
-} 
+  lastErrors?: Record<string, "required" | number | null>;
+  languageMap: { [key: string]: string };
+  additionalSchema?: AdditionalSchema;
+  isSubmitting: boolean;
+}
