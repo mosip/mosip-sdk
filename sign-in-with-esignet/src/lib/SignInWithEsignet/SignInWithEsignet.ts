@@ -371,21 +371,43 @@ const createButton = (
   return anchor;
 };
 
+function rerenderButton (
+  signInElement: HTMLElement,
+  label: string,
+  buttonCustomStyle: customStyle | null,
+  buttonClasses: styleClasses | null,
+  buttonStyle: { [key: string]: string},
+  logoPath: string,
+  errorMsg: string,
+  buttonType: string | undefined
+) {
+  signInElement.innerHTML = "";
+  signInElement.appendChild(
+    createButton(
+      label,
+      "",
+      buttonCustomStyle,
+      buttonClasses,
+      buttonStyle,
+      logoPath,
+      errorMsg,
+      buttonType
+    )
+  )
+}
+
 function buildErrorRedirectUrl(
   errorDescription: string,
   errorCode: string = "request_uri_error",
   oidcConfig: OidcConfigProp
-): void {
+): boolean {
+  if (!oidcConfig.redirect_uri) return false;
+
   const params = new URLSearchParams();
   if (errorDescription) params.set("error_description", errorDescription);
   params.set("error", errorCode);
-  const fallbackUrl = `?${params.toString()}`
-  if (!oidcConfig.redirect_uri) {
-    window.location.href = fallbackUrl
-    return;
-  }
-
   window.location.replace(`${oidcConfig.redirect_uri}?${params.toString()}`);
+  return true;
 }
 
 function promiseWithTimeout<T>(
@@ -451,11 +473,24 @@ const SignInWithEsignet = async ({
         timeoutMs
       );
       if (result === "timeout") {
-        buildErrorRedirectUrl(
+        const redirected = buildErrorRedirectUrl(
           errorMessage.requestUriTimeout,
           "request_uri_timeout",
           oidcConfig
         );
+        if(!redirected) {
+          errorMsg = errorMessage.requestUriTimeout;
+          rerenderButton(
+            signInElement,
+            label,
+            buttonCustomStyle,
+            buttonClasses,
+            buttonStyle,
+            logoPath,
+            errorMsg,
+            buttonConfig.type
+          )
+        }
         return;
       }
       if (
@@ -470,11 +505,24 @@ const SignInWithEsignet = async ({
         window.location.href = urlToNavigate;
         return;
       }
-      buildErrorRedirectUrl(
+      const redirected = buildErrorRedirectUrl(
         errorMessage.requestUriFailed,
         "request_uri_error",
         oidcConfig
       );
+      if(!redirected) {
+          errorMsg = errorMessage.requestUriFailed;
+          rerenderButton(
+            signInElement,
+            label,
+            buttonCustomStyle,
+            buttonClasses,
+            buttonStyle,
+            logoPath,
+            errorMsg,
+            buttonConfig.type
+          )
+        }
       return;
     };
   } else {
