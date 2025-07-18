@@ -129,20 +129,13 @@ export const createSimpleTextbox = (
       // Store value in form state
       // If that language object is present then update the value
       // otherwise add that object with langage & value
-      let flag = true;
-      for (const currentObj of state.formData[field.id] as KeyValuePair[]) {
-        if (currentObj.language === normalizedLang) {
-          currentObj.value = input.value;
-          flag = false;
-          break;
-        }
-      }
-      if (flag) {
-        (state.formData[field.id] as KeyValuePair[]).push({
-          language: normalizedLang,
-          value: input.value,
-        });
-      }
+      const entries = state.formData[field.id] as KeyValuePair[];
+      const entry = entries.find(
+        (e: KeyValuePair) => e.language === normalizedLang
+      );
+      entry
+        ? (entry.value = input.value)
+        : entries.push({ language: normalizedLang, value: input.value });
 
       // Store last error type
       state.lastErrors = state.lastErrors || {};
