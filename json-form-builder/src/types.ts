@@ -1,10 +1,18 @@
-export interface Label {
+export interface KeyValuePair {
   [key: string]: string;
 }
 
+export interface Label extends KeyValuePair {}
+
 export interface FormField {
   id: string;
-  controlType: "textbox" | "password" | "date" | "dropdown" | "checkbox" | "phone";
+  controlType:
+    | "textbox"
+    | "password"
+    | "date"
+    | "dropdown"
+    | "checkbox"
+    | "phone";
   type?: "string" | "simpleType";
   label: Label;
   required?: boolean;
@@ -61,7 +69,7 @@ export interface AdditionalConfig {
 }
 
 export interface Errors {
-  [key: string]: { [language: string]: string };
+  [key: string]: KeyValuePair;
 }
 
 export interface FormConfig {
@@ -72,20 +80,18 @@ export interface FormConfig {
 }
 
 export interface FormData {
-  [key: string]: string | { [key: string]: string } | undefined;
+  [key: string]: string | KeyValuePair | KeyValuePair[] | File | undefined;
 }
 
 export interface LanguageSettings {
   mandatory: string[];
-  langCodeMap: { [key: string]: string }; // for languageMap builder
+  langCodeMap: KeyValuePair; // for languageMap builder
   optional?: string[];
 }
 
 export interface Validator {
   regex?: RegExp | string;
-  error?: {
-    [lang: string]: string;
-  };
+  error?: KeyValuePair;
   langCode?: string;
 }
 
@@ -109,7 +115,7 @@ export interface FormState {
   recaptcha?: ReCaptchaConfig;
   fallbackErrors: Errors;
   lastErrors?: Record<string, "required" | number | null>;
-  languageMap: { [key: string]: string };
+  languageMap: KeyValuePair;
   additionalSchema?: AdditionalSchema;
   isSubmitting: boolean;
 }
