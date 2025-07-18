@@ -6,6 +6,7 @@ import {
   Label,
   AdditionalConfig,
   AdditionalSchema,
+  KeyValuePair,
 } from "./types";
 
 import {
@@ -606,12 +607,13 @@ const JsonFormBuilder = (
           // Store only if normalization results in a valid 3-letter code
           if (normalizedLang && normalizedLang.length === 3) {
             if (!state.formData[fieldId]) {
-              state.formData[fieldId] = {};
+              state.formData[fieldId] = [];
             }
             if (input.value) {
-              (state.formData[fieldId] as { [key: string]: string })[
-                normalizedLang
-              ] = input.value;
+              (state.formData[fieldId] as KeyValuePair[]).push({
+                language: normalizedLang,
+                value: input.value,
+              });
             }
           }
         } else if (input.id) {

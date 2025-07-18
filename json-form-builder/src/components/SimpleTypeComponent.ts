@@ -1,4 +1,4 @@
-import { FormState, FormField } from "../types";
+import { FormState, FormField, KeyValuePair } from "../types";
 import {
   getMultiLangText,
   createErrorContainer,
@@ -43,7 +43,7 @@ export const createSimpleTextbox = (
   wrapper.appendChild(labelDiv);
 
   if (!state.formData[field.id]) {
-    state.formData[field.id] = {};
+    state.formData[field.id] = [];
   }
 
   const languages = Object.keys(field.label || {});
@@ -127,8 +127,22 @@ export const createSimpleTextbox = (
       }
 
       // Store value in form state
-      (state.formData[field.id] as Record<string, string>)[normalizedLang] =
-        input.value;
+      // If that language object is present then update the value
+      // otherwise add that object with langage & value
+      let flag = true;
+      for (const currentObj of state.formData[field.id] as KeyValuePair[]) {
+        if (currentObj.language === normalizedLang) {
+          currentObj.value = input.value;
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        (state.formData[field.id] as KeyValuePair[]).push({
+          language: normalizedLang,
+          value: input.value,
+        });
+      }
 
       // Store last error type
       state.lastErrors = state.lastErrors || {};
