@@ -13,7 +13,6 @@ interface OidcConfigProp {
   display?: string;
   max_age?: number;
   prompt?: string;
-  mockRpUIPublicUrl?: string;
   par_callback?: (clientId: string) => Promise<string>; 
   par_callback_timeout?: number; 
 }

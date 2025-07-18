@@ -371,14 +371,43 @@ const createButton = (
   return anchor;
 };
 
+function rerenderButton (
+  signInElement: HTMLElement,
+  label: string,
+  buttonCustomStyle: customStyle | null,
+  buttonClasses: styleClasses | null,
+  buttonStyle: { [key: string]: string},
+  logoPath: string,
+  errorMsg: string,
+  buttonType: string | undefined
+) {
+  signInElement.innerHTML = "";
+  signInElement.appendChild(
+    createButton(
+      label,
+      "",
+      buttonCustomStyle,
+      buttonClasses,
+      buttonStyle,
+      logoPath,
+      errorMsg,
+      buttonType
+    )
+  )
+}
+
 function buildErrorRedirectUrl(
   errorDescription: string,
   errorCode: string = "request_uri_error",
-  baseUrl: string
-): string {
-  return `${baseUrl}?error_description=${encodeURIComponent(
-    errorDescription
-  )}&error=${encodeURIComponent(errorCode)}`;
+  oidcConfig: OidcConfigProp
+): boolean {
+  if (!oidcConfig.redirect_uri) return false;
+
+  const params = new URLSearchParams();
+  if (errorDescription) params.set("error_description", errorDescription);
+  params.set("error", errorCode);
+  window.location.replace(`${oidcConfig.redirect_uri}?${params.toString()}`);
+  return true;
 }
 
 function promiseWithTimeout<T>(
@@ -411,6 +440,13 @@ async function par_callback(
   }
 }
 
+function getTimeoutMs(timeout: unknown, fallback: number = 5000): number {
+  const parsed = typeof timeout === "string" ? parseInt(timeout, 10) : timeout;
+  return typeof parsed === "number" && Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : fallback;
+}
+
 const SignInWithEsignet = async ({
   ...props
 }: ISignInWithEsignetProps): Promise<HTMLElement> => {
@@ -431,45 +467,63 @@ const SignInWithEsignet = async ({
   ) {
     onClickHandler = async (event: MouseEvent) => {
       event.preventDefault();
-      try {
-        const result = await promiseWithTimeout(
-          par_callback(oidcConfig.par_callback!, oidcConfig),
-          oidcConfig.par_callback_timeout || 5000 // default timeout of 5 seconds
+      const timeoutMs = getTimeoutMs(oidcConfig.par_callback_timeout, 5000);
+      const result = await promiseWithTimeout(
+        par_callback(oidcConfig.par_callback!, oidcConfig),
+        timeoutMs
+      );
+      if (result === "timeout") {
+        const redirected = buildErrorRedirectUrl(
+          errorMessage.requestUriTimeout,
+          "request_uri_timeout",
+          oidcConfig
         );
-        if (result === "timeout") {
-          window.location.href = buildErrorRedirectUrl(
-            errorMessage.requestUriTimeout,
-            "request_uri_timeout",
-            oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
-          );
-          return;
+        if(!redirected) {
+          errorMsg = errorMessage.requestUriTimeout;
+          rerenderButton(
+            signInElement,
+            label,
+            buttonCustomStyle,
+            buttonClasses,
+            buttonStyle,
+            logoPath,
+            errorMsg,
+            buttonConfig.type
+          )
         }
-        if (
-          typeof result === "string" &&
-          result.startsWith("urn:ietf:params:oauth:request_uri:")
-        ) {
-          urlToNavigate = `${
-            oidcConfig.authorizeUri
-          }?client_id=${encodeURIComponent(
-            oidcConfig.client_id
-          )}&request_uri=${encodeURIComponent(result)}`;
-          window.location.href = urlToNavigate;
-          return;
-        }
-        window.location.href = buildErrorRedirectUrl(
-          errorMessage.requestUriFailed,
-          "request_uri_error",
-          oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
-        );
-        return;
-      } catch (error) {
-        window.location.href = buildErrorRedirectUrl(
-          errorMessage.requestUriFailed,
-          "request_uri_error",
-          oidcConfig.mockRpUIPublicUrl || "http://localhost:5000"
-        );
         return;
       }
+      if (
+        typeof result === "string" &&
+        result.startsWith("urn:ietf:params:oauth:request_uri:")
+      ) {
+        urlToNavigate = `${
+          oidcConfig.authorizeUri
+        }?client_id=${encodeURIComponent(
+          oidcConfig.client_id
+        )}&request_uri=${encodeURIComponent(result)}`;
+        window.location.href = urlToNavigate;
+        return;
+      }
+      const redirected = buildErrorRedirectUrl(
+        errorMessage.requestUriFailed,
+        "request_uri_error",
+        oidcConfig
+      );
+      if(!redirected) {
+          errorMsg = errorMessage.requestUriFailed;
+          rerenderButton(
+            signInElement,
+            label,
+            buttonCustomStyle,
+            buttonClasses,
+            buttonStyle,
+            logoPath,
+            errorMsg,
+            buttonConfig.type
+          )
+        }
+      return;
     };
   } else {
     if (!errorMsg) {
