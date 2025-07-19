@@ -12,7 +12,9 @@ export interface FormField {
     | "date"
     | "dropdown"
     | "checkbox"
-    | "phone";
+    | "phone"
+    | "photo"
+    | "file";
   type?: "string" | "simpleType";
   label: Label;
   required?: boolean;
@@ -24,6 +26,7 @@ export interface FormField {
   info?: Label;
   capsLockCheck?: boolean;
   prefix?: string[];
+  acceptedFileTypes?: string;
 }
 
 export interface AllowedValues {
@@ -93,6 +96,7 @@ export interface Validator {
   regex?: RegExp | string;
   error?: KeyValuePair;
   langCode?: string;
+  maxFileSize?: number; // in bytes
 }
 
 export interface FormState {

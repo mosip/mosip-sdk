@@ -404,4 +404,217 @@ const addRTLStyles = (): void => {
   document.head.appendChild(style);
 };
 
-export { addRTLStyles, addResponsiveStyles };
+
+const extractStyles = (): void => {
+  const style = document.createElement("style");
+  style.textContent = `
+        .drop-container {
+            width: 100%;
+        }
+
+        /* Drop Zone Styling */
+        .drop-zone {
+            border: 2px solid #E4E7EC;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone.hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .drop-zone .upload-icon {
+            display: inline-block;
+            border: 1px solid #E4E7EC;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 3rem;
+            color: #6b7280;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .drop-zone.hover .upload-icon {
+            color: #3b82f6;
+        }
+
+        .drop-zone p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .drop-zone .upload-text {
+            font-weight: 600;
+            color: #475467;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .drop-zone .file-types {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* File List Styling */
+        .file-list-container {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            position: relative; /* For positioning status icons/text */
+        }
+
+        .file-item.error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .file-item.success {
+        }
+
+        .file-info {
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            flex-grow: 1;
+            overflow: hidden;
+            margin-right: 15px; /* Space for status/delete icons */
+        }
+
+        .file-info .file-icon {
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-right: 10px;
+        }
+
+        .file-info .file-details {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .file-info .file-name {
+            font-weight: 500;
+            color: #333;
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .file-info .file-size {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: block;
+        }
+
+        .file-status {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding-left: 1.5rem;
+        }
+
+        .progress-bar-container {
+            width: 100%; /* Fixed width for progress bar */
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #FF9001;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.1s linear; /* Smooth progress update */
+        }
+
+        .progress-percentage {
+            font-size: 0.8rem;
+            color: #6b7280;
+            min-width: 35px; /* Ensure space for percentage text */
+            text-align: right;
+        }
+
+        .status-icon {
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .status-icon.success-icon {
+            color: #22c55e;
+        }
+
+        .status-icon.error-icon {
+            color: #ef4444;
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: #ef4444;
+            margin-right: 10px;
+        }
+
+        .delete-icon {
+            font-size: 1rem;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 5px; /* Make clickable area larger */
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .delete-icon:hover {
+            background-color: #fee2e2;
+        }
+
+        /* Hide elements based on state */
+        .file-item .progress-bar-container,
+        .file-item .progress-percentage,
+        .file-item .status-icon,
+        .file-item .status-text {
+            display: none;
+        }
+
+        .file-item.uploading .progress-bar-container,
+        .file-item.uploading .progress-percentage,
+        .file-item.success .progress-bar-container,
+        .file-item.success .progress-percentage {
+            display: block;
+        }
+
+        .file-item.success .status-icon.success-icon {
+            display: block;
+        }
+
+        .file-item.error .status-text {
+            display: block;
+        }
+  `;
+  document.head.appendChild(style);
+}
+
+export { addRTLStyles, addResponsiveStyles, extractStyles };

@@ -17,6 +17,9 @@ import {
   createDropdownField,
   createCheckboxField,
   createPhoneField,
+  createFileField,
+  createPhotoField,
+  createFileDropField,
 } from "./components";
 
 import {
@@ -26,7 +29,11 @@ import {
   buildBidirectionalLanguageMap,
 } from "./utils/utils";
 
-import { addResponsiveStyles, addRTLStyles } from "./utils/responsive-style";
+import {
+  addResponsiveStyles,
+  addRTLStyles,
+  extractStyles,
+} from "./utils/responsive-style";
 
 import {
   addRecaptchaScript,
@@ -149,6 +156,18 @@ const refreshLabels = (state: FormState): void => {
           defaultLang
         );
       });
+    } else if (field.controlType === ControlType.FILE) {
+      const fieldGroup = state.container
+        .querySelector(`.form-field-group div[id="${field.id}"]`)
+        ?.closest(".form-field-group");
+
+      const uploadText = fieldGroup?.querySelector(".upload-text");
+
+      if (uploadText) {
+        uploadText.innerHTML =
+          getMultiLangText(state, field.placeholder) ||
+          "Click to upload or drag and drop";
+      }
     } else {
       // changing label text after language update
       const labelElement = state.container.querySelector(
@@ -643,6 +662,7 @@ const JsonFormBuilder = (
     render: async (): Promise<void> => {
       addResponsiveStyles();
       addRTLStyles();
+      extractStyles();
       if (state.showLanguageSwitcher) {
         addLanguageSwitcherStyles();
       }
@@ -688,6 +708,10 @@ const createFormElement = (
       return createCheckboxField(state, field);
     case ControlType.PHONE:
       return createPhoneField(state, field);
+    case ControlType.PHOTO:
+      return createPhotoField(state, field);
+    case ControlType.FILE:
+      return createFileDropField(state, field); // Adjust this if you have a specific file component
     default:
       throw new Error(`Unsupported control type: ${field.controlType}`);
   }
