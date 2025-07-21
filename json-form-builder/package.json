@@ -1,6 +1,6 @@
 {
   "name": "@anushase/json-form-builder",
-  "version": "1.1.1",
+  "version": "1.1.4",
   "description": "A dynamic JSON form builder with multi-language support, validation, and responsive design",
   "main": "dist/JsonFormBuilder.umd.js",
   "module": "dist/JsonFormBuilder.esm.js",
@@ -25,7 +25,7 @@
     "validation",
     "responsive"
   ],
-  "author": "Anusha Se",
+  "author": "MOSIP",
   "license": "MPL-2.0",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
