@@ -201,7 +201,7 @@ const handleRegexValidation = (
     const regex = new RegExp(validator.regex || validator.validator);
 
     if (regex && !regex.test(value)) {
-      let errorMsg =
+      const errorMsg =
         getMultiLangText(
           state,
           validator.error,
