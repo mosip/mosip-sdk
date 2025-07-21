@@ -64,7 +64,7 @@ const createPasswordIconSpan = (
   eyeIconSpan.id = spanId;
   eyeIconSpan.className = "password-eye-icon";
 
-  let eyeIconImg = createPasswordIcon(false);
+  const eyeIconImg = createPasswordIcon(false);
   eyeIconSpan.appendChild(eyeIconImg);
 
   eyeIconSpan.addEventListener("click", () => {
