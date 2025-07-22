@@ -1,4 +1,4 @@
-import { FormState, FormField, Validator } from "../types";
+import { FormState, FormField, Validator, FileUploadData } from "../types";
 import {
   getLabelText,
   disableField,
@@ -7,6 +7,9 @@ import {
   handleRequiredValidation,
   createInfoIcon,
   getMultiLangText,
+  getCapsLockSpan,
+  enableCapsLockCheck,
+  handleRegexValidation,
 } from "../utils/utils";
 
 /**
@@ -93,6 +96,14 @@ const handleMaxFileSizeValidation = (
   return { lastError, isValid };
 };
 
+/**
+ * Validates the file against the field configuration.
+ * @param {FormState} state state containing form data and container.
+ * @param {FormField} field field configuration object.
+ * @param {File} file file to validate.
+ * @param {HTMLDivElement} errorContainer error container to display validation errors.
+ * @returns { lastError: number | null; isValid: boolean } an object containing the last error and validation status.
+ */
 const validateFile = (
   state: FormState,
   field: FormField,
@@ -126,12 +137,20 @@ const validateFile = (
   return { lastError, isValid };
 };
 
+/**
+ * Converts a file to Base64 and updates the form state.
+ * @param {FormState} state The current form state containing form data.
+ * @param {string} fieldId The ID of the field to update in the form data.
+ * @param {File} file The file to convert to Base64.
+ */
 const convertFileToBase64 = (state: FormState, fieldId: string, file: File) => {
   const fileReader = new FileReader();
 
   fileReader.onload = (event: any) => {
     if (event.target?.result) {
-      state.formData[fieldId] = event.target.result.toString();
+      (state.formData[fieldId] as FileUploadData).value =
+        event.target.result.toString();
+      (state.formData[fieldId] as FileUploadData).format = file.type; // Reset docType
     }
   };
 
@@ -142,6 +161,14 @@ const convertFileToBase64 = (state: FormState, fieldId: string, file: File) => {
   fileReader.readAsDataURL(file);
 };
 
+/**
+ * Handles file drop event and processes the files.
+ * @param {FormState} state The current form state containing form data and container.
+ * @param {FormField} field The field configuration object for the file drop component.
+ * @param {FileList} files The list of files dropped by the user.
+ * @param {HTMLDivElement} fileListContainer The container to display the list of uploaded files.
+ * @param {HTMLDivElement} errorContainer The container to display validation errors.
+ */
 const handleFiles = (
   state: FormState,
   field: FormField,
@@ -162,8 +189,6 @@ const handleFiles = (
     state.lastErrors[field.id] = result.lastError;
     return;
   }
-  
-  state.formData[field.id] = {};
 
   convertFileToBase64(state, field.id, file);
 
@@ -172,6 +197,12 @@ const handleFiles = (
   simulateUpload(file, fileId);
 };
 
+/**
+ * Creates a file item element with file details and upload status.
+ * @param {File} file file object containing file details.
+ * @param {String} fileId file ID to uniquely identify the file item.
+ * @param {HTMLDivElement} fileListContainer container to append the file item.
+ */
 const addFileItemToDOM = (
   file: File,
   fileId: string,
@@ -199,7 +230,7 @@ const addFileItemToDOM = (
           </div>
       </div>
   `;
-  fileListContainer.insertAdjacentHTML("beforeend", fileItemHTML);
+  fileListContainer.innerHTML = fileItemHTML;
 
   // Add event listener for the delete icon
   const deleteIcon = document.querySelector(`#${fileId} .delete-icon`);
@@ -216,6 +247,11 @@ const addFileItemToDOM = (
   }
 };
 
+/**
+ * Simulates file upload progress and updates the UI.
+ * @param {File} file The file being uploaded.
+ * @param {string} fileId The ID of the file item in the DOM.
+ */
 const simulateUpload = (file: File, fileId: string): void => {
   const fileItem = document.getElementById(fileId);
   if (!fileItem) return; // Ensure the file item exists
@@ -226,16 +262,12 @@ const simulateUpload = (file: File, fileId: string): void => {
   const progressPercentage = fileItem.querySelector(".progress-percentage");
   if (!progressPercentage) return; // Ensure the progress percentage exists
 
-  const statusText = fileItem.querySelector(".status-text");
-  const successIcon = fileItem.querySelector(".success-icon");
-
   let progress = 0;
   const intervalTime = 50; // Update every 50ms
   const totalSteps = 100; // Simulate 100 steps to reach 100%
   const increment = 100 / totalSteps;
 
   // Simulate random success or failure (e.g., 80% chance of success)
-  const isSuccess = Math.random() < 0.8;
   let uploadInterval: any;
 
   uploadInterval = setInterval(() => {
@@ -250,22 +282,204 @@ const simulateUpload = (file: File, fileId: string): void => {
       clearInterval(uploadInterval);
       fileItem.classList.remove("uploading"); // Remove uploading state
 
-      if (isSuccess) {
-        fileItem.classList.add("success");
-      } else {
-        fileItem.classList.add("error");
-      }
+      fileItem.classList.add("success");
     }
   }, intervalTime);
 };
 
-export const createFileDropField = (
+/**
+ * Creates a dropdown field for selecting document type.
+ * @param {FormState} state state containing form data and container.
+ * @param {FormField} field field configuration object.
+ * @returns {HTMLDivElement} A div element containing the dropdown field.
+ */
+const createDropdownField = (
   state: FormState,
   field: FormField
 ): HTMLDivElement => {
   const wrapper = document.createElement("div");
-  wrapper.className = `form-field file-upload-container ${field.cssClasses?.join(" ") || ""}`;
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
+  const dropdownId = field.id + "-dropdown";
+
+  const label = document.createElement("label");
+  label.innerHTML = getLabelText(state, field);
+  label.htmlFor = dropdownId;
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
+  wrapper.appendChild(label);
+
+  const select = document.createElement("select");
+  select.className = "input_box select-input";
+  select.id = dropdownId;
+  select.name = dropdownId;
+  select.required = Boolean(field.required);
+  select.dataset.fieldId = dropdownId;
+
+  // Placeholder
+  const placeholder = document.createElement("option");
+  placeholder.className = "select-placeholder";
+  placeholder.value = "";
+  placeholder.textContent =
+    getMultiLangText(state, field.placeholder) || "Select an Option";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.hidden = true;
+  select.appendChild(placeholder);
+
+  // Options
+  Object.entries(state.allowedValues[field.id] || {}).forEach(
+    ([value, labels]) => {
+      const option = document.createElement("option");
+      option.className = "select-option";
+      option.value = value;
+      option.textContent = getMultiLangText(state, labels);
+      select.appendChild(option);
+    }
+  );
+
+  const errorContainer = createErrorContainer();
+
+  const validateSelect = () => {
+    let isValid = true;
+    let lastError: "required" | null = null;
+    appendError(errorContainer, "");
+
+    if (field.required && !select.value) {
+      const result = handleRequiredValidation(state, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
+    }
+
+    state.lastErrors = state.lastErrors || {};
+    state.lastErrors[dropdownId] = lastError;
+
+    select.setCustomValidity(isValid ? "" : "Invalid input");
+    select.classList.toggle("error", !isValid);
+  };
+
+  select.addEventListener("change", (e) => {
+    const target = e.target as HTMLSelectElement;
+    (state.formData[field.id] as FileUploadData).docType = target.value;
+    select.style.color = target.value ? "black" : "";
+    validateSelect();
+  });
+
+  select.addEventListener("input", validateSelect);
+
+  wrapper.appendChild(select);
+  wrapper.appendChild(errorContainer);
+  return wrapper;
+};
+
+/**
+ * Creates a string field for entering reference ID.
+ * @param {FormState} state state containing form data and container.
+ * @param {FormField} field field configuration object.
+ * @returns {HTMLDivElement} A div element containing the string field.
+ */
+const createStringField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
+
+  const textFieldId = field.id + "-text";
+
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
+  const label = document.createElement("label");
+  label.innerHTML = getLabelText(state, field);
+  label.htmlFor = textFieldId;
+
+  const capsLockSpan = getCapsLockSpan(state, field);
+
+  if (field.info) {
+    const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
+    label.appendChild(infoIcon);
+  }
+
+  labelDiv.appendChild(label);
+  labelDiv.appendChild(capsLockSpan);
+
+  wrapper.appendChild(labelDiv);
+
+  const input = document.createElement("input");
+  input.className = "input_box";
+  input.type = "text";
+  input.id = textFieldId;
+  input.name = textFieldId;
+  input.required = Boolean(field.required);
+  input.dataset.fieldId = textFieldId;
+  input.value = (state.allowedValues[textFieldId] as string) || "";
+  input.placeholder = getMultiLangText(state, field.placeholder);
+
+  if (field.disabled || false) {
+    disableField(input);
+  }
+
+  const errorContainer = createErrorContainer();
+
+  enableCapsLockCheck(field, wrapper, input);
+
+  input.addEventListener("input", () => {
+    let isValid = true;
+    let lastError: "required" | number | null = null;
+    appendError(errorContainer, "");
+
+    const value = input.value.trim();
+
+    if (field.required && !value) {
+      const result = handleRequiredValidation(state, errorContainer);
+      lastError = result.lastError;
+      isValid = result.isValid;
+    } else if (value && Array.isArray(field.validators)) {
+      const result = handleRegexValidation(
+        state,
+        errorContainer,
+        field.validators,
+        value,
+        false
+      );
+      lastError = result.lastError;
+      isValid = result.isValid;
+    }
+
+    state.lastErrors = state.lastErrors || {};
+    state.lastErrors[textFieldId] = lastError;
+
+    input.setCustomValidity(isValid ? "" : "Invalid input");
+    input.classList.toggle("error", !isValid);
+  });
+
+  input.addEventListener("change", (e) => {
+    const target = e.target as HTMLInputElement;
+    (state.formData[field.id] as FileUploadData).refId = target.value;
+    input.dispatchEvent(new Event("input"));
+  });
+
+  wrapper.appendChild(input);
+  wrapper.appendChild(errorContainer);
+
+  return wrapper;
+};
+
+/**
+ * Creates file upload dropzone.
+ * @param {FormState} state state containing form data and container.
+ * @param {FormField} field field configuration object.
+ * @returns {HTMLDivElement} A div element containing the string field.
+ */
+const fileUploadField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
   const container = document.createElement("div");
   container.className = "drop-container";
 
@@ -285,7 +499,7 @@ export const createFileDropField = (
   hiddenFileInput.type = "file";
   hiddenFileInput.id = "fileInput";
   hiddenFileInput.className = "hidden-file-input";
-  hiddenFileInput.accept = field.acceptedFileTypes || "*/*"; // Default to all file types if not specified
+  hiddenFileInput.accept = field.acceptedFileTypes || "*/*";
 
   dropZone.appendChild(createUploadIconSpan("upload-icon"));
   dropZone.appendChild(uploadText);
@@ -300,8 +514,6 @@ export const createFileDropField = (
   container.appendChild(dropZone);
   container.appendChild(errorContainer);
   container.appendChild(fileListContainer);
-
-  wrapper.appendChild(container);
 
   hiddenFileInput.addEventListener("change", (event) => {
     if (hiddenFileInput.files) {
@@ -344,6 +556,40 @@ export const createFileDropField = (
       );
     }
   });
+
+  return container;
+};
+
+export const createFileDropField = (
+  state: FormState,
+  field: FormField
+): HTMLDivElement => {
+  // Initialize form data for the file upload
+  (state.formData[field.id] as FileUploadData) = {
+    value: "",
+    docType: "",
+    format: "",
+    refId: "",
+  };
+  // Create the wrapper for all fields
+  const wrapper = document.createElement("div");
+  wrapper.className = `form-field file-upload-section`;
+
+  // --- Dropdown field ---
+  // with id appended with `-dropdown`
+  // This is for the document type selection
+  const dropdownDiv = createDropdownField(state, field);
+  wrapper.appendChild(dropdownDiv);
+
+  // --- Textbox field ---
+  // with id appended with `-text`
+  // This is for the reference ID input
+  const textboxDiv = createStringField(state, field);
+  wrapper.appendChild(textboxDiv);
+
+  // --- File drop area (original logic, using field) ---
+  const fileUploadDiv = fileUploadField(state, field);
+  wrapper.appendChild(fileUploadDiv);
 
   return wrapper;
 };

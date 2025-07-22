@@ -364,7 +364,7 @@ const refreshLabels = (state: FormState): void => {
  * @param {FormState} state The current form state containing the container and form data.
  */
 const triggerAllEvents = (state: FormState) => {
-  const inputs = state.container.querySelectorAll("input, select");
+  const inputs = state.container.querySelectorAll("input:not([type='file']), select");
 
   inputs.forEach((input) => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
