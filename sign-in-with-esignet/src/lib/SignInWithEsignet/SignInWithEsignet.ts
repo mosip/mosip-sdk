@@ -59,7 +59,7 @@ function validateInput(oidcConfig: OidcConfigProp): string {
  * @param oidcConfig
  * @returns URL
  */
-function buildRedirectURL(oidcConfig: OidcConfigProp): string {
+function buildRedirectURL(oidcConfig: OidcConfigProp, dpop_jkt?: string): string {
   let urlToNavigate: string = oidcConfig?.authorizeUri + "?";
 
   if (oidcConfig?.nonce) urlToNavigate += "nonce=" + oidcConfig.nonce + "&";
@@ -97,6 +97,10 @@ function buildRedirectURL(oidcConfig: OidcConfigProp): string {
 
   if (oidcConfig?.ui_locales)
     urlToNavigate += "&ui_locales=" + oidcConfig.ui_locales;
+
+  if (dpop_jkt) {
+    urlToNavigate += "&dpop_jkt=" + dpop_jkt;
+  }
 
   return urlToNavigate;
 }
@@ -371,12 +375,12 @@ const createButton = (
   return anchor;
 };
 
-function rerenderButton (
+function rerenderButton(
   signInElement: HTMLElement,
   label: string,
   buttonCustomStyle: customStyle | null,
   buttonClasses: styleClasses | null,
-  buttonStyle: { [key: string]: string},
+  buttonStyle: { [key: string]: string },
   logoPath: string,
   errorMsg: string,
   buttonType: string | undefined
@@ -398,7 +402,7 @@ function rerenderButton (
 
 function buildErrorRedirectUrl(
   errorDescription: string,
-  errorCode: string = "request_uri_error",
+  errorCode: string,
   oidcConfig: OidcConfigProp
 ): boolean {
   if (!oidcConfig.redirect_uri) return false;
@@ -424,7 +428,8 @@ function promiseWithTimeout<T>(
 
 async function par_callback(
   callbackFunction: CallbackFunctionProp,
-  oidcConfig: OidcConfigProp
+  oidcConfig: OidcConfigProp,
+  dpop_jkt?: string
 ): Promise<string> {
   if (!oidcConfig.client_id) {
     return errorMessage.clientIdMissing;
@@ -433,10 +438,28 @@ async function par_callback(
     return await callbackFunction(
       oidcConfig.client_id,
       oidcConfig.state,
-      oidcConfig.ui_locales
+      oidcConfig.ui_locales,
+      dpop_jkt
     );
   } catch (error) {
     return errorMessage.requestUriFailed;
+  }
+}
+
+async function dpop_callback(
+  callbackFunction: CallbackFunctionProp,
+  oidcConfig: OidcConfigProp
+): Promise<string> {
+  if (!oidcConfig.client_id) {
+    return errorMessage.clientIdMissing;
+  }
+  try {
+    return await callbackFunction(
+      oidcConfig.client_id,
+      oidcConfig.state
+    );
+  } catch (error) {
+    return errorMessage.dpopFailed;
   }
 }
 
@@ -452,6 +475,11 @@ const SignInWithEsignet = async ({
 }: ISignInWithEsignetProps): Promise<HTMLElement> => {
   let { oidcConfig, buttonConfig, signInElement, style } = props;
 
+  const hasFunction = (fn: unknown): fn is Function => typeof fn === "function";
+
+  const hasDpopCallback = oidcConfig && hasFunction(oidcConfig.dpop_callback);
+  const hasParCallback = oidcConfig && hasFunction(oidcConfig.par_callback);
+
   if (signInElement == null) {
     return signInElement;
   }
@@ -459,77 +487,128 @@ const SignInWithEsignet = async ({
   //validate input
   let errorMsg = validateInput(oidcConfig);
   let urlToNavigate = "#";
-  let onClickHandler: ((event: MouseEvent) => void) | undefined = undefined;
-  if (
-    oidcConfig &&
-    oidcConfig.par_callback &&
-    typeof oidcConfig.par_callback === "function"
-  ) {
-    onClickHandler = async (event: MouseEvent) => {
-      event.preventDefault();
-      const timeoutMs = getTimeoutMs(oidcConfig.par_callback_timeout, 5000);
-      const result = await promiseWithTimeout(
-        par_callback(oidcConfig.par_callback!, oidcConfig),
-        timeoutMs
-      );
-      if (result === "timeout") {
-        const redirected = buildErrorRedirectUrl(
-          errorMessage.requestUriTimeout,
-          "request_uri_timeout",
-          oidcConfig
-        );
-        if(!redirected) {
-          errorMsg = errorMessage.requestUriTimeout;
-          rerenderButton(
-            signInElement,
-            label,
-            buttonCustomStyle,
-            buttonClasses,
-            buttonStyle,
-            logoPath,
-            errorMsg,
-            buttonConfig.type
-          )
-        }
-        return;
-      }
-      if (
-        typeof result === "string" &&
-        result.startsWith("urn:ietf:params:oauth:request_uri:")
-      ) {
-        urlToNavigate = `${
-          oidcConfig.authorizeUri
-        }?client_id=${encodeURIComponent(
-          oidcConfig.client_id
-        )}&request_uri=${encodeURIComponent(result)}`;
-        window.location.href = urlToNavigate;
-        return;
-      }
+  const handleParCallback = async (event: MouseEvent, dpop_jkt?: string) => {
+    event.preventDefault();
+
+    const timeoutMs = getTimeoutMs(oidcConfig.par_callback_timeout, 5000);
+    const result = await promiseWithTimeout(
+      par_callback(oidcConfig.par_callback!, oidcConfig, dpop_jkt),
+      timeoutMs
+    );
+
+    if (result === "timeout") {
       const redirected = buildErrorRedirectUrl(
-        errorMessage.requestUriFailed,
-        "request_uri_error",
+        errorMessage.requestUriTimeout,
+        "request_uri_timeout",
         oidcConfig
       );
-      if(!redirected) {
-          errorMsg = errorMessage.requestUriFailed;
-          rerenderButton(
-            signInElement,
-            label,
-            buttonCustomStyle,
-            buttonClasses,
-            buttonStyle,
-            logoPath,
-            errorMsg,
-            buttonConfig.type
-          )
-        }
+      if (!redirected) {
+        errorMsg = errorMessage.requestUriTimeout;
+        rerenderButton(
+          signInElement,
+          label,
+          buttonCustomStyle,
+          buttonClasses,
+          buttonStyle,
+          logoPath,
+          errorMsg,
+          buttonConfig.type
+        );
+      }
       return;
-    };
-  } else {
-    if (!errorMsg) {
-      urlToNavigate = buildRedirectURL(oidcConfig);
     }
+
+    if (
+      typeof result === "string" &&
+      result.startsWith("urn:ietf:params:oauth:request_uri:")
+    ) {
+      urlToNavigate = `${oidcConfig.authorizeUri}?client_id=${encodeURIComponent(
+        oidcConfig.client_id
+      )}&request_uri=${encodeURIComponent(result)}`;
+      window.location.href = urlToNavigate;
+      return;
+    }
+
+    const redirected = buildErrorRedirectUrl(
+      errorMessage.requestUriFailed,
+      "request_uri_error",
+      oidcConfig
+    );
+    if (!redirected) {
+      errorMsg = errorMessage.requestUriFailed;
+      rerenderButton(
+        signInElement,
+        label,
+        buttonCustomStyle,
+        buttonClasses,
+        buttonStyle,
+        logoPath,
+        errorMsg,
+        buttonConfig.type
+      );
+    }
+  };
+
+  const handleDPopCallback = async (event: MouseEvent) => {
+    event.preventDefault();
+    return await
+      dpop_callback(oidcConfig.dpop_callback!, oidcConfig)
+      ;
   }
+
+  let onClickHandler: ((event: MouseEvent) => void | Promise<void>) | undefined;
+
+  onClickHandler = async (event: MouseEvent) => {
+    event.preventDefault();
+
+    try {
+      let dpop_jkt: string = "";
+      if (hasDpopCallback) {
+        // Wait for DPoP callback first
+        const dpop_response = await handleDPopCallback(event);
+        if (dpop_response && !Object.values(errorMessage).includes(dpop_response)) {
+          dpop_jkt = dpop_response;
+        }
+        else {
+          const redirected = buildErrorRedirectUrl(
+            dpop_response,
+            "dpop_failed",
+            oidcConfig
+          );
+          if (!redirected) {
+            errorMsg = errorMessage.dpopFailed;
+            rerenderButton(
+              signInElement,
+              label,
+              buttonCustomStyle,
+              buttonClasses,
+              buttonStyle,
+              logoPath,
+              errorMsg,
+              buttonConfig.type
+            );
+          }
+          return;
+        }
+        if (hasParCallback) {
+          // Then handle PAR if available
+          await handleParCallback(event, dpop_jkt);
+        } else if (!errorMsg) {
+          urlToNavigate = buildRedirectURL(oidcConfig, dpop_jkt);
+          window.location.href = urlToNavigate;
+        }
+      } else if (hasParCallback) {
+        // Only PAR
+        await handleParCallback(event);
+      } else if (!errorMsg) {
+        // Fallback redirect
+        urlToNavigate = buildRedirectURL(oidcConfig);
+        window.location.href = urlToNavigate;
+      }
+    } catch (err) {
+      console.error("Error in button handler:", err);
+    }
+  };
 
   if (!buttonConfig) {
     //default values
