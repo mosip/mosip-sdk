@@ -551,9 +551,7 @@ const SignInWithEsignet = async ({
 
   const handleDPopCallback = async (event: MouseEvent) => {
     event.preventDefault();
-    return await
-      dpop_callback(oidcConfig.dpop_callback!, oidcConfig)
-      ;
+    return await dpop_callback(oidcConfig.dpop_callback!, oidcConfig);
   }
 
   let onClickHandler: ((event: MouseEvent) => void | Promise<void>) | undefined;
