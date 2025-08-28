@@ -13,12 +13,18 @@ interface OidcConfigProp {
   display?: string;
   max_age?: number;
   prompt?: string;
-  par_callback?: (clientId: string) => Promise<string>; 
-  par_callback_timeout?: number; 
+  par_callback?: (clientId: string) => Promise<string>;
+  par_callback_timeout?: number;
+  dpop_callback?: () => Promise<string>;
 }
 
 interface CallbackFunctionProp {
-  (clientId: string, state?: string, ui_locales?: string): Promise<string>;
+  (
+    clientId: string,
+    state?: string,
+    ui_locales?: string,
+    dpop_jkt?: string
+  ): Promise<string>;
 }
 
 interface ButtonConfigProp {
@@ -50,4 +56,4 @@ interface ISignInWithEsignetProps {
   style: { [key: string]: string };
 }
 
-export { OidcConfigProp, CallbackFunctionProp ,ButtonConfigProp, ISignInWithEsignetProps };
+export { OidcConfigProp, CallbackFunctionProp, ButtonConfigProp, ISignInWithEsignetProps };
