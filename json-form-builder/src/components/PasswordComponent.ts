@@ -189,8 +189,8 @@ export const createPasswordField = (
     confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
   } else {
     // If no additionalSchema, take value from label & placeholder of password field
-    Object.keys(field.label).forEach((lang) => {
-      confirmLabel[lang] = `Confirm ${field.label[lang]}`;
+    Object.keys(field.labelName).forEach((lang) => {
+      confirmLabel[lang] = `Confirm ${field.labelName[lang]}`;
     });
 
     Object.keys(field.placeholder || {}).forEach((lang) => {

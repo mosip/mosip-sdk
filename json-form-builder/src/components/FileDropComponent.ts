@@ -62,35 +62,24 @@ const createUploadIconSpan = (spanId: string): HTMLSpanElement => {
  * Max file size validation handler.
  * Validates the uploaded files against the maximum file size defined in the form state.
  * @param {FormState} state Current form state containing schema, container, and other properties.
- * @param {Validator[]} validators Current field validators.
  * @param {FileList} files File uploaded by the user.
  * @param {HTMLDivElement} errorContainer Error container to display validation errors.
  * @returns { lastError: number | null; isValid: boolean } an object containing the last error and validation status.
  */
 const handleMaxFileSizeValidation = (
   state: FormState,
-  validators: Validator[] | undefined,
   file: File,
   errorContainer: HTMLDivElement
 ): { lastError: number | null; isValid: boolean } => {
   let isValid = true;
   let lastError: number | null = null;
 
-  if (validators?.length) {
-    for (let i = 0; i < validators.length; i++) {
-      const validator = validators[i];
-      if (validator.maxFileSize && file) {
-        const maxFileSize = validator.maxFileSize * 1024 * 1024;
-        if (file.size > maxFileSize) {
-          appendError(
-            errorContainer,
-            getMultiLangText(state, validator.error) ||
-              "File size exceeds limit"
-          );
-          return { lastError: i, isValid: false };
-        }
-      }
-    }
+  if (file.size > state.maxUploadFileSize) {
+    appendError(
+      errorContainer,
+      getMultiLangText(state, state.fallbackErrors.fileSizeExceeded || {}) || "File size exceeds limit"
+    );
+    return { lastError: 0, isValid: false };
   }
 
   return { lastError, isValid };
@@ -116,20 +105,24 @@ const validateFile = (
   // Check for max file size validation
   const maxFileSizeResult = handleMaxFileSizeValidation(
     state,
-    field.validators,
     file,
     errorContainer
   );
+
   if (!maxFileSizeResult.isValid) {
     lastError = maxFileSizeResult.lastError;
     isValid = false;
-    appendError(errorContainer, `Max file size exceeded: ${file.name}`);
+    // appendError(errorContainer, `Max file size exceeded: ${file.name}`);
   }
 
   const allowedTypes =
     field.acceptedFileTypes?.split(",").map((_) => _.trim()) || [];
   if (!allowedTypes.includes(file.type)) {
-    appendError(errorContainer, `File type ${file.type} is not allowed.`);
+    const errorMessage = getMultiLangText(
+      state,
+      state.fallbackErrors.fileNotSupported || {}
+    ) || `File type ${file.type} is not allowed.`;
+    appendError(errorContainer, errorMessage);
     lastError = 0; // Assuming 0 is the index for file type validation error
     isValid = false;
   }

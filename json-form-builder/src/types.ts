@@ -14,9 +14,9 @@ export interface FormField {
     | "checkbox"
     | "phone"
     | "photo"
-    | "file";
+    | "fileupload";
   type?: "string" | "simpleType";
-  label: Label;
+  labelName: Label;
   required?: boolean;
   validators?: Validator[];
   alignmentGroup?: string;
@@ -80,6 +80,12 @@ export interface FormConfig {
   language: LanguageSettings;
   allowedValues?: AllowedValues;
   errors?: Errors;
+  maxUploadFileSize?: number; // in kilo bytes
+  i18nValues?: {
+    errors?: Errors;
+    labels?: {[id: string]: Label};
+    placeholders?: {[id: string]: Label};
+  }
 }
 
 export interface FileUploadData {
@@ -135,4 +141,7 @@ export interface FormState {
   languageMap: KeyValuePair;
   additionalSchema?: AdditionalSchema;
   isSubmitting: boolean;
+  maxUploadFileSize: number; // in kilo bytes
+  labels: {[id: string]: Label};
+  placeholders: {[id: string]: Label};
 }

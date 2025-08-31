@@ -6,7 +6,7 @@ const ControlType = {
   CHECKBOX: "checkbox",
   PHONE: "phone",
   PHOTO: "photo",
-  FILE: "file",
+  FILE: "fileupload",
 };
 
 const InputType = {

@@ -10,17 +10,17 @@ type LabelObject = Record<string, string>;
  */
 const getLabelText = (
   state: FormState,
-  field: FormField,
+  field: FormField | null,
   additionalLabel?: LabelObject
 ): string => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
 
-  const labels = additionalLabel || field.label;
+  const labels = additionalLabel || field?.labelName;
 
   let labelText = getMultiLangText(state, labels, false, lang, defaultLang);
 
-  if (field.required) {
+  if (field?.required) {
     labelText += '<span class="required">*</span>';
   }
 

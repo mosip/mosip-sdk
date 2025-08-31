@@ -7,6 +7,7 @@ import {
   AdditionalConfig,
   AdditionalSchema,
   KeyValuePair,
+  FileUploadData,
 } from "./types";
 
 import {
@@ -215,9 +216,9 @@ const refreshLabels = (state: FormState): void => {
           confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
         } else {
           // If no additionalSchema, take value from label & placeholder of password field
-          Object.keys(field.label || {}).forEach((code) => {
+          Object.keys(field.labelName || {}).forEach((code) => {
             const mapped = state.languageMap[code] || code;
-            confirmLabel[mapped] = `Confirm ${field.label[code]}`;
+            confirmLabel[mapped] = `Confirm ${field.labelName[code]}`;
           });
 
           Object.keys(field.placeholder || {}).forEach((code) => {
@@ -233,8 +234,8 @@ const refreshLabels = (state: FormState): void => {
         );
         if (confirmLabelElement) {
           confirmLabelElement.innerHTML = getLabelText(
-            { ...state, schema: [{ ...field, label: confirmLabel }] },
-            { ...field, label: confirmLabel },
+            { ...state, schema: [{ ...field, labelName: confirmLabel }] },
+            { ...field, labelName: confirmLabel },
             confirmLabel
           );
 
@@ -255,6 +256,29 @@ const refreshLabels = (state: FormState): void => {
         if (confirmInput) {
           confirmInput.placeholder =
             getMultiLangText(state, confirmPlaceholder) || "";
+        }
+      }
+
+      if (field.controlType === ControlType.PHOTO && labelElement) {
+        // for changing capture button text after language update
+        // if main image is selected, show capture button
+        // otherwise, show click to upload button
+        const mainImageContainer =
+          labelElement.parentElement?.querySelector(".selected-image") ||
+          labelElement.parentElement?.querySelector(`video#${field.id}-video`);
+        const buttonElement =
+          labelElement.parentElement?.querySelector(".capture-button");
+
+        if (buttonElement) {
+          const buttonLabel = mainImageContainer
+            ? state.labels?.capturePhoto
+            : state.labels?.clickToUpload;
+          const alternativeLabel = mainImageContainer
+            ? "Capture Photo"
+            : "Click To Upload";
+
+          buttonElement.innerHTML =
+            getLabelText(state, null, buttonLabel) || alternativeLabel;
         }
       }
     }
@@ -310,18 +334,25 @@ const refreshLabels = (state: FormState): void => {
 
     // Simple validation example for required and regex validators:
     if (field.required) {
-      // find the input(s) for this field (assuming first input for simplicity)
-      const inputElement = state.container.querySelector(
-        `input[data-field-id="${field.id}"]`
-      ) as HTMLInputElement | null;
-      if (inputElement && !inputElement.value.trim()) {
-        lastError = "required";
-      } else if (Array.isArray(field.validators) && inputElement) {
-        for (let i = 0; i < field.validators.length; i++) {
-          const validator = new RegExp(field.validators[i]?.regex || "");
-          if (!validator.test(inputElement.value)) {
-            lastError = i;
-            break;
+      if (field.controlType === ControlType.PHOTO) {
+        const photoData = state.formData[field.id] as FileUploadData;
+        if (photoData.value === "") {
+          lastError = "required";
+        }
+      } else {
+        // find the input(s) for this field (assuming first input for simplicity)
+        const inputElement = state.container.querySelector(
+          `input[data-field-id="${field.id}"]`
+        ) as HTMLInputElement | null;
+        if (inputElement && !inputElement.value.trim()) {
+          lastError = "required";
+        } else if (Array.isArray(field.validators) && inputElement) {
+          for (let i = 0; i < field.validators.length; i++) {
+            const validator = new RegExp(field.validators[i]?.regex || "");
+            if (!validator.test(inputElement.value)) {
+              lastError = i;
+              break;
+            }
           }
         }
       }
@@ -364,7 +395,9 @@ const refreshLabels = (state: FormState): void => {
  * @param {FormState} state The current form state containing the container and form data.
  */
 const triggerAllEvents = (state: FormState) => {
-  const inputs = state.container.querySelectorAll("input:not([type='file']), select");
+  const inputs = state.container.querySelectorAll(
+    "input:not([type='file']), select"
+  );
 
   inputs.forEach((input) => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -482,13 +515,16 @@ const JsonFormBuilder = (
     ],
     isRTL: false,
     recaptcha: additionalConfig.recaptcha,
-    fallbackErrors: config.errors || {},
+    fallbackErrors: config.i18nValues?.errors || {},
     lastErrors: {},
     languageMap: buildBidirectionalLanguageMap(
       config.language.langCodeMap || {}
     ),
     additionalSchema: additionalConfig.additionalSchema || {},
     isSubmitting: false,
+    maxUploadFileSize: config.maxUploadFileSize || 5120, // Default to 5MB
+    labels: config.i18nValues?.labels || {},
+    placeholders: config.i18nValues?.placeholders || {},
   };
 
   /**
