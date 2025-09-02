@@ -161,13 +161,15 @@ const convertFileToBase64 = (state: FormState, fieldId: string, file: File) => {
  * @param {FileList} files The list of files dropped by the user.
  * @param {HTMLDivElement} fileListContainer The container to display the list of uploaded files.
  * @param {HTMLDivElement} errorContainer The container to display validation errors.
+ * @param {boolean} trustedEvent flag to determine whether it is interacted by user or programmatically triggered
  */
 const handleFiles = (
   state: FormState,
   field: FormField,
   files: FileList,
   fileListContainer: HTMLDivElement,
-  errorContainer: HTMLDivElement
+  errorContainer: HTMLDivElement,
+  trustedEvent: boolean = false
 ): void => {
   appendError(errorContainer, ""); // Clear previous errors
   const file = files[0];
@@ -185,9 +187,13 @@ const handleFiles = (
 
   convertFileToBase64(state, field.id, file);
 
-  const fileId = `file-${Date.now()}`;
-  addFileItemToDOM(file, fileId, fileListContainer);
-  simulateUpload(file, fileId);
+  // if the event is occurred due to interaction of a user
+  // then simulate the upload and show the file
+  if (trustedEvent) {
+    const fileId = `file-${Date.now()}`;
+    addFileItemToDOM(file, fileId, fileListContainer);
+    simulateUpload(file, fileId);
+  }
 };
 
 /**
@@ -293,10 +299,10 @@ const createDropdownField = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-  const dropdownId = field.id + "-dropdown";
+  const dropdownId = field.id + "-doc-type";
 
   const label = document.createElement("label");
-  label.innerHTML = getLabelText(state, field);
+  label.innerHTML = getLabelText(state, field, state?.labels?.docType);
   label.htmlFor = dropdownId;
 
   if (field.info) {
@@ -318,14 +324,15 @@ const createDropdownField = (
   placeholder.className = "select-placeholder";
   placeholder.value = "";
   placeholder.textContent =
-    getMultiLangText(state, field.placeholder) || "Select an Option";
+    getMultiLangText(state, state?.placeholders?.docType) || "Select an Option";
   placeholder.disabled = true;
   placeholder.selected = true;
   placeholder.hidden = true;
   select.appendChild(placeholder);
 
   // Options
-  Object.entries(state.allowedValues[field.id] || {}).forEach(
+  const docType = field.subType || "POI"
+  Object.entries(state.allowedValues[docType] || {}).forEach(
     ([value, labels]) => {
       const option = document.createElement("option");
       option.className = "select-option";
@@ -382,13 +389,13 @@ const createStringField = (
   const wrapper = document.createElement("div");
   wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
 
-  const textFieldId = field.id + "-text";
+  const textFieldId = field.id + "-doc-ref";
 
   const labelDiv = document.createElement("div");
   labelDiv.className = "label-div-display";
 
   const label = document.createElement("label");
-  label.innerHTML = getLabelText(state, field);
+  label.innerHTML = getLabelText(state, field, state?.labels?.docRef);
   label.htmlFor = textFieldId;
 
   const capsLockSpan = getCapsLockSpan(state, field);
@@ -408,10 +415,9 @@ const createStringField = (
   input.type = "text";
   input.id = textFieldId;
   input.name = textFieldId;
-  input.required = Boolean(field.required);
   input.dataset.fieldId = textFieldId;
   input.value = (state.allowedValues[textFieldId] as string) || "";
-  input.placeholder = getMultiLangText(state, field.placeholder);
+  input.placeholder = getMultiLangText(state, state?.placeholders?.docRef);
 
   if (field.disabled || false) {
     disableField(input);
@@ -474,23 +480,34 @@ const fileUploadField = (
   field: FormField
 ): HTMLDivElement => {
   const container = document.createElement("div");
-  container.className = "drop-container";
+  container.className = "form-field drop-container";
+
+  const uploadFieldId = field.id + '-doc-proof'
+
+  const labelDiv = document.createElement("div");
+  labelDiv.className = "label-div-display";
+
+  const label = document.createElement("label");
+  label.innerHTML = getLabelText(state, field, state?.labels?.proofOfDoc);
+  label.htmlFor = uploadFieldId;
+
+  labelDiv.appendChild(label);
 
   const dropZone = document.createElement("div");
   dropZone.className = "drop-zone";
-  dropZone.id = field.id;
+  dropZone.id = uploadFieldId;
 
   const uploadIcon = document.createElement("i");
   uploadIcon.className = "fas fa-cloud-upload-alt upload-icon";
   const uploadText = document.createElement("p");
   uploadText.className = "upload-text";
   uploadText.innerHTML =
-    getMultiLangText(state, field.placeholder) ||
+    getMultiLangText(state, state?.placeholders?.proofOfDoc) ||
     "Click to upload or drag and drop";
 
   const hiddenFileInput = document.createElement("input");
   hiddenFileInput.type = "file";
-  hiddenFileInput.id = "fileInput";
+  hiddenFileInput.id = field.id + "-doc-file";
   hiddenFileInput.className = "hidden-file-input";
   hiddenFileInput.accept = field.acceptedFileTypes || "*/*";
 
@@ -504,6 +521,7 @@ const fileUploadField = (
 
   const errorContainer = createErrorContainer();
 
+  container.appendChild(labelDiv);
   container.appendChild(dropZone);
   container.appendChild(errorContainer);
   container.appendChild(fileListContainer);
@@ -515,7 +533,8 @@ const fileUploadField = (
         field,
         hiddenFileInput.files,
         fileListContainer,
-        errorContainer
+        errorContainer,
+        event.isTrusted
       );
     }
   });
@@ -566,7 +585,12 @@ export const createFileDropField = (
   };
   // Create the wrapper for all fields
   const wrapper = document.createElement("div");
-  wrapper.className = `form-field file-upload-section`;
+  wrapper.className = `form-field-group file-upload-section`;
+
+  const label = document.createElement("label");
+  label.innerHTML = getLabelText(state, field);
+
+  wrapper.appendChild(label);
 
   // --- Dropdown field ---
   // with id appended with `-dropdown`

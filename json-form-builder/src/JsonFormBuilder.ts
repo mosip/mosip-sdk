@@ -109,6 +109,127 @@ const createLoadingIcon = (): HTMLDivElement => {
 };
 
 /**
+ * This function refresh placeholder and options of the given select element
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ * @param {HTMLSelectElement} selectElement The select element to refresh.
+ * @param {string} fieldId The ID of the field associated with the dropdown.
+ * @param {Label | Undefined} optionPlaceholder The placeholder text for the dropdown.
+ */
+const refreshDropdownPlaceholderOptions = (
+  state: FormState,
+  selectElement: HTMLSelectElement | null | undefined,
+  fieldId: string,
+  optionPlaceholder: Label | undefined
+) => {
+  if (!selectElement) {
+    return;
+  }
+  const lang = state.currentLanguage;
+  const defaultLang = state.defaultLanguage;
+  const selectedValue = selectElement.value;
+  selectElement.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent =
+    getMultiLangText(state, optionPlaceholder, false, lang, defaultLang) ||
+    "Select an Option";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.hidden = true;
+  selectElement.appendChild(placeholder);
+
+  Object.entries(state.allowedValues[fieldId] || {}).forEach(
+    ([value, labels]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = getMultiLangText(
+        state,
+        labels,
+        false,
+        lang,
+        defaultLang
+      );
+      option.selected = value === selectedValue;
+      selectElement.appendChild(option);
+    }
+  );
+};
+
+/**
+ * This function refresh labels, placeholder for fileupload element
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @param {NodeListOf<HTMLLabelElement>} docLabelList List of HTML Label element
+ */
+const refreshFileDropdown = (
+  state: FormState,
+  field: FormField,
+  docLabelList: NodeListOf<HTMLLabelElement>
+) => {
+  if (docLabelList.length <= 0) {
+    return;
+  }
+  const lang = state.currentLanguage;
+  const defaultLang = state.defaultLanguage;
+
+  const labelText = getLabelText(state, field);
+  const uploadSectionLabel = docLabelList[0]
+    .closest(".form-field-group")
+    ?.querySelector("label");
+  if (uploadSectionLabel) {
+    uploadSectionLabel.innerHTML = labelText;
+  }
+
+  docLabelList.forEach((el: Element) => {
+    const elFor = el.getAttribute("for");
+    let labelName = "";
+    if (elFor === `${field.id}-doc-type`) {
+      labelName = "docType";
+      const selectElement = el
+        .closest(".form-field")
+        ?.querySelector(`[id^="${field.id}-doc-type"]`) as HTMLSelectElement;
+
+      refreshDropdownPlaceholderOptions(
+        state,
+        selectElement,
+        field.subType || "POI",
+        state?.placeholders?.docType
+      );
+    } else if (elFor === `${field.id}-doc-ref`) {
+      labelName = "docRef";
+      const inputElement = el
+        .closest(".form-field")
+        ?.querySelector(`[id^="${field.id}-doc-ref"]`) as HTMLInputElement;
+
+      if (inputElement) {
+        inputElement.placeholder = getMultiLangText(
+          state,
+          state?.placeholders?.docRef,
+          false,
+          lang,
+          defaultLang
+        );
+      }
+    } else if (elFor === `${field.id}-doc-proof`) {
+      labelName = "proofOfDoc";
+      const uploadText = el
+        .closest(".form-field")
+        ?.querySelector("p.upload-text");
+      if (uploadText) {
+        uploadText.innerHTML =
+          getMultiLangText(state, state?.placeholders?.proofOfDoc) ||
+          "Click to upload or drag and drop";
+      }
+    }
+
+    if (labelName) {
+      el.innerHTML = getLabelText(state, field, state?.labels[labelName]);
+    }
+  });
+};
+
+/**
  * Refreshes all labels in the form based on the current language and schema.
  * It updates the labels for inputs, selects, and error messages according to the current language.
  * @param {FormState} state The current form state containing schema, container, and other properties.
@@ -158,17 +279,11 @@ const refreshLabels = (state: FormState): void => {
         );
       });
     } else if (field.controlType === ControlType.FILE) {
-      const fieldGroup = state.container
-        .querySelector(`.form-field-group div[id="${field.id}"]`)
-        ?.closest(".form-field-group");
+      const docLabelList = state.container.querySelectorAll(
+        `label[for^="${field.id}"]`
+      ) as NodeListOf<HTMLLabelElement>;
 
-      const uploadText = fieldGroup?.querySelector(".upload-text");
-
-      if (uploadText) {
-        uploadText.innerHTML =
-          getMultiLangText(state, field.placeholder) ||
-          "Click to upload or drag and drop";
-      }
+      refreshFileDropdown(state, field, docLabelList);
     } else {
       // changing label text after language update
       const labelElement = state.container.querySelector(
@@ -287,41 +402,12 @@ const refreshLabels = (state: FormState): void => {
       const select = state.container.querySelector(
         `select#${field.id}`
       ) as HTMLSelectElement;
-      if (select) {
-        const selectedValue = select.value;
-        select.innerHTML = "";
-
-        const placeholder = document.createElement("option");
-        placeholder.value = "";
-        placeholder.textContent =
-          getMultiLangText(
-            state,
-            field.placeholder,
-            false,
-            lang,
-            defaultLang
-          ) || "Select an Option";
-        placeholder.disabled = true;
-        placeholder.selected = true;
-        placeholder.hidden = true;
-        select.appendChild(placeholder);
-
-        Object.entries(state.allowedValues[field.id] || {}).forEach(
-          ([value, labels]) => {
-            const option = document.createElement("option");
-            option.value = value;
-            option.textContent = getMultiLangText(
-              state,
-              labels,
-              false,
-              lang,
-              defaultLang
-            );
-            option.selected = value === selectedValue;
-            select.appendChild(option);
-          }
-        );
-      }
+      refreshDropdownPlaceholderOptions(
+        state,
+        select,
+        field.id,
+        field.placeholder
+      );
     }
 
     const errorContainer = state.container.querySelector(
@@ -359,7 +445,7 @@ const refreshLabels = (state: FormState): void => {
     }
 
     state.lastErrors[field.id] = lastError;
-
+    
     // Show error messages if error container exists and error present
     if (errorContainer && lastError != null) {
       let errorText = "";
@@ -396,7 +482,7 @@ const refreshLabels = (state: FormState): void => {
  */
 const triggerAllEvents = (state: FormState) => {
   const inputs = state.container.querySelectorAll(
-    "input:not([type='file']), select"
+    "input, select"
   );
 
   inputs.forEach((input) => {
@@ -522,7 +608,7 @@ const JsonFormBuilder = (
     ),
     additionalSchema: additionalConfig.additionalSchema || {},
     isSubmitting: false,
-    maxUploadFileSize: config.maxUploadFileSize || 5120, // Default to 5MB
+    maxUploadFileSize: config.maxUploadFileSize || 5242880, // Default to 5MB given as bytes
     labels: config.i18nValues?.labels || {},
     placeholders: config.i18nValues?.placeholders || {},
   };
@@ -650,7 +736,7 @@ const JsonFormBuilder = (
 
     if (isValid) {
       // Ensure all form data is up to date
-      form.querySelectorAll("input").forEach((el) => {
+      form.querySelectorAll("input:not([type='hidden'])").forEach((el) => {
         const input = el as HTMLInputElement;
         const fieldId = input.dataset.fieldId;
         const lang = input.dataset.lang;

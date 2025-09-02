@@ -362,10 +362,13 @@ const getCapsLockSpan = (
 const checkCapsLock = (
   event: KeyboardEvent | MouseEvent,
   capsLockSpan: HTMLSpanElement
-) =>
-  (capsLockSpan.style.display = (event as any)?.getModifierState("CapsLock")
-    ? "inline-flex"
-    : "none");
+) => {
+  if ('getModifierState' in event) {
+    capsLockSpan.style.display = event.getModifierState("CapsLock")
+      ? "inline-flex"
+      : "none";
+  }
+};
 
 /**
  * Enables caps lock check for a form field.
