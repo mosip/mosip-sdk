@@ -324,24 +324,24 @@ const refreshLabels = (state: FormState): void => {
         const confirmId = `${field.id}_confirm`;
         let confirmLabel: Label = {};
         let confirmPlaceholder: Label = {};
-        // checking if additionalSchema has confirm field details
-        // If it does, use those details; otherwise, build a default confirm label and placeholder
-        if (state.additionalSchema && state.additionalSchema[confirmId]) {
-          confirmLabel = state.additionalSchema[confirmId].label;
-          confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
-        } else {
-          // If no additionalSchema, take value from label & placeholder of password field
-          Object.keys(field.labelName || {}).forEach((code) => {
-            const mapped = state.languageMap[code] || code;
-            confirmLabel[mapped] = `Confirm ${field.labelName[code]}`;
-          });
 
-          Object.keys(field.placeholder || {}).forEach((code) => {
-            const mapped = state.languageMap[code] || code;
-            if (field.placeholder) {
-              confirmPlaceholder[mapped] = `Confirm ${field.placeholder[code]}`;
-            }
-          });
+        if (state.labels && confirmId in state.labels) {
+          confirmLabel = { ...state.labels[confirmId] };
+        } else {
+          for (let lang in field.labelName) {
+            confirmLabel[lang] = `Confirm ${field.labelName[lang]}`;
+          }
+        }
+
+        if (state.placeholders && confirmId in state.placeholders) {
+          confirmPlaceholder = { ...state.placeholders[confirmId] };
+        } else {
+          const placeholdersToConfirm = field.placeholder || {};
+          for (const lang in placeholdersToConfirm) {
+            confirmPlaceholder[lang] = placeholdersToConfirm[lang]
+              ? `Confirm ${placeholdersToConfirm[lang]}`
+              : "";
+          }
         }
 
         const confirmLabelElement = state.container.querySelector(
