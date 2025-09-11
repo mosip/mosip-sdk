@@ -285,5 +285,10 @@ export const createPhoneField = (
   wrapper.appendChild(inputDiv);
   wrapper.appendChild(errorContainer);
 
-  return wrapper;
+  const parentNode = document.createElement("div");
+  parentNode.className = "form-field-group";
+
+  parentNode.appendChild(wrapper);
+  
+  return parentNode;
 };

@@ -274,5 +274,10 @@ export const createPhotoField = (
     }
   });
 
-  return wrapper;
+  const parentNode = document.createElement("div");
+  parentNode.className = "form-field-group";
+
+  parentNode.appendChild(wrapper);
+  
+  return parentNode;
 };
