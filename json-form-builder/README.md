@@ -28,17 +28,29 @@ import { JsonFormBuilder } from "anushase@json-form-builder";
 const config = {
   schema: [
     {
-      id: "name",
-      controlType: "textbox",
-      label: {
+      // id of the element you want
+      id: "name", 
+      // what type of element you need, it can be password, date, dropdown and
+      // checkbox as well
+      controlType: "textbox", 
+      // type can be string or simpleType, simpleType will display multiple input
+      // field for the same element in different language specified in label object
+      type: "string",
+      // show label in multiple language, it can also be used to display multiple
+      // input box for simpleType as type
+      label: { 
         eng: "Name",
         fra: "Nom",
       },
+      // placeholder detail in multiple language
       placeholder: {
         eng: "Enter your name",
         fra: "Entrez votre nom"
       },
+      // caps lock check will be true if you want to show caps lock warning
       capsLockCheck: true,
+      // validator array, in which it contains regex & error messages in multiple language
+      // it can also contain a langCode, which will apply regex in that specific language
       validator: [
         {
           regex: "^[a-zA-Z]{4,35}$",
@@ -48,15 +60,19 @@ const config = {
           }
         }
       ],
+      // info icon besides label, when clicked it open a info box with relevant detail
       info: {
         eng: "Your name should contain letters only and should be of length between 4 to 35",
         fra: "Votre nom doit contenir uniquement des lettres et doit avoir une longueur comprise entre 4 et 35"
-      }
+      },
+      // element will be a required field if it is true
       required: true,
     },
     // ... more fields
   ],
+  // generic error messages
   errors: {
+    // for required field error
     required: {
       eng: "This field is required",
       fra: "Ce champ est obligatoire",
@@ -66,6 +82,7 @@ const config = {
       fra: "Verr Maj activé"
     }
   },
+  // specifying mandatory & optional language , with langCodeMap for 3 letter to 2 letter code
   language: {
     mandatory: ["eng"],
     optional: ["fra"],
@@ -100,6 +117,8 @@ formBuilder.render();
 ```
 
 ## Configuration
+
+For a list of all data types used in the configuration, refer to [types](../json-form-builder/src/types.ts) file.
 
 ### Form Configuration
 
@@ -184,6 +203,9 @@ The form builder supports the following field types:
 - Date
 - Dropdown
 - Checkbox
+- Phone Number
+- File Upload (base64 encoded)
+- Photo Upload (base64 encoded)
 
 ## Validation
 

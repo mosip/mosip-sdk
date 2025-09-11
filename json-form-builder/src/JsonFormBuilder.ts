@@ -445,7 +445,7 @@ const refreshLabels = (state: FormState): void => {
     }
 
     state.lastErrors[field.id] = lastError;
-    
+
     // Show error messages if error container exists and error present
     if (errorContainer && lastError != null) {
       let errorText = "";
@@ -481,9 +481,7 @@ const refreshLabels = (state: FormState): void => {
  * @param {FormState} state The current form state containing the container and form data.
  */
 const triggerAllEvents = (state: FormState) => {
-  const inputs = state.container.querySelectorAll(
-    "input, select"
-  );
+  const inputs = state.container.querySelectorAll("input, select");
 
   inputs.forEach((input) => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -859,10 +857,17 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
 /**
  * Gets the current form data from the state.
  * This function returns a copy of the formData object to avoid direct mutations.
+ * It will return only those data which is specified in identity schema
  * @param {FormState} state Current form state containing schema, container, and other properties.
  * @returns {FormData} An object containing the current form data.
  */
-const getFormData = (state: FormState): FormData => ({ ...state.formData });
+const getFormData = (state: FormState): FormData => {
+  const modifiedData = state.schema.reduce(
+    (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
+    {} as FormData
+  );
+  return modifiedData;
+};
 
 /**
  * This function listens for click events on the window and closes any open prefix dropdowns
