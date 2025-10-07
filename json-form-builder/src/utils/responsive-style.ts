@@ -73,6 +73,12 @@ select option:first-child {
 /* Select Input Styling */
 .select-input {
   cursor: pointer;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: #fff url("data:image/svg+xml,%3Csvg viewBox=%270 0 140 140%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpolyline points=%2720,50 70,100 120,50%27 fill=%27none%27 stroke=%27%23333%27 stroke-width=%2715%27/%3E%3C/svg%3E") no-repeat right 10px center;
+  background-size: 1rem;
 }
 
 /* Select Input Styling end*/
@@ -378,6 +384,10 @@ const rtlStyle = `
     left: unset;
     right: 28%
   }
+}
+  
+[dir="rtl"] .select-input {
+  background-position: left 10px center;
 }
 
 [dir="rtl"] .caps-lock-text {

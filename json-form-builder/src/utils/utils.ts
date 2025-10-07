@@ -4,23 +4,23 @@ type LabelObject = Record<string, string>;
 /**
  * Helps to get the label text for a form field, including a required indicator if the field is marked as required.
  * @param {FormState} state form state containing current language and default language
- * @param {FormField} field form field object containing label and required properties
+ * @param {FormField | null} field form field object containing label and required properties
  * @param {LabelObject} additionalLabel Optional additional label object to use instead of the field's label.
  * @returns {string} The label text for the field, including a required indicator if applicable.
  */
 const getLabelText = (
   state: FormState,
-  field: FormField,
+  field: FormField | null,
   additionalLabel?: LabelObject
 ): string => {
   const lang = state.currentLanguage;
   const defaultLang = state.defaultLanguage;
 
-  const labels = additionalLabel || field.label;
+  const labels = additionalLabel || field?.labelName;
 
   let labelText = getMultiLangText(state, labels, false, lang, defaultLang);
 
-  if (field.required) {
+  if (field?.required) {
     labelText += '<span class="required">*</span>';
   }
 
@@ -362,10 +362,13 @@ const getCapsLockSpan = (
 const checkCapsLock = (
   event: KeyboardEvent | MouseEvent,
   capsLockSpan: HTMLSpanElement
-) =>
-  (capsLockSpan.style.display = (event as any)?.getModifierState("CapsLock")
-    ? "inline-flex"
-    : "none");
+) => {
+  if ("getModifierState" in event) {
+    capsLockSpan.style.display = event.getModifierState("CapsLock")
+      ? "inline-flex"
+      : "none";
+  }
+};
 
 /**
  * Enables caps lock check for a form field.

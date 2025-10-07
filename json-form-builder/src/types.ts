@@ -12,9 +12,10 @@ export interface FormField {
     | "date"
     | "dropdown"
     | "checkbox"
-    | "phone";
+    | "phone"
+    | "photo";
   type?: "string" | "simpleType";
-  label: Label;
+  labelName: Label;
   required?: boolean;
   validators?: Validator[];
   alignmentGroup?: string;
@@ -77,10 +78,29 @@ export interface FormConfig {
   language: LanguageSettings;
   allowedValues?: AllowedValues;
   errors?: Errors;
+  maxUploadFileSize?: number; // in kilo bytes
+  i18nValues?: {
+    errors?: Errors;
+    labels?: { [id: string]: Label };
+    placeholders?: { [id: string]: Label };
+  };
+}
+
+export interface FileUploadData {
+  value: string; // Base64 encoded file content,
+  docType: string; // e.g., "passport", "photo", coming from allowedValues
+  format: string; // e.g., "image/jpeg"
+  refId: string; // Unique identifier for the file, text field data
 }
 
 export interface FormData {
-  [key: string]: string | KeyValuePair | KeyValuePair[] | File | undefined;
+  [key: string]:
+    | string
+    | KeyValuePair
+    | KeyValuePair[]
+    | File
+    | FileUploadData
+    | undefined;
 }
 
 export interface LanguageSettings {
@@ -118,4 +138,7 @@ export interface FormState {
   languageMap: KeyValuePair;
   additionalSchema?: AdditionalSchema;
   isSubmitting: boolean;
+  maxUploadFileSize: number;
+  labels: { [id: string]: Label };
+  placeholders: { [id: string]: Label };
 }

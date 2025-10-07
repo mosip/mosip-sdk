@@ -21,7 +21,7 @@ describe('JsonFormBuilder', () => {
           id: 'name',
           controlType: 'textbox',
           type: 'simpleType',
-          label: {
+          labelName: {
             eng: 'Name',
             fra: 'Nom',
             ara: 'الاسم'
@@ -41,7 +41,7 @@ describe('JsonFormBuilder', () => {
           id: 'email',
           controlType: 'textbox',
           type: 'simpleType' as const,
-          label: {
+          labelName: {
             eng: 'Email',
             fra: 'Courriel',
             ara: 'البريد الإلكتروني'

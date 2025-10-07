@@ -7,6 +7,7 @@ import {
   AdditionalConfig,
   AdditionalSchema,
   KeyValuePair,
+  FileUploadData,
 } from "./types";
 
 import {
@@ -101,6 +102,54 @@ const createLoadingIcon = (): HTMLDivElement => {
 };
 
 /**
+ * This function refresh placeholder and options of the given select element
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ * @param {HTMLSelectElement} selectElement The select element to refresh.
+ * @param {string} fieldId The ID of the field associated with the dropdown.
+ * @param {Label | Undefined} optionPlaceholder The placeholder text for the dropdown.
+ */
+const refreshDropdownPlaceholderOptions = (
+  state: FormState,
+  selectElement: HTMLSelectElement | null | undefined,
+  fieldId: string,
+  optionPlaceholder: Label | undefined
+) => {
+  if (!selectElement) {
+    return;
+  }
+  const lang = state.currentLanguage;
+  const defaultLang = state.defaultLanguage;
+  const selectedValue = selectElement.value;
+  selectElement.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent =
+    getMultiLangText(state, optionPlaceholder, false, lang, defaultLang) ||
+    "Select an Option";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.hidden = true;
+  selectElement.appendChild(placeholder);
+
+  Object.entries(state.allowedValues[fieldId] || {}).forEach(
+    ([value, labels]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = getMultiLangText(
+        state,
+        labels,
+        false,
+        lang,
+        defaultLang
+      );
+      option.selected = value === selectedValue;
+      selectElement.appendChild(option);
+    }
+  );
+};
+
+/**
  * Refreshes all labels in the form based on the current language and schema.
  * It updates the labels for inputs, selects, and error messages according to the current language.
  * @param {FormState} state The current form state containing schema, container, and other properties.
@@ -191,22 +240,24 @@ const refreshLabels = (state: FormState): void => {
         let confirmPlaceholder: Label = {};
         // checking if additionalSchema has confirm field details
         // If it does, use those details; otherwise, build a default confirm label and placeholder
-        if (state.additionalSchema && state.additionalSchema[confirmId]) {
-          confirmLabel = state.additionalSchema[confirmId].label;
-          confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
+        if (state.labels && confirmId in state.labels) {
+          confirmLabel = { ...state.labels[confirmId] };
         } else {
           // If no additionalSchema, take value from label & placeholder of password field
-          Object.keys(field.label || {}).forEach((code) => {
-            const mapped = state.languageMap[code] || code;
-            confirmLabel[mapped] = `Confirm ${field.label[code]}`;
-          });
+          for (let lang in field.labelName) {
+            confirmLabel[lang] = `Confirm ${field.labelName[lang]}`;
+          }
+        }
 
-          Object.keys(field.placeholder || {}).forEach((code) => {
-            const mapped = state.languageMap[code] || code;
-            if (field.placeholder) {
-              confirmPlaceholder[mapped] = `Confirm ${field.placeholder[code]}`;
-            }
-          });
+        if (state.placeholders && confirmId in state.placeholders) {
+          confirmPlaceholder = { ...state.placeholders[confirmId] };
+        } else {
+          const placeholdersToConfirm = field.placeholder || {};
+          for (const lang in placeholdersToConfirm) {
+            confirmPlaceholder[lang] = placeholdersToConfirm[lang]
+              ? `Confirm ${placeholdersToConfirm[lang]}`
+              : "";
+          }
         }
 
         const confirmLabelElement = state.container.querySelector(
@@ -214,8 +265,8 @@ const refreshLabels = (state: FormState): void => {
         );
         if (confirmLabelElement) {
           confirmLabelElement.innerHTML = getLabelText(
-            { ...state, schema: [{ ...field, label: confirmLabel }] },
-            { ...field, label: confirmLabel },
+            { ...state, schema: [{ ...field, labelName: confirmLabel }] },
+            { ...field, labelName: confirmLabel },
             confirmLabel
           );
 
@@ -244,41 +295,12 @@ const refreshLabels = (state: FormState): void => {
       const select = state.container.querySelector(
         `select#${field.id}`
       ) as HTMLSelectElement;
-      if (select) {
-        const selectedValue = select.value;
-        select.innerHTML = "";
-
-        const placeholder = document.createElement("option");
-        placeholder.value = "";
-        placeholder.textContent =
-          getMultiLangText(
-            state,
-            field.placeholder,
-            false,
-            lang,
-            defaultLang
-          ) || "Select an Option";
-        placeholder.disabled = true;
-        placeholder.selected = true;
-        placeholder.hidden = true;
-        select.appendChild(placeholder);
-
-        Object.entries(state.allowedValues[field.id] || {}).forEach(
-          ([value, labels]) => {
-            const option = document.createElement("option");
-            option.value = value;
-            option.textContent = getMultiLangText(
-              state,
-              labels,
-              false,
-              lang,
-              defaultLang
-            );
-            option.selected = value === selectedValue;
-            select.appendChild(option);
-          }
-        );
-      }
+      refreshDropdownPlaceholderOptions(
+        state,
+        select,
+        field.id,
+        field.placeholder
+      );
     }
 
     const errorContainer = state.container.querySelector(
@@ -291,18 +313,24 @@ const refreshLabels = (state: FormState): void => {
 
     // Simple validation example for required and regex validators:
     if (field.required) {
-      // find the input(s) for this field (assuming first input for simplicity)
-      const inputElement = state.container.querySelector(
-        `input[data-field-id="${field.id}"]`
-      ) as HTMLInputElement | null;
-      if (inputElement && !inputElement.value.trim()) {
-        lastError = "required";
-      } else if (Array.isArray(field.validators) && inputElement) {
-        for (let i = 0; i < field.validators.length; i++) {
-          const validator = new RegExp(field.validators[i]?.regex || "");
-          if (!validator.test(inputElement.value)) {
-            lastError = i;
-            break;
+      if (field.controlType === ControlType.PHOTO) {
+        const photoData = state.formData[field.id] as FileUploadData;
+        if (photoData.value === "") {
+          lastError = "required";
+        }
+      } else {
+        const inputElement = state.container.querySelector(
+          `input[data-field-id="${field.id}"]`
+        ) as HTMLInputElement | null;
+        if (inputElement && !inputElement.value.trim()) {
+          lastError = "required";
+        } else if (Array.isArray(field.validators) && inputElement) {
+          for (let i = 0; i < field.validators.length; i++) {
+            const validator = new RegExp(field.validators[i]?.regex || "");
+            if (!validator.test(inputElement.value)) {
+              lastError = i;
+              break;
+            }
           }
         }
       }
@@ -463,13 +491,16 @@ const JsonFormBuilder = (
     ],
     isRTL: false,
     recaptcha: additionalConfig.recaptcha,
-    fallbackErrors: config.errors || {},
+    fallbackErrors: config.i18nValues?.errors || config.errors || {},
     lastErrors: {},
     languageMap: buildBidirectionalLanguageMap(
       config.language.langCodeMap || {}
     ),
     additionalSchema: additionalConfig.additionalSchema || {},
     isSubmitting: false,
+    maxUploadFileSize: config.maxUploadFileSize || 5242880, // Default to 5MB given as bytes
+    labels: config.i18nValues?.labels || {},
+    placeholders: config.i18nValues?.placeholders || {},
   };
 
   /**
@@ -595,7 +626,7 @@ const JsonFormBuilder = (
 
     if (isValid) {
       // Ensure all form data is up to date
-      form.querySelectorAll("input").forEach((el) => {
+      form.querySelectorAll("input:not([type='hidden'])").forEach((el) => {
         const input = el as HTMLInputElement;
         const fieldId = input.dataset.fieldId;
         const lang = input.dataset.lang;
@@ -716,7 +747,13 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  * @param {FormState} state Current form state containing schema, container, and other properties.
  * @returns {FormData} An object containing the current form data.
  */
-const getFormData = (state: FormState): FormData => ({ ...state.formData });
+const getFormData = (state: FormState): FormData => {
+  const modifiedData = state.schema.reduce(
+    (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
+    {} as FormData
+  );
+  return modifiedData;
+};
 
 /**
  * This function listens for click events on the window and closes any open prefix dropdowns
