@@ -301,6 +301,132 @@ select option:first-child {
     outline: none; /* Remove default outline */
 }
 /* file input styling end */
+
+/* photo component styling */
+.alternate-icon-div {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  width: 430px;
+  height: 520px;
+  align-items: center;
+  position: relative;
+}
+
+.alternate-icon-div img {
+  height: 150px;
+}
+
+.selected-image {
+  position: relative;
+  display: inline-block;
+  width: 430px;
+  height: 500px;
+  background: 1px solid lightgrey;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.selected-image img {
+  height: 500px !important;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.delete-image-button {  
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 9px;
+  line-height: 1;
+  color: black;
+  width: 15px;
+  height: 15px;
+  border: none;
+  background-color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.main-image-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+  border: 1px solid lightgrey;
+  border-radius: 10px;
+}
+
+.camera-video-container {
+  position: relative; /* All absolutely positioned children are relative to this container */
+  width: 432px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+  margin: 10px;
+}
+
+.webcam-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Capture button styling */
+.capture-button {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%); /* Center the button horizontally */
+  
+  width: 70px;
+  height: 70px;
+  border: 4px solid white;
+  border-radius: 50%; /* Creates the circular shape */
+  background: transparent;
+  cursor: pointer;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.flip-camera-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Inner circle of the capture button */
+.inner-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: red;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Hover effect for the capture button */
+.capture-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.capture-button:hover .inner-circle {
+  transform: scale(0.9);
+}
+/* photo component styling end */
 `;
 
 /**
@@ -385,7 +511,7 @@ const rtlStyle = `
     right: 28%
   }
 }
-  
+
 [dir="rtl"] .select-input {
   background-position: left 10px center;
 }

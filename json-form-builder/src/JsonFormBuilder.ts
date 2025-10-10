@@ -18,6 +18,7 @@ import {
   createDropdownField,
   createCheckboxField,
   createPhoneField,
+  createPhotoField,
 } from "./components";
 
 import {
@@ -719,6 +720,8 @@ const createFormElement = (
       return createCheckboxField(state, field);
     case ControlType.PHONE:
       return createPhoneField(state, field);
+    case ControlType.PHOTO:
+      return createPhotoField(state, field);
     default:
       throw new Error(`Unsupported control type: ${field.controlType}`);
   }
