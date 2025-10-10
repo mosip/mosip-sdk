@@ -1,10 +1,17 @@
 import { Meta, StoryObj } from "@storybook/react";
 import SignInWithEsignet from "../src/SignInWithEsignet";
 
+// ------------------ MOCK SERVICES ------------------
+const mockRelyingPartyService = {
+  get_requestUri: async () =>
+    "urn:ietf:params:oauth:request_uri:tvXqk0qEJGlL37zavHoSkG0fVbk7o8EzlryNgsziJfE",
+  get_dpop_jkt: async () => "mock-dpop-proof-token",
+};
+
 const oidcConfig = {
-  authorizeUri: "https://esignet.dev.mosip.net/authorize",
-  redirect_uri: "https://healthservices.dev.mosip.net/userprofile",
-  client_id: "88Vjt34c5Twz1oJ",
+  authorizeUri: "http://localhost:3000/authorize",
+  redirect_uri: "http://localhost:5000/userprofile",
+  client_id: "IIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs95Dx",
   scope: "openid profile",
   nonce: "ere973eieljznge2311",
   state: "eree2311",
@@ -17,11 +24,22 @@ const oidcConfig = {
   ui_locales: "en",
 };
 
+const oidcConfigWithPAR = {
+  ...oidcConfig,
+  par_callback: mockRelyingPartyService.get_requestUri,
+  par_callback_timeout: 5000,
+};
+
+const oidcConfigWithDPoP = {
+  ...oidcConfig,
+  dpop_callback: mockRelyingPartyService.get_dpop_jkt,
+};
+
 const buttonConfig = {
   type: "standard",
   theme: "outline",
   shape: "sharp_edges",
-  labelText: "Sign in with e-Signet",
+  labelText: "Sign in with eSignet",
 };
 
 const oidcConfigType =
@@ -66,7 +84,7 @@ const SignInWithEsignetMeta = {
         },
       },
     },
-  }
+  },
 } as Meta;
 export default SignInWithEsignetMeta;
 type Story = StoryObj<typeof SignInWithEsignetMeta>;
@@ -79,10 +97,11 @@ export const StandardButton: Story = {
       type: "standard",
       theme: "filled_orange",
       shape: "soft_edges",
-      labelText: "Sign in with e-Signet",
+      labelText: "Sign in with eSignet",
     },
   },
 };
+
 export const StandardIconButton: Story = {
   args: {
     id: "sign-in-with-esignet-standard-icon",
@@ -91,16 +110,17 @@ export const StandardIconButton: Story = {
       type: "icon",
       theme: "filled_orange",
       shape: "soft_edges",
-      labelText: "Sign in with e-Signet",
+      labelText: "Sign in with eSignet",
     },
   },
 };
+
 export const StandardButtonWithCustomDesign: Story = {
   args: {
     id: "sign-in-with-esignet-standard-with-custom-design",
     oidcConfig,
     buttonConfig: {
-      labelText: "Sign in with e-Signet",
+      labelText: "Sign in with eSignet",
       customStyle: {
         outerDivStyleStandard: {
           position: "relative",
@@ -139,6 +159,33 @@ export const StandardButtonWithCustomDesign: Story = {
           "line-height": "1.25rem",
         },
       },
+    },
+  },
+};
+
+export const StandardButtonWithPAR: StoryObj = {
+  args: {
+    id: "sign-in-with-esignet-par",
+    oidcConfig: oidcConfigWithPAR,
+    buttonConfig: {
+      ...buttonConfig,
+      labelText: "Sign in with eSignet",
+      theme: "filled_orange",
+      shape: "soft_edges",
+    },
+  },
+};
+
+export const StandardButtonWithDPoP: StoryObj = {
+  name: "Standard Button With DPoP",
+  args: {
+    id: "sign-in-with-esignet-dpop",
+    oidcConfig: oidcConfigWithDPoP,
+    buttonConfig: {
+      ...buttonConfig,
+      labelText: "Sign in with eSignet",
+      theme: "filled_orange",
+      shape: "soft_edges",
     },
   },
 };
