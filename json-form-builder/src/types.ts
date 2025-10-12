@@ -87,7 +87,7 @@ export interface FormConfig {
 }
 
 export interface FileUploadData {
-  value: string; // Base64 encoded file content,
+  value: string | Blob; // Base64 encoded file content,
   docType: string; // e.g., "passport", "photo", coming from allowedValues
   format: string; // e.g., "image/jpeg"
   refId: string; // Unique identifier for the file, text field data

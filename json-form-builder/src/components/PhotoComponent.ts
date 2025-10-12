@@ -4,6 +4,7 @@ import {
   createErrorContainer,
   appendError,
   handleRequiredValidation,
+  dataUrlToBlob,
 } from "../utils/utils";
 
 /**
@@ -309,7 +310,7 @@ export const createPhotoField = (
     mainContentDiv.appendChild(selectedImageDiv);
 
     (state.formData[field.id] as FileUploadData) = {
-      value: imageData,
+      value: dataUrlToBlob(imageData),
       docType: "photo",
       format: "image/png",
       refId: "photo-" + Date.now(),
