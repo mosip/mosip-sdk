@@ -303,7 +303,7 @@ export const createPhotoField = (
       canvas.height
     );
 
-    const imageData = canvas.toDataURL("image/png", 0.5);
+    const imageData = canvas.toDataURL("image/jpeg", 0.5);
 
     // setting the element to video div
     mainContentDiv.innerHTML = ""; // Clear the main content div
@@ -312,7 +312,7 @@ export const createPhotoField = (
     (state.formData[field.id] as FileUploadData) = {
       value: dataUrlToBlob(imageData),
       docType: "photo",
-      format: "image/png",
+      format: "image/jpeg",
       refId: "photo-" + Date.now(),
     };
     hiddenInput.value = "true"; // Set the hidden input value
