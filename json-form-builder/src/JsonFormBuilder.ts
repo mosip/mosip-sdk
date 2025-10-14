@@ -343,11 +343,46 @@ const refreshLabels = (state: FormState): void => {
 /**
  * Triggers input and change events for all inputs in the form.
  * @param {FormState} state The current form state containing the container and form data.
+ * @param {"touchedOnly" | "all"} mode If "touchedOnly", only triggers events for fields with existing error messages; if "all", triggers for all fields. Default is "all".
  */
-const triggerAllEvents = (state: FormState) => {
+const triggerAllEvents = (
+  state: FormState,
+  mode: "touchedOnly" | "all" = "all"
+) => {
   const inputs = state.container.querySelectorAll("input, select");
 
   inputs.forEach((input) => {
+    // Error container selection:
+    const errorContainer =
+      // 1. Next sibling
+      input.nextElementSibling &&
+      input.nextElementSibling.classList.contains("error-message")
+        ? (input.nextElementSibling as HTMLElement)
+        : // 2. Parent's next sibling
+          input.parentElement?.nextElementSibling &&
+            input.parentElement.nextElementSibling.classList.contains(
+              "error-message"
+            )
+          ? (input.parentElement.nextElementSibling as HTMLElement)
+          : // 3. Closest .form-field with .error-message
+            input.closest(".form-field")?.querySelector(".error-message") ||
+            // 4. Closest .form-field-group with .error-message
+            input
+              .closest(".form-field-group")
+              ?.querySelector(".error-message") ||
+            // 5. Fallback: parent query
+            input.parentElement?.querySelector(".error-message") ||
+            null;
+
+    // Only trigger if error message is present (for touchedOnly mode)
+    if (
+      mode === "touchedOnly" &&
+      errorContainer &&
+      !errorContainer.querySelector(".error-text")
+    ) {
+      return;
+    }
+
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
   });
@@ -383,7 +418,7 @@ const updateLanguage = (
     state.submitLabel = submitButtonLabel;
   }
   refreshLabels(state);
-  triggerAllEvents(state);
+  triggerAllEvents(state, "touchedOnly");
 };
 
 /**
