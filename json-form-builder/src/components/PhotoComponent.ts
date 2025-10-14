@@ -30,6 +30,29 @@ const createCameraFlipIcon = (): SVGSVGElement => {
   return svg;
 };
 
+
+/**
+ * Create a alternate icon div element for the photo component.
+ * @returns {SVGSVGElement} A div element containing an alternate icon for the photo component.
+ */
+const alternativeIcon = (): SVGSVGElement => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "currentColor");
+
+  path.setAttribute("fillRule", "evenodd");
+  path.setAttribute("clipRule", "evenodd");
+  path.setAttribute(
+    "d",
+    "M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+  );
+
+  svg.appendChild(path);
+  return svg;
+};
+
 /**
  * Creates a photo input form element.
  * @param {String} fieldId The ID of the form field.
@@ -110,7 +133,11 @@ const alternateDivElement = (): HTMLDivElement => {
 
   const altImage = document.createElement("img");
   altImage.alt = "user_icon";
-  altImage.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // Placeholder icon for camera
+
+  const serializer =  new XMLSerializer();
+  const svgString = serializer.serializeToString(alternativeIcon());
+  const svgUrl = 'data:image/svg+xml;base64,' + btoa(svgString);
+  altImage.src = svgUrl;
 
   altDiv.appendChild(altImage);
   return altDiv;
