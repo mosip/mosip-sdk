@@ -5,6 +5,7 @@ import { createSimpleTextbox } from "./SimpleTypeComponent";
 import { createPasswordField } from "./PasswordComponent";
 import { createStringField } from "./TextInputComponent";
 import { createPhoneField } from "./PhoneInputComponent";
+import { createPhotoField } from "./PhotoComponent";
 
 export {
   createCheckboxField,
@@ -14,4 +15,5 @@ export {
   createPasswordField,
   createStringField,
   createPhoneField,
+  createPhotoField,
 };

@@ -46,7 +46,7 @@ export const createSimpleTextbox = (
     state.formData[field.id] = [];
   }
 
-  const languages = Object.keys(field.label || {});
+  const languages = Object.keys(field.labelName || {});
 
   // Helper to normalize any lang code to 3-letter code if possible
   const normalizeToThreeLetterCode = (

@@ -184,20 +184,24 @@ export const createPasswordField = (
   let confirmPlaceholder: Label = {};
   // checking if additionalSchema has confirm field details
   // If it does, use those details; otherwise, build a default confirm label and placeholder
-  if (state.additionalSchema && state.additionalSchema[confirmId]) {
-    confirmLabel = state.additionalSchema[confirmId].label;
-    confirmPlaceholder = state.additionalSchema[confirmId].placeholder;
+    if (state.labels && confirmId in state.labels) {
+    confirmLabel = { ...state.labels[confirmId] };
+  } else {
+    for (let lang in field.labelName) {
+      confirmLabel[lang] = `Confirm ${field.labelName[lang]}`;
+    }
+  }
+
+  if (state.placeholders && confirmId in state.placeholders) {
+    confirmPlaceholder = { ...state.placeholders[confirmId] };
   } else {
     // If no additionalSchema, take value from label & placeholder of password field
-    Object.keys(field.label).forEach((lang) => {
-      confirmLabel[lang] = `Confirm ${field.label[lang]}`;
-    });
-
-    Object.keys(field.placeholder || {}).forEach((lang) => {
-      if (field.placeholder !== undefined) {
-        confirmPlaceholder[lang] = `Confirm ${field.placeholder[lang]}`;
-      }
-    });
+    const placeholdersToConfirm = field.placeholder || {};
+    for (const lang in placeholdersToConfirm) {
+      confirmPlaceholder[lang] = placeholdersToConfirm[lang]
+        ? `Confirm ${placeholdersToConfirm[lang]}`
+        : "";
+    }
   }
 
   const confirmField = document.createElement("div");
