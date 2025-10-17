@@ -164,6 +164,7 @@ export const StandardButtonWithCustomDesign: Story = {
 };
 
 export const StandardButtonWithPAR: StoryObj = {
+  name: "Standard button with PAR support",
   args: {
     id: "sign-in-with-esignet-par",
     oidcConfig: oidcConfigWithPAR,
@@ -177,7 +178,7 @@ export const StandardButtonWithPAR: StoryObj = {
 };
 
 export const StandardButtonWithDPoP: StoryObj = {
-  name: "Standard Button With DPoP",
+  name: "Standard button with DPoP support",
   args: {
     id: "sign-in-with-esignet-dpop",
     oidcConfig: oidcConfigWithDPoP,
