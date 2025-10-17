@@ -61,7 +61,7 @@ export const SignInWithEsignetStory: Story = {
       type: "standard",
       theme: "filled_orange",
       shape: "soft_edges",
-      labelText: "Sign in with e-Signet",
+      labelText: "Sign in with eSignet",
     },
   },
 };
