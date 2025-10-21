@@ -184,7 +184,7 @@ export const createPasswordField = (
   let confirmPlaceholder: Label = {};
   // checking if additionalSchema has confirm field details
   // If it does, use those details; otherwise, build a default confirm label and placeholder
-    if (state.labels && confirmId in state.labels) {
+  if (state.labels && confirmId in state.labels) {
     confirmLabel = { ...state.labels[confirmId] };
   } else {
     for (let lang in field.labelName) {
@@ -240,6 +240,13 @@ export const createPasswordField = (
 
   const validateConfirm = () => {
     appendError(confirmError, "");
+    const confirmVal = confirmInput.value.trim();
+
+    if (!confirmVal) {
+      confirmInput.setCustomValidity("");
+      confirmInput.classList.remove("error");
+      return;
+    }
 
     if (confirmInput.value !== input.value) {
       const mismatchErrors = state.fallbackErrors?.passwordMismatch || {};
