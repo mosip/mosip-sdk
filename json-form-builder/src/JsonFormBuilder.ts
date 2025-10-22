@@ -26,6 +26,7 @@ import {
   getMultiLangText,
   createInfoIcon,
   buildBidirectionalLanguageMap,
+  validateForm,
 } from "./utils/utils";
 
 import { addResponsiveStyles, addRTLStyles } from "./utils/responsive-style";
@@ -316,7 +317,7 @@ const refreshLabels = (state: FormState): void => {
     if (field.required) {
       if (field.controlType === ControlType.PHOTO) {
         const photoData = state.formData[field.id] as FileUploadData;
-        if (photoData.value === "") {
+        if ((photoData && photoData.value === "") || !photoData) {
           lastError = "required";
         }
       } else {
@@ -658,40 +659,11 @@ const JsonFormBuilder = (
     triggerAllEvents(state);
 
     // Validate reCAPTCHA if configured and enabled
-    let isValid = validateRecaptcha(state);
+    const isValid = validateRecaptcha(state);
 
-    if (isValid) {
-      // Ensure all form data is up to date
-      form.querySelectorAll("input:not([type='hidden'])").forEach((el) => {
-        const input = el as HTMLInputElement;
-        const fieldId = input.dataset.fieldId;
-        const lang = input.dataset.lang;
+    const isFormValid = validateForm(state);
 
-        if (fieldId && lang) {
-          // Always normalize to 3-letter code
-          const normalizedLang = state.languageMap[lang];
-
-          // Store only if normalization results in a valid 3-letter code
-          if (normalizedLang && normalizedLang.length === 3) {
-            if (!state.formData[fieldId]) {
-              state.formData[fieldId] = [];
-            }
-            if (input.value) {
-              (state.formData[fieldId] as KeyValuePair[]).push({
-                language: normalizedLang,
-                value: input.value,
-              });
-            }
-          }
-        } else if (input.id) {
-          // Handle regular fields
-          if (input.value) {
-            state.formData[input.id] =
-              (state.formData[`${input.id}_prefix`] || "") + input.value;
-          }
-        }
-      });
-
+    if (isValid && isFormValid) {
       const data = getFormData(state);
       if (typeof state.submitAction === "function") {
         state.submitAction(data);

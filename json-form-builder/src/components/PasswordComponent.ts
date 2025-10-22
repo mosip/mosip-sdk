@@ -9,6 +9,7 @@ import {
   createInfoIcon,
   getCapsLockSpan,
   getLabelText,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 import { ControlType } from "../utils/constants";
@@ -117,7 +118,7 @@ export const createPasswordField = (
   input.type = ControlType.PASSWORD;
   input.id = field.id;
   input.name = field.id;
-  input.required = Boolean(field.required);
+  input.oninvalid = emptyInvalidFn(input);
   input.dataset.fieldId = field.id;
 
   input.placeholder = getMultiLangText(state, field.placeholder);
@@ -226,7 +227,7 @@ export const createPasswordField = (
   confirmInput.type = ControlType.PASSWORD;
   confirmInput.id = confirmId;
   confirmInput.name = confirmId;
-  confirmInput.required = Boolean(field.required);
+  confirmInput.oninvalid = emptyInvalidFn(confirmInput);
   confirmInput.placeholder = getMultiLangText(state, confirmPlaceholder);
 
   const confirmEyeIconSpan = createPasswordIconSpan(

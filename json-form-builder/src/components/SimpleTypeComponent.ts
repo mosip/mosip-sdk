@@ -8,6 +8,7 @@ import {
   createInfoIcon,
   getCapsLockSpan,
   getLabelText,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 /**
@@ -75,6 +76,7 @@ export const createSimpleTextbox = (
     input.name = `${field.id}_${lang}`;
     input.dataset.lang = lang;
     input.dataset.fieldId = field.id;
+    input.oninvalid = emptyInvalidFn(input);
 
     input.placeholder = getMultiLangText(
       state,

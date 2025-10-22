@@ -6,6 +6,7 @@ import {
   handleRequiredValidation,
   createInfoIcon,
   getLabelText,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 /**
@@ -36,7 +37,7 @@ export const createDropdownField = (
   select.className = "input_box select-input";
   select.id = field.id;
   select.name = field.id;
-  select.required = Boolean(field.required);
+  select.oninvalid = emptyInvalidFn(select);
   select.dataset.fieldId = field.id;
 
   // Placeholder

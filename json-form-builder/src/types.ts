@@ -93,14 +93,17 @@ export interface FileUploadData {
   refId: string; // Unique identifier for the file, text field data
 }
 
+export type FormValue =
+  | string
+  | boolean
+  | KeyValuePair
+  | KeyValuePair[]
+  | File
+  | FileUploadData
+  | undefined;
+
 export interface FormData {
-  [key: string]:
-    | string
-    | KeyValuePair
-    | KeyValuePair[]
-    | File
-    | FileUploadData
-    | undefined;
+  [key: string]: FormValue;
 }
 
 export interface LanguageSettings {

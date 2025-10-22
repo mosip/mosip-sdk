@@ -5,6 +5,7 @@ import {
   appendError,
   handleRequiredValidation,
   dataUrlToBlob,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 /**
@@ -29,7 +30,6 @@ const createCameraFlipIcon = (): SVGSVGElement => {
 
   return svg;
 };
-
 
 /**
  * Create a alternate icon div element for the photo component.
@@ -134,9 +134,9 @@ const alternateDivElement = (): HTMLDivElement => {
   const altImage = document.createElement("img");
   altImage.alt = "user_icon";
 
-  const serializer =  new XMLSerializer();
+  const serializer = new XMLSerializer();
   const svgString = serializer.serializeToString(alternativeIcon());
-  const svgUrl = 'data:image/svg+xml;base64,' + btoa(svgString);
+  const svgUrl = "data:image/svg+xml;base64," + btoa(svgString);
   altImage.src = svgUrl;
 
   altDiv.appendChild(altImage);
@@ -251,7 +251,7 @@ export const createPhotoField = (
   hiddenInput.id = field.id;
   hiddenInput.name = field.id;
   hiddenInput.dataset.fieldId = field.id;
-  hiddenInput.required = Boolean(field.required);
+  hiddenInput.oninvalid = emptyInvalidFn(hiddenInput);
 
   wrapper.appendChild(label);
 

@@ -6,6 +6,7 @@ import {
   handleRequiredValidation,
   createInfoIcon,
   getLabelText,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 /**
@@ -37,7 +38,7 @@ export const createDateField = (
   input.type = "date";
   input.id = field.id;
   input.name = field.id;
-  input.required = Boolean(field.required);
+  input.oninvalid = emptyInvalidFn(input);
   input.dataset.fieldId = field.id;
 
   // Placeholder (optional for date input)
