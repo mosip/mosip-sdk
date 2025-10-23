@@ -9,6 +9,7 @@ import {
   createInfoIcon,
   getCapsLockSpan,
   getLabelText,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 /**
@@ -97,6 +98,8 @@ const addPrefixButton = (
   const prefixButton = document.createElement("input");
   prefixButton.type = "text";
   prefixButton.className = "input_box prefix-button";
+  prefixButton.oninvalid = emptyInvalidFn(prefixButton);
+  prefixButton.readOnly = true;
 
   // if allowedValues exist, use that as the prefix
   // otherwise, use the first prefix value if available
@@ -111,6 +114,11 @@ const addPrefixButton = (
       const dropdown = wrapper.querySelector(".prefix-dropdown");
       dropdown?.classList.toggle("show");
     }
+  });
+
+  // prevent manual input in the prefix button
+  prefixButton.addEventListener("keydown", (e) => {
+    e.preventDefault();
   });
 
   inputDiv.appendChild(prefixButton);
@@ -180,7 +188,7 @@ export const createPhoneField = (
   input.type = "tel";
   input.id = field.id;
   input.name = field.id;
-  input.required = Boolean(field.required);
+  input.oninvalid = emptyInvalidFn(input);
   input.dataset.fieldId = field.id;
   // remove prefixValue from allowedValues string
   if (

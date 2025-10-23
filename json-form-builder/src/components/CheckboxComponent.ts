@@ -3,6 +3,7 @@ import {
   appendError,
   createErrorContainer,
   disableField,
+  emptyInvalidFn,
   getLabelText,
   handleRequiredValidation,
 } from "../utils/utils";
@@ -29,7 +30,7 @@ export const createCheckboxField = (
   checkbox.id = field.id;
   checkbox.className = "checkbox-input";
   checkbox.name = field.id;
-  checkbox.required = Boolean(field.required);
+  checkbox.oninvalid = emptyInvalidFn(checkbox);
   checkbox.dataset.fieldId = field.id;
   checkbox.checked = Boolean(state.allowedValues?.[field.id] || false);
 
@@ -60,6 +61,7 @@ export const createCheckboxField = (
 
     checkbox.setCustomValidity(isValid ? "" : "Invalid input");
     checkbox.classList.toggle("error", !isValid);
+    state.formData[field.id] = this.checked;
   });
 
   const parentNode = document.createElement("div");

@@ -1,4 +1,11 @@
-import { FormField, FormState, Label } from "../types";
+import {
+  FormField,
+  FormState,
+  KeyValuePair,
+  Label,
+  FormData,
+  FormValue,
+} from "../types";
 type LabelObject = Record<string, string>;
 
 /**
@@ -456,6 +463,167 @@ const dataUrlToBlob = (dataUrl: string): Blob => {
   return new Blob([u8arr], { type: mime });
 };
 
+/**
+ * Validate Form
+ * @param {FormState} state Current form state containing schema, container, and other properties.
+ * @returns {boolean}  Returns true if the form is valid, false otherwise.
+ */
+const validateForm = (state: FormState): boolean => {
+  let isFormValid = true;
+  const form = state.container.querySelector("form") as HTMLFormElement;
+
+  const errorList = form.querySelectorAll(
+    ".form-field .error-message .error-text"
+  );
+
+  if (errorList && errorList.length > 0) {
+    return false;
+  }
+
+  form.querySelectorAll("input:not([type='hidden'])").forEach((el) => {
+    const input = el as HTMLInputElement;
+    const fieldId = input.dataset.fieldId;
+    const lang = input.dataset.lang;
+
+    if (fieldId && lang) {
+      // Always normalize to 3-letter code
+      const normalizedLang = state.languageMap[lang];
+
+      // Store only if normalization results in a valid 3-letter code
+      if (normalizedLang && normalizedLang.length === 3) {
+        if (!state.formData[fieldId]) {
+          state.formData[fieldId] = [];
+        }
+        if (input.value) {
+          (state.formData[fieldId] as KeyValuePair[]).push({
+            language: normalizedLang,
+            value: input.value,
+          });
+        }
+      }
+    } else if (input.id) {
+      // Handle regular fields
+      if (input.type === "checkbox") {
+        state.formData[input.id] = input.checked;
+      } else if (input.value) {
+        state.formData[input.id] =
+          (state.formData[`${input.id}_prefix`] || "") + input.value;
+      }
+    }
+  });
+
+  for (const field of state.schema) {
+    if (
+      field.required &&
+      field.required === true &&
+      hasFormData(field, state.formData, state.mandatoryLanguages) === false
+    ) {
+      isFormValid = false;
+      break;
+    }
+  }
+
+  return isFormValid;
+};
+
+/**
+ * Checks if the form field has data based on its control type and mandatory languages.
+ * @param {FormField} formField form field object containing type, id, label, required, and other properties.
+ * @param {FormData} formData Current form data containing values for each form field.
+ * @param {string[]} mandatoryLanguages  List of mandatory language codes.
+ * @returns {boolean}  Returns true if the form field has data, false otherwise.
+ */
+const hasFormData = (
+  formField: FormField,
+  formData: FormData,
+  mandatoryLanguages: string[]
+): boolean => {
+  let hasFormData = true;
+  const inputId = formField.id;
+  const value = formData[inputId];
+  const confirmId = `${inputId}_confirm`;
+  const confirmPass = confirmId in formData ? formData[confirmId] : null;
+  const mandatoryLangs = mandatoryLanguages.map((lang) => lang.toLowerCase());
+  if (formField.type === "simpleType") {
+    // For simpleType, value is expected to be an array of KeyValuePair
+    if (value && Array.isArray(value) && value.length > 0) {
+      // Check if all mandatory languages are present
+      for (const val of value) {
+        const indexLangCode = mandatoryLangs.indexOf(
+          val.language.toLowerCase()
+        );
+        // If language code is found and value is non-empty, remove it from mandatoryLangs
+        if (indexLangCode > -1 && val.value && val.value.trim().length > 0) {
+          mandatoryLangs.splice(indexLangCode, 1);
+        }
+      }
+      // If all mandatory languages are present
+      // then will be removed from mandatoryLangs array
+      if (mandatoryLangs.length === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  switch (formField.controlType) {
+    case "textbox":
+    case "date":
+    case "dropdown":
+    case "phone":
+      if (checkNotAStringValue(value)) {
+        hasFormData = false;
+      }
+      break;
+    case "password":
+      if (checkNotAStringValue(value)) {
+        hasFormData = false;
+      }
+      if (checkNotAStringValue(confirmPass)) {
+        hasFormData = false;
+      }
+      break;
+    case "checkbox":
+      if (value !== true) {
+        hasFormData = false;
+      }
+      break;
+    case "photo":
+      if (
+        !value ||
+        (value &&
+          typeof value === "object" &&
+          "value" in value &&
+          value.value === "")
+      ) {
+        hasFormData = false;
+      }
+      break;
+  }
+  return hasFormData;
+};
+
+/**
+ * Checks if a value is not a valid string.
+ * @param {string | null | undefined} val - The value to check.
+ * @returns {boolean} - Returns true if the value is not a valid string, false otherwise.
+ */
+const checkNotAStringValue = (val: FormValue | null | undefined): boolean => {
+  return (
+    val === null ||
+    val === undefined ||
+    (typeof val === "string" && val.trim().length === 0)
+  );
+};
+
+const emptyInvalidFn = (
+  input: HTMLInputElement | HTMLSelectElement
+): (() => void) => {
+  return () => {
+    input.setCustomValidity("");
+  };
+};
+
 export {
   getLabelText,
   getMultiLangText,
@@ -472,4 +640,6 @@ export {
   buildBidirectionalLanguageMap,
   enableCapsLockCheck,
   dataUrlToBlob,
+  validateForm,
+  emptyInvalidFn,
 };

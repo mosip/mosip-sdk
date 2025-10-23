@@ -10,6 +10,7 @@ import {
   createInfoIcon,
   getCapsLockSpan,
   getLabelText,
+  emptyInvalidFn,
 } from "../utils/utils";
 
 /**
@@ -49,7 +50,7 @@ export const createStringField = (
   input.type = "text";
   input.id = field.id;
   input.name = field.id;
-  input.required = Boolean(field.required);
+  input.oninvalid = emptyInvalidFn(input);
   input.dataset.fieldId = field.id;
   input.value = (state.allowedValues[field.id] as string) || "";
   input.placeholder = getMultiLangText(state, field.placeholder);
