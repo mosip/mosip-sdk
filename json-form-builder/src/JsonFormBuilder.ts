@@ -6,7 +6,6 @@ import {
   Label,
   AdditionalConfig,
   AdditionalSchema,
-  KeyValuePair,
   FileUploadData,
 } from "./types";
 
@@ -246,7 +245,7 @@ const refreshLabels = (state: FormState): void => {
           confirmLabel = { ...state.labels[confirmId] };
         } else {
           // If no additionalSchema, take value from label & placeholder of password field
-          for (let lang in field.labelName) {
+          for (const lang in field.labelName) {
             confirmLabel[lang] = `Confirm ${field.labelName[lang]}`;
           }
         }
@@ -601,7 +600,7 @@ const JsonFormBuilder = (
     const groupedFields = groupFields(state);
 
     // Render each group
-    Object.entries(groupedFields).forEach(([groupName, fields]) => {
+    Object.entries(groupedFields).forEach(([_groupName, fields]) => {
       const group = document.createElement("div");
       group.className = "form-group";
       group.style.display = "flex";

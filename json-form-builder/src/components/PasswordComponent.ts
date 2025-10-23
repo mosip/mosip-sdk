@@ -188,7 +188,7 @@ export const createPasswordField = (
     if (state.labels && confirmId in state.labels) {
     confirmLabel = { ...state.labels[confirmId] };
   } else {
-    for (let lang in field.labelName) {
+    for (const lang in field.labelName) {
       confirmLabel[lang] = `Confirm ${field.labelName[lang]}`;
     }
   }

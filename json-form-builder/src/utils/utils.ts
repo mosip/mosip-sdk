@@ -541,7 +541,9 @@ const hasFormData = (
   let hasFormData = true;
   const inputId = formField.id;
   const value = formData[inputId];
-  let mandatoryLangs = mandatoryLanguages.map((lang) => lang.toLowerCase());
+  const confirmId = `${inputId}_confirm`;
+  const confirmPass = confirmId in formData ? formData[confirmId] : null;
+  const mandatoryLangs = mandatoryLanguages.map((lang) => lang.toLowerCase());
   if (formField.type === "simpleType") {
     // For simpleType, value is expected to be an array of KeyValuePair
     if (value && Array.isArray(value) && value.length > 0) {
@@ -576,9 +578,7 @@ const hasFormData = (
     case "password":
       if (checkNotAStringValue(value)) {
         hasFormData = false;
-        break;
       }
-      const confirmPass = formData[`${inputId}_confirm`];
       if (checkNotAStringValue(confirmPass)) {
         hasFormData = false;
       }
@@ -608,7 +608,7 @@ const hasFormData = (
  * @param {string | null | undefined} val - The value to check.
  * @returns {boolean} - Returns true if the value is not a valid string, false otherwise.
  */
-const checkNotAStringValue = (val: FormValue): boolean => {
+const checkNotAStringValue = (val: FormValue | null | undefined): boolean => {
   return (
     val === null ||
     val === undefined ||
@@ -616,7 +616,9 @@ const checkNotAStringValue = (val: FormValue): boolean => {
   );
 };
 
-const emptyInvalidFn = (input: HTMLInputElement | HTMLSelectElement): (() => void) => {
+const emptyInvalidFn = (
+  input: HTMLInputElement | HTMLSelectElement
+): (() => void) => {
   return () => {
     input.setCustomValidity("");
   };
