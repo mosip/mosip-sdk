@@ -95,10 +95,6 @@ export const createSimpleTextbox = (
       const value = input.value.trim();
 
       const currentLang = normalizedLang;
-      const defaultLang = normalizeToThreeLetterCode(
-        state.languageMap[state.defaultLanguage] || state.defaultLanguage,
-        state.languageMap
-      );
 
       errorContainer.innerHTML = ""; // Clear previous errors
 
@@ -120,7 +116,7 @@ export const createSimpleTextbox = (
           value,
           true,
           currentLang,
-          defaultLang
+          state.currentLanguage 
         );
         lastError = result.lastError;
         isValid = result.isValid;

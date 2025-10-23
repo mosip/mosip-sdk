@@ -161,8 +161,8 @@ const handleRegexValidation = (
   validators: any[],
   value: string,
   useLangCode: boolean,
-  currentLang: string = "",
-  defaultLang: string = ""
+  currentLang?: string,
+  defaultLang?: string 
 ) => {
   const normalizeToThreeLetterCode = (
     lang: string,
@@ -178,10 +178,15 @@ const handleRegexValidation = (
   }
   if (!defaultLang) {
     defaultLang =
-      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
+      state.languageMap[state.currentLanguage] || state.currentLanguage;
   }
+
   const normalizedLang = normalizeToThreeLetterCode(
     currentLang,
+    state.languageMap
+  );
+  const normalizedDefaultLang = normalizeToThreeLetterCode(
+    defaultLang,
     state.languageMap
   );
 
@@ -206,7 +211,7 @@ const handleRegexValidation = (
           state,
           validator.error,
           true,
-          currentLang,
+          normalizedDefaultLang,
           defaultLang
         ) || "Invalid input";
 
