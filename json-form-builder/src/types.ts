@@ -2,18 +2,18 @@ export interface KeyValuePair {
   [key: string]: string;
 }
 
-export interface Label extends KeyValuePair {}
+export interface Label extends KeyValuePair { }
 
 export interface FormField {
   id: string;
   controlType:
-    | "textbox"
-    | "password"
-    | "date"
-    | "dropdown"
-    | "checkbox"
-    | "phone"
-    | "photo";
+  | "textbox"
+  | "password"
+  | "date"
+  | "dropdown"
+  | "checkbox"
+  | "phone"
+  | "photo";
   type?: "string" | "simpleType";
   labelName: Label;
   required?: boolean;
@@ -25,14 +25,15 @@ export interface FormField {
   info?: Label;
   capsLockCheck?: boolean;
   prefix?: string[];
+  acceptedFileTypes?: string[];
 }
 
 export interface AllowedValues {
   [key: string]:
-    | {
-        [key: string]: Label;
-      }
-    | string;
+  | {
+    [key: string]: Label;
+  }
+  | string;
 }
 
 export interface SubmitButtonConfig {
