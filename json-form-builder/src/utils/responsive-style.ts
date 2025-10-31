@@ -426,6 +426,26 @@ select option:first-child {
 .capture-button:hover .inner-circle {
   transform: scale(0.9);
 }
+
+.camera-denied-container {
+  width: 432px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  margin: 10px;
+  background-color: lightgrey;
+  padding: 0 10px;
+  flex-flow: column;
+}
+
+.camera-denied-header, .camera-denied-description {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 /* photo component styling end */
 `;
 

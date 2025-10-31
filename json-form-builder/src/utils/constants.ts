@@ -14,4 +14,11 @@ const InputType = {
   SIMPLE_TYPE: "simpleType",
 };
 
-export { ControlType, InputType };
+const CameraErrorCodes = {
+  PERMISSION_DENIED: "permissionDenied",
+  NOT_ACCESSIBLE: "notAccessible",
+  CAMERA_NOT_FOUND: "cameraNotFound",
+  NOT_READABLE: "NotReadableError"
+};
+
+export { ControlType, InputType, CameraErrorCodes };

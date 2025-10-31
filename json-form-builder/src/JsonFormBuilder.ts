@@ -55,6 +55,7 @@ declare global {
       getResponse: (widgetId?: number) => string;
       reset: (widgetId?: number) => void;
     };
+    videoLocalStream: MediaStream | null;
   }
 }
 
