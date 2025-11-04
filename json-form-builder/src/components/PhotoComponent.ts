@@ -152,9 +152,11 @@ const videoDivElement = (
 
 /**
  * Creates an alternate icon div element for the photo component.
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing an alternate icon for the photo component.
  */
-const alternateDivElement = (): HTMLDivElement => {
+const alternateDivElement = (state: FormState, field: FormField): HTMLDivElement => {
   const altDiv = document.createElement("div");
   altDiv.className = "alternate-icon-div";
 
@@ -166,7 +168,12 @@ const alternateDivElement = (): HTMLDivElement => {
   const svgUrl = "data:image/svg+xml;base64," + btoa(svgString);
   altImage.src = svgUrl;
 
+  const popupDiv = document.createElement("div");
+  popupDiv.className = "alternate-icon-popup";
+  popupDiv.innerText = getMultiLangText(state, field.placeholder);
+
   altDiv.appendChild(altImage);
+  altDiv.appendChild(popupDiv);
   return altDiv;
 };
 
@@ -188,6 +195,7 @@ const cameraErrorElement = (
 
   const headerDiv = document.createElement("div");
   headerDiv.className = "camera-denied-header";
+  headerDiv.dataset.errorCode = permissionErrorCode;
   headerDiv.textContent =
     getMultiLangText(
       state,
@@ -196,6 +204,7 @@ const cameraErrorElement = (
 
   const descriptionDiv = document.createElement("div");
   descriptionDiv.className = "camera-denied-description";
+  descriptionDiv.dataset.errorCode = permissionErrorCode;
   descriptionDiv.textContent =
     getMultiLangText(
       state,
@@ -275,12 +284,16 @@ export const createPhotoField = (
 
   // if camera permission granted then set the state
   const cameraPermissionAllowed = (stream: MediaStream) => {
-    window.videoLocalStream = stream;
+    if (cameraOn) {
+      window.videoLocalStream = stream;
+    } else {
+      stopCameraStream(stream);
+    }
     permissionGranted = true;
   };
 
   // if camera permission denied then set the state
-  const cameraPermissionDenied = (error: any) => {
+  const cameraPermissionDenied = (error: Error) => {
     permissionGranted = false;
 
     // doing this type of setting the state
@@ -290,6 +303,19 @@ export const createPhotoField = (
       error.name === CameraErrorCodes.NOT_READABLE
         ? CameraErrorCodes.NOT_ACCESSIBLE
         : CameraErrorCodes.PERMISSION_DENIED;
+  };
+
+  /**
+   * Method to stop camera stream when not in use
+   * @param {MediaStream} stream Stream of the camera
+   */
+  const stopCameraStream = (stream: MediaStream) => {
+    let tracks = null;
+    if (stream) {
+      tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+    window.videoLocalStream = null; // stop the video stream
   };
 
   // click event button for enabling camera
@@ -322,7 +348,7 @@ export const createPhotoField = (
         videoElement.muted = true;
         videoElement.play();
       })
-      .catch((error) => {
+      .catch((_error) => {
         const errorDiv = cameraErrorElement(state, permissionErrorCode);
         mainContentDiv.innerHTML = ""; // Clear the main content div
         mainContentDiv.appendChild(errorDiv);
@@ -340,6 +366,7 @@ export const createPhotoField = (
 
   const mainContentDiv = document.createElement("div");
   mainContentDiv.className = "main-image-container";
+  mainContentDiv.id = `${field.id}-main-content`;
 
   /*----------- Selected Image Div ----------------------- */
   const { selectedImageDiv, deleteButton } = selectedImageDivElement(field.id);
@@ -366,7 +393,7 @@ export const createPhotoField = (
 
   wrapper.appendChild(label);
 
-  let alternateDiv = alternateDivElement();
+  let alternateDiv = alternateDivElement(state, field);
   alternateDiv.addEventListener("click", async () =>
     openCamera(videoDiv, mainContentDiv, facingUserMode)
   );
@@ -400,7 +427,7 @@ export const createPhotoField = (
     cameraOn = false;
 
     mainContentDiv.innerHTML = ""; // Clear the main content div
-    alternateDiv = alternateDivElement();
+    alternateDiv = alternateDivElement(state, field);
     alternateDiv.addEventListener("click", async () =>
       openCamera(videoDiv, mainContentDiv, facingUserMode)
     );
@@ -464,12 +491,10 @@ export const createPhotoField = (
 
     // stopping the camera stream
     const stream = videoElement.srcObject as MediaStream;
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
-      videoElement.srcObject = null; // Stop the video stream
-    }
-    window.videoLocalStream = null; // stop the video stream
+
+    stopCameraStream(stream);
+
+    videoElement.srcObject = null; // Stop the video stream
     cameraOn = false;
 
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
