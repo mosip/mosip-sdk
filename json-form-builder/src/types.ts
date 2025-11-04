@@ -26,6 +26,7 @@ export interface FormField {
   capsLockCheck?: boolean;
   prefix?: string[];
   acceptedFileTypes?: string[];
+  format?: string;
 }
 
 export interface AllowedValues {

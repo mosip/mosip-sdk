@@ -510,9 +510,11 @@ const validateForm = (state: FormState): boolean => {
       // Handle regular fields
       if (input.type === "checkbox") {
         state.formData[input.id] = input.checked;
+      } else if (input.type === "date") {
+         //TODO
       } else if (input.value) {
-        state.formData[input.id] =
-          (state.formData[`${input.id}_prefix`] || "") + input.value;
+               state.formData[input.id] =
+                 (state.formData[`${input.id}_prefix`] || "") + input.value;
       }
     }
   });

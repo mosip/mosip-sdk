@@ -178,7 +178,7 @@
     </div>
 
     <script type="module">
-      import { JsonFormBuilder } from "../../dist/JsonFormBuilder.esm.js";
+      import { JsonFormBuilder } from "../dist/JsonFormBuilder.esm.js";
 
       const config = {
         schema: [
@@ -186,7 +186,7 @@
             id: "fullName",
             controlType: "textbox",
             type: "simpleType",
-            label: {
+            labelName: {
               eng: "Full Name",
               fra: "Nom complet",
               spa: "Nombre completo",
@@ -205,7 +205,7 @@
           {
             id: "email",
             controlType: "textbox",
-            label: {
+            labelName: {
               eng: "Email",
               fra: "Courriel",
               spa: "Correo electrónico",
@@ -224,7 +224,7 @@
           {
             id: "birthDate",
             controlType: "date",
-            label: {
+            labelName: {
               eng: "Birth Date",
               fra: "Date de naissance",
               spa: "Fecha de nacimiento",
@@ -235,7 +235,7 @@
           {
             id: "gender",
             controlType: "dropdown",
-            label: {
+            labelName: {
               eng: "Gender",
               fra: "Genre",
               spa: "Género",
@@ -246,7 +246,7 @@
           {
             id: "password",
             controlType: "password",
-            label: {
+            labelName: {
               eng: "Password",
               fra: "Mot de passe",
               spa: "Contraseña",
@@ -315,7 +315,7 @@
         },
         recaptcha: {
           siteKey: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI", // This is a test key from Google
-          enabled: true,
+          enabled: false,
           language: "en",
         },
       };

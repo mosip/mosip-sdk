@@ -1,6 +1,6 @@
 {
   "name": "@anushase/json-form-builder",
-  "version": "1.1.6",
+  "version": "1.1.7-beta.0",
   "description": "A dynamic JSON form builder with multi-language support, validation, and responsive design",
   "main": "dist/JsonFormBuilder.umd.js",
   "module": "dist/JsonFormBuilder.esm.js",
@@ -70,5 +70,8 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }
