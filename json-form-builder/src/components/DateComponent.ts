@@ -1,4 +1,6 @@
 import { FormState, FormField } from "../types";
+import { format } from "date-fns";
+
 import {
   getMultiLangText,
   createErrorContainer,
@@ -68,7 +70,14 @@ export const createDateField = (
   input.addEventListener("input", validate);
   input.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
-    state.formData[field.id] = target.value;
+    const rawValue = target.value; // e.g., "2025-11-03"
+
+      if (rawValue) {
+        const date = new Date(rawValue);
+        state.formData[field.id] = format(date, field.format ?? "yyyy/MM/dd");
+      } else {
+        state.formData[field.id] = "";
+      }
     input.dispatchEvent(new Event("input"));
   });
 
