@@ -55,6 +55,7 @@ declare global {
       getResponse: (widgetId?: number) => string;
       reset: (widgetId?: number) => void;
     };
+    videoLocalStream: MediaStream | null;
   }
 }
 
@@ -302,6 +303,47 @@ const refreshLabels = (state: FormState): void => {
         field.id,
         field.placeholder
       );
+    }
+
+    if (field.controlType === ControlType.PHOTO) {
+      const mainContentDiv = state.container.querySelector(
+        `#${field.id}-main-content`
+      );
+      const altDivPopup = mainContentDiv?.querySelector(
+        `.alternate-icon-popup`
+      );
+      // updating alt text for camera icon
+      if (altDivPopup) {
+        altDivPopup.textContent =
+          getMultiLangText(
+            state,
+            field.placeholder,
+            false,
+            lang,
+            defaultLang
+          ) || "Click to open camera";
+      }
+      const errorHeader: HTMLElement | undefined | null =
+        mainContentDiv?.querySelector(`.camera-denied-header`);
+      const errorDescription: HTMLElement | undefined | null =
+        mainContentDiv?.querySelector(`.camera-denied-description`);
+      // updating error header and description for camera permission denied
+      if (errorHeader) {
+        errorHeader.textContent =
+          getMultiLangText(
+            state,
+            state.fallbackErrors?.[`${errorHeader.dataset.errorCode}_header`]
+          ) || "";
+      }
+      if (errorDescription) {
+        errorDescription.textContent =
+          getMultiLangText(
+            state,
+            state.fallbackErrors?.[
+              `${errorDescription.dataset.errorCode}_description`
+            ]
+          ) || "";
+      }
     }
 
     const errorContainer = state.container.querySelector(

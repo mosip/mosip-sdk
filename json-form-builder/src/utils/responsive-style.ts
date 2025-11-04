@@ -426,6 +426,65 @@ select option:first-child {
 .capture-button:hover .inner-circle {
   transform: scale(0.9);
 }
+
+.camera-denied-container {
+  width: 432px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  margin: 10px;
+  background-color: lightgrey;
+  padding: 0 10px;
+  flex-flow: column;
+}
+
+.camera-denied-header, .camera-denied-description {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alternate-icon-popup {
+  /* Initial styling for the popup */
+  position: absolute;
+  bottom: 29%; /* Position it above the image */
+  left: 50%;
+  transform: translateX(-50%); /* Center the popup horizontally */
+  
+  /* Visuals */
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  white-space: nowrap; /* Prevent text from wrapping */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+  /* Hide the popup by default */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+}
+
+.alternate-icon-popup::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+  transform: rotate(180deg);
+}
+
+.alternate-icon-div:hover .alternate-icon-popup {
+  /* Show the popup on hover */
+  opacity: 1;
+  visibility: visible;
+}
 /* photo component styling end */
 `;
 

@@ -1,6 +1,6 @@
 {
   "name": "@anushase/json-form-builder",
-  "version": "1.1.7-beta.0",
+  "version": "1.1.7",
   "description": "A dynamic JSON form builder with multi-language support, validation, and responsive design",
   "main": "dist/JsonFormBuilder.umd.js",
   "module": "dist/JsonFormBuilder.esm.js",

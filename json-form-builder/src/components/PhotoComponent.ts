@@ -1,4 +1,5 @@
 import { FormState, FormField, FileUploadData } from "../types";
+import { CameraErrorCodes } from "../utils/constants";
 import {
   getLabelText,
   createErrorContainer,
@@ -6,7 +7,33 @@ import {
   handleRequiredValidation,
   dataUrlToBlob,
   emptyInvalidFn,
+  getMultiLangText,
 } from "../utils/utils";
+
+/**
+ * Create camera denied icon.
+ * @returns {SVGSVGElement} representing camera denied icon.
+ */
+const createCameraDeniedIcon = (): SVGSVGElement => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  svg.setAttribute("viewBox", "0 0 52.227 52.227");
+  svg.setAttribute("width", "52.227");
+  svg.setAttribute("height", "52.227");
+
+  path.setAttribute(
+    "d",
+    "M102.542-825.2l-3.806-3.806v-24.986a.76.76,0,0,0-.22-.561.76.76,0,0,0-.561-.22H88.507l-4.656-5.075H73.018l-2.435,2.689-2.713-2.713,3.489-3.782H85.511l4.695,5.075h7.75a4.428,4.428,0,0,1,3.255,1.332,4.428,4.428,0,0,1,1.332,3.255V-825.2Zm-43.628,4.685a4.428,4.428,0,0,1-3.255-1.332,4.428,4.428,0,0,1-1.332-3.255v-28.89a4.428,4.428,0,0,1,1.332-3.255,4.428,4.428,0,0,1,3.255-1.332h3.065l3.806,3.806H58.914a.76.76,0,0,0-.561.22.76.76,0,0,0-.22.561v28.89a.76.76,0,0,0,.22.561.76.76,0,0,0,.561.22H96.237l3.806,3.806Zm28.075-13.054a10.764,10.764,0,0,1-3.648,3.25,10.008,10.008,0,0,1-4.907,1.215,10.077,10.077,0,0,1-7.406-3.038,10.077,10.077,0,0,1-3.038-7.406,10.008,10.008,0,0,1,1.215-4.907,10.764,10.764,0,0,1,3.25-3.648l2.752,2.752a6.576,6.576,0,0,0-2.479,2.369,6.435,6.435,0,0,0-.932,3.433,6.418,6.418,0,0,0,1.913,4.724,6.418,6.418,0,0,0,4.724,1.913,6.435,6.435,0,0,0,3.433-.932,6.575,6.575,0,0,0,2.369-2.479l2.752,2.752Zm-1.142-13.391a9.77,9.77,0,0,1,2.174,3.165,10.421,10.421,0,0,1,.832,3.931v.468a2.842,2.842,0,0,1-.039.468l-11-11a2.841,2.841,0,0,1,.468-.039h.468a10.422,10.422,0,0,1,3.931.832A9.769,9.769,0,0,1,85.847-846.963Zm14.9,32.575L51.233-863.9l2.713-2.713L103.46-817.1l-2.713,2.713ZM75.585-839.55ZM84.627-843.117Z"
+  );
+
+  path.setAttribute("transform", "translate(-51.233 866.615)");
+  path.setAttribute("fill", "#afafaf");
+
+  svg.appendChild(path);
+
+  return svg;
+};
 
 /**
  * Create camera flip icon.
@@ -125,9 +152,11 @@ const videoDivElement = (
 
 /**
  * Creates an alternate icon div element for the photo component.
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ * @param {FormField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing an alternate icon for the photo component.
  */
-const alternateDivElement = (): HTMLDivElement => {
+const alternateDivElement = (state: FormState, field: FormField): HTMLDivElement => {
   const altDiv = document.createElement("div");
   altDiv.className = "alternate-icon-div";
 
@@ -139,8 +168,52 @@ const alternateDivElement = (): HTMLDivElement => {
   const svgUrl = "data:image/svg+xml;base64," + btoa(svgString);
   altImage.src = svgUrl;
 
+  const popupDiv = document.createElement("div");
+  popupDiv.className = "alternate-icon-popup";
+  popupDiv.innerText = getMultiLangText(state, field.placeholder);
+
   altDiv.appendChild(altImage);
+  altDiv.appendChild(popupDiv);
   return altDiv;
+};
+
+/**
+ * Creates a camera error div element for the photo component.
+ * @param {FormState} state The current form state containing schema, container, and other properties.
+ * @param {string} permissionErrorCode The permission error code to display.
+ * @returns {HTMLDivElement} A div element containing a camera error icon for the photo component.
+ */
+const cameraErrorElement = (
+  state: FormState,
+  permissionErrorCode: string
+): HTMLDivElement => {
+  const errorDiv = document.createElement("div");
+  errorDiv.className = "camera-denied-container";
+
+  const svgElement = createCameraDeniedIcon();
+  errorDiv.appendChild(svgElement);
+
+  const headerDiv = document.createElement("div");
+  headerDiv.className = "camera-denied-header";
+  headerDiv.dataset.errorCode = permissionErrorCode;
+  headerDiv.textContent =
+    getMultiLangText(
+      state,
+      state.fallbackErrors?.[`${permissionErrorCode}_header`]
+    ) || "";
+
+  const descriptionDiv = document.createElement("div");
+  descriptionDiv.className = "camera-denied-description";
+  descriptionDiv.dataset.errorCode = permissionErrorCode;
+  descriptionDiv.textContent =
+    getMultiLangText(
+      state,
+      state.fallbackErrors?.[`${permissionErrorCode}_description`]
+    ) || "";
+
+  errorDiv.appendChild(headerDiv);
+  errorDiv.appendChild(descriptionDiv);
+  return errorDiv;
 };
 
 /**
@@ -189,6 +262,61 @@ export const createPhotoField = (
 
   let cameraOn = false;
   let facingUserMode: boolean = true;
+  let permissionGranted: boolean = false;
+  let permissionErrorCode: string = CameraErrorCodes.PERMISSION_DENIED;
+
+  navigator.permissions
+    .query({ name: "camera" as PermissionName })
+    .then((permissionStatus) => {
+      // Listen for changes in the permission state
+      permissionStatus.onchange = () => {
+        cameraPermissionCheck();
+      };
+    });
+
+  const cameraPermissionCheck = () => {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then(cameraPermissionAllowed)
+      .catch(cameraPermissionDenied)
+      .finally(() => cameraOn && alternateDiv.click());
+  };
+
+  // if camera permission granted then set the state
+  const cameraPermissionAllowed = (stream: MediaStream) => {
+    if (cameraOn) {
+      window.videoLocalStream = stream;
+    } else {
+      stopCameraStream(stream);
+    }
+    permissionGranted = true;
+  };
+
+  // if camera permission denied then set the state
+  const cameraPermissionDenied = (error: Error) => {
+    permissionGranted = false;
+
+    // doing this type of setting the state
+    // so that it not re render anything
+    // it will only render when state is  actually changed
+    permissionErrorCode =
+      error.name === CameraErrorCodes.NOT_READABLE
+        ? CameraErrorCodes.NOT_ACCESSIBLE
+        : CameraErrorCodes.PERMISSION_DENIED;
+  };
+
+  /**
+   * Method to stop camera stream when not in use
+   * @param {MediaStream} stream Stream of the camera
+   */
+  const stopCameraStream = (stream: MediaStream) => {
+    let tracks = null;
+    if (stream) {
+      tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+    window.videoLocalStream = null; // stop the video stream
+  };
 
   // click event button for enabling camera
   const openCamera = async (
@@ -204,19 +332,28 @@ export const createPhotoField = (
       return;
     }
 
-    // setting the element to video div
-    mainContentDiv.innerHTML = ""; // Clear the main content div
-    mainContentDiv.appendChild(videoDiv);
+    await navigator.mediaDevices
+      .getUserMedia({
+        audio: false,
+        video: {
+          facingMode: facingUserMode ? "user" : "environment",
+        },
+      })
+      .then((stream) => {
+        // setting the element to video div
+        mainContentDiv.innerHTML = ""; // Clear the main content div
+        mainContentDiv.appendChild(videoDiv);
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        facingMode: facingUserMode ? "user" : "environment",
-      },
-    });
-    videoElement.srcObject = stream;
-    videoElement.muted = true;
-    videoElement.play();
+        videoElement.srcObject = stream;
+        videoElement.muted = true;
+        videoElement.play();
+      })
+      .catch((_error) => {
+        const errorDiv = cameraErrorElement(state, permissionErrorCode);
+        mainContentDiv.innerHTML = ""; // Clear the main content div
+        mainContentDiv.appendChild(errorDiv);
+      });
+
     cameraOn = true;
   };
 
@@ -229,6 +366,7 @@ export const createPhotoField = (
 
   const mainContentDiv = document.createElement("div");
   mainContentDiv.className = "main-image-container";
+  mainContentDiv.id = `${field.id}-main-content`;
 
   /*----------- Selected Image Div ----------------------- */
   const { selectedImageDiv, deleteButton } = selectedImageDivElement(field.id);
@@ -255,7 +393,7 @@ export const createPhotoField = (
 
   wrapper.appendChild(label);
 
-  let alternateDiv = alternateDivElement();
+  let alternateDiv = alternateDivElement(state, field);
   alternateDiv.addEventListener("click", async () =>
     openCamera(videoDiv, mainContentDiv, facingUserMode)
   );
@@ -289,7 +427,7 @@ export const createPhotoField = (
     cameraOn = false;
 
     mainContentDiv.innerHTML = ""; // Clear the main content div
-    alternateDiv = alternateDivElement();
+    alternateDiv = alternateDivElement(state, field);
     alternateDiv.addEventListener("click", async () =>
       openCamera(videoDiv, mainContentDiv, facingUserMode)
     );
@@ -353,10 +491,9 @@ export const createPhotoField = (
 
     // stopping the camera stream
     const stream = videoElement.srcObject as MediaStream;
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
-    }
+
+    stopCameraStream(stream);
+
     videoElement.srcObject = null; // Stop the video stream
     cameraOn = false;
 
