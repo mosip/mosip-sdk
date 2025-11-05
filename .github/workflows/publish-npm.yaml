@@ -24,6 +24,7 @@ jobs:
   publish:
     if: ${{ github.ref != 'refs/heads/master' }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: json-form-builder
@@ -38,6 +39,10 @@ jobs:
             path: './sign-in-with-esignet'
 
     name: Publish ${{ matrix.name }} to NPM
+    concurrency:
+      group: publish-${{ matrix.name }}
+      cancel-in-progress: false
+
     uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.path }}
