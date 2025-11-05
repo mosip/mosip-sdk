@@ -21,6 +21,7 @@ on:
 
 jobs:
   publish-to-npm-registry:
+    name: Publish ${{ matrix.service.name }}
     strategy:
       matrix:
         service:
