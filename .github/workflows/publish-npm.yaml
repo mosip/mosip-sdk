@@ -1,0 +1,66 @@
+name: MOSIP-SDK NPM Publish
+
+on:
+  release:
+    types: [ published ]
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for NPM Publish'
+        type: string
+  push:
+    branches:
+      - release*
+      - master
+      - develop*
+      - MOSIP*
+
+jobs:
+  publish-json-form-builder-to-npm-registry:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}"
+    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: './json-form-builder'
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  publish-react-secure-biometric-interface-integrator-to-npm-registry:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}"
+    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: './react-secure-biometric-interface-integrator'
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  publish-secure-biometric-interface-integrator-to-npm-registry:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}"
+    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: './secure-biometric-interface-integrator'
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  publish-react-sign-in-with-esignet-to-npm-registry:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}"
+    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: './react-sign-in-with-esignet'
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  publish-sign-in-with-esignet-to-npm-registry:
+    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}"
+    uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
+    with:
+      SERVICE_LOCATION: './sign-in-with-esignet'
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
