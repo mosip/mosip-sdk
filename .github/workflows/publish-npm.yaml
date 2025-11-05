@@ -1,31 +1,31 @@
 name: MOSIP-SDK NPM Publish
 
 on:
-  release:
-    types: [ published ]
-  pull_request:
-    types: [ opened, reopened, synchronize ]
   workflow_dispatch:
     inputs:
       message:
-        description: 'Message for manually triggering'
+        description: 'Trigger manual NPM publish'
         required: false
-        default: 'Triggered for NPM Publish'
-        type: string
+        default: 'Triggered manually'
+
   push:
     branches:
-      - release*
-      - master
-      - develop*
-      - MOSIP*
+      - 'release*'
+      - 'develop*'
+      - 'MOSIP*'
+
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+  release:
+    types: [published]
 
 jobs:
-  publish-to-npm-registry:
-    # ✅ Allow trigger only for manual dispatch, skip for master/PRs
-    if: ${{ github.event_name == 'workflow_dispatch' && !contains(github.ref, 'master') }}
+  publish:
+    if: ${{ github.ref != 'refs/heads/master' }}
     strategy:
       matrix:
-        service:
+        include:
           - name: json-form-builder
             path: './json-form-builder'
           - name: react-secure-biometric-interface-integrator
@@ -36,10 +36,11 @@ jobs:
             path: './react-sign-in-with-esignet'
           - name: sign-in-with-esignet
             path: './sign-in-with-esignet'
-    name: Publish ${{ matrix.service.name }} to NPM Registry
+
+    name: Publish ${{ matrix.name }} to NPM
     uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
-      SERVICE_LOCATION: ${{ matrix.service.path }}
+      SERVICE_LOCATION: ${{ matrix.path }}
     secrets:
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
