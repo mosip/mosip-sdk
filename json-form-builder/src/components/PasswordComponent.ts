@@ -241,35 +241,64 @@ export const createPasswordField = (
 
   const validateConfirm = () => {
     appendError(confirmError, "");
-    const confirmVal = confirmInput.value.trim();
+    const value = confirmInput.value.trim();
 
-    if (!confirmVal) {
-      confirmInput.setCustomValidity("");
-      confirmInput.classList.remove("error");
-      return;
-    }
+    let isValid = true;
+    let lastError: "required" | "mismatch" | number | null = null;
 
-    if (confirmInput.value !== input.value) {
-      const mismatchErrors = state.fallbackErrors?.passwordMismatch || {};
-      const mismatchError =
-        getMultiLangText(state, mismatchErrors, true) ||
-        "Passwords do not match";
-
-      appendError(confirmError, mismatchError);
-      confirmInput.setCustomValidity(mismatchError);
-      confirmInput.classList.add("error");
+    // Required validation
+    const touched = confirmInput.dataset.touched === "true";
+    if (field.required && !value) {
+      const prevError = state.lastErrors?.[confirmId];
+      if (!touched && !state.isSubmitting && prevError == null) {
+        // keep silent while user has not interacted with confirm-password
+        confirmInput.setCustomValidity("");
+        confirmInput.classList.remove("error");
+        state.lastErrors = state.lastErrors || {};
+        state.lastErrors[confirmId] = null;
+        return;
+      }
+      const result = handleRequiredValidation(state, confirmError);
+      lastError = result.lastError;
+      isValid = result.isValid;
+    } else if (value) {
+      // Only check mismatch when confirm has a value
+      if (value !== input.value) {
+        const mismatchErrors = state.fallbackErrors?.passwordMismatch || {};
+        const mismatchError =
+          getMultiLangText(state, mismatchErrors, true) ||
+          "Passwords do not match";
+        appendError(confirmError, mismatchError);
+        confirmInput.setCustomValidity(mismatchError);
+        confirmInput.classList.add("error");
+        lastError = "mismatch";
+        isValid = false;
+      } else {
+        confirmInput.setCustomValidity("");
+        confirmInput.classList.remove("error");
+      }
     } else {
-      confirmInput.setCustomValidity("");
-      confirmInput.classList.remove("error");
+      confirmInput.setCustomValidity(isValid ? "" : "Invalid input");
+      confirmInput.classList.toggle("error", !isValid);
     }
+
+    // persist last error for confirm field id
+    state.lastErrors = state.lastErrors || {};
+    state.lastErrors[confirmId] = lastError;
+
+    confirmInput.setCustomValidity(isValid ? "" : "Invalid input");
+    confirmInput.classList.toggle("error", !isValid);
   };
 
-  confirmInput.addEventListener("input", validateConfirm);
+  confirmInput.addEventListener("input", (ev: Event) => {
+    if ((ev as Event).isTrusted) confirmInput.dataset.touched = "true";
+    validateConfirm();
+  });
 
   confirmInput.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
     state.formData[`${field.id}_confirm`] = target.value;
-    confirmInput.dispatchEvent(new Event("input"));
+    confirmInput.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
   confirmField.appendChild(confirmInput);

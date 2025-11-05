@@ -139,7 +139,7 @@ export interface FormState {
   isRTL: boolean;
   recaptcha?: ReCaptchaConfig;
   fallbackErrors: Errors;
-  lastErrors?: Record<string, "required" | number | null>;
+  lastErrors?: Record<string, "required" | "mismatch" | number | null>;
   languageMap: KeyValuePair;
   additionalSchema?: AdditionalSchema;
   isSubmitting: boolean;
