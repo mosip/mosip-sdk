@@ -21,7 +21,7 @@ on:
 
 jobs:
   publish-to-npm-registry:
-    name: Publish ${{ matrix.service.name }}
+    if: ${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         service:
@@ -35,7 +35,7 @@ jobs:
             path: './react-sign-in-with-esignet'
           - name: sign-in-with-esignet
             path: './sign-in-with-esignet'
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}"
+    name: Publish ${{ matrix.service.name }} to NPM Registry
     uses: mosip/kattu/.github/workflows/npm-publish-to-npm-registry.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.service.path }}
