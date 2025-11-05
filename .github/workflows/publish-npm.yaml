@@ -21,7 +21,8 @@ on:
 
 jobs:
   publish-to-npm-registry:
-    if: ${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name == 'workflow_dispatch' }}
+    # ✅ Allow trigger only for manual dispatch, skip for master/PRs
+    if: ${{ github.event_name == 'workflow_dispatch' && !contains(github.ref, 'master') }}
     strategy:
       matrix:
         service:
