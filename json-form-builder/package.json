@@ -18,7 +18,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint",
-    "watch": "npm-watch"
+    "watch": "npm-watch",
+    "verify": "npm run build"
   },
   "watch": {
     "build": {
