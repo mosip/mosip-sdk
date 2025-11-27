@@ -15,7 +15,7 @@ A flexible and customizable form builder that creates forms from JSON configurat
 ## Installation
 
 ```bash
-npm install json-form-builder
+npm install @mosip/json-form-builder
 ```
 
 ## Usage
@@ -23,14 +23,14 @@ npm install json-form-builder
 ### Basic Usage
 
 ```javascript
-import { JsonFormBuilder } from "anushase@json-form-builder";
+import { JsonFormBuilder } from "@mosip/json-form-builder";
 
 const config = {
   schema: [
     {
       id: "name",
       controlType: "textbox",
-      label: {
+      labelName: {
         eng: "Name",
         fra: "Nom",
       },
@@ -56,14 +56,16 @@ const config = {
     },
     // ... more fields
   ],
-  errors: {
-    required: {
-      eng: "This field is required",
-      fra: "Ce champ est obligatoire",
-    },
-    capsLock: {
-      eng: "Caps Lock is on",
-      fra: "Verr Maj activé"
+  i18nValues: {
+    errors: {
+      required: {
+        eng: "This field is required",
+        fra: "Ce champ est obligatoire",
+      },
+      capsLock: {
+        eng: "Caps Lock is on",
+        fra: "Verr Maj activé"
+      }
     }
   },
   language: {
@@ -110,6 +112,11 @@ interface FormConfig {
   schema: FormField[];
   language: LanguageSettings;
   allowedValues?: AllowedValues;
+  i18nValues?: {
+    errors?: Errors;
+    labels?: { [id: string]: Label };
+    placeholders?: { [id: string]: Label };
+  }
   errors?: Errors;
 }
 ```
@@ -137,14 +144,6 @@ interface AdditionalConfig {
     enabled?: boolean;
     language?: string;
   };
-  additionalSchema?: {
-    // additional schema is for passing some schema's label & placeholder on later
-    // stage of form rendering, here id will be the same id given in the schema
-    [id: string]: {
-      label: Label;
-      placeholder: Label;
-    };
-  }
 }
 ```
 
@@ -184,6 +183,8 @@ The form builder supports the following field types:
 - Date
 - Dropdown
 - Checkbox
+- Phone
+- Photo
 
 ## Validation
 
@@ -293,7 +294,7 @@ This will generate:
     ```
 2. Now go to the application, where you want to use `json-form-builder` library, and run the below command
     ```bash
-    npm link @anushase/json-form-builder
+    npm link @mosip/json-form-builder
     ```
 3. This will create a link between the library and application, after that if any changes has been done in the library, just run the below command and it will reflect in the application as well
     ```bash
