@@ -23,55 +23,161 @@ npm install json-form-builder
 ### Basic Usage
 
 ```javascript
-import { JsonFormBuilder } from "anushase@json-form-builder";
+import { JsonFormBuilder } from "mosip@json-form-builder";
 
 const config = {
   schema: [
     {
-      id: "name",
-      controlType: "textbox",
+      id: "sampleInputId",
+      required: true,
+      type: "string",
       label: {
-        eng: "Name",
-        fra: "Nom",
+        eng: "Sample Field",
+        ara: "حقل تجريبي",
+        fra: "Champ d'exemple",
       },
       placeholder: {
-        eng: "Enter your name",
-        fra: "Entrez votre nom"
+        eng: "Enter value",
+        ara: "أدخل القيمة",
+        fra: "Entrez la valeur",
       },
-      capsLockCheck: true,
-      validator: [
-        {
-          regex: "^[a-zA-Z]{4,35}$",
-          error: {
-            eng: "Name should contain letters and must be of length between 4 to 35",
-            fra: "Le nom doit contenir des lettres et doit avoir une longueur comprise entre 4 et 35"
-          }
-        }
-      ],
       info: {
-        eng: "Your name should contain letters only and should be of length between 4 to 35",
-        fra: "Votre nom doit contenir uniquement des lettres et doit avoir une longueur comprise entre 4 et 35"
-      }
+        eng: "You have to input some text in this field",
+        ara: "عليك إدخال بعض النصوص في هذا الحقل",
+        fra: "Vous devez saisir du texte dans ce champ",
+      },
+      capsLockCheck: {
+        eng: "Caps lock is on",
+        ara: "زر Caps lock قيد التشغيل",
+        fra: "La touche Verr Maj est activée",
+      },
+      cssClasses: "sample-input-field",
+      controlType: "textbox",
+      validators: [
+        {
+          regex: "^[a-zA-Z0-9]+$",
+          langCode: null,
+          error: {
+            eng: "Special characters are not allowed",
+            ara: "لا يُسمح باستخدام الأحرف الخاصة",
+            fra: "Les caractères spéciaux ne sont pas autorisés",
+          },
+        },
+      ],
+      alignmentGroup: "group1",
+    },
+    {
+      id: "gender",
+      controlType: "dropdown",
+      label: {
+        eng: "Gender",
+        fra: "Genre",
+        ara: "جنس",
+      },
+      required: false,
+      alignmentGroup: "group2",
+    },
+    {
+      id: "samplePhone",
+      controlType: "phone",
+      disabled: true,
+      required: false,
+      prefix: ["+91"],
+      label: {
+        eng: "Phone Number",
+        ara: "رقم الهاتف",
+        fra: "Numéro de téléphone",
+      },
+      placeholder: {
+        eng: "Enter your phone number",
+        ara: "أدخل رقم هاتفك",
+        fra: "Entrez votre numéro de téléphone",
+      },
+    },
+    {
+      id: "password",
+      controlType: "password",
+      label: {
+        eng: "Password",
+        ara: "كلمة المرور",
+        fra: "Mot de passe",
+      },
+      placeholder: {
+        eng: "Enter your password",
+        ara: "أدخل كلمة المرور الخاصة بك",
+        fra: "Entrez votre mot de passe",
+      },
+      info: {
+        eng: "Use 8 or more characters with a mix of letters and at least one number.",
+        ara: "استخدم 8 أحرف أو أكثر بمزيج من الحروف ورقم واحد على الأقل.",
+        fra: "Utilisez 8 caractères ou plus avec un mélange de lettres et au moins un chiffre.",
+      },
+      required: true,
+      alignmentGroup: "group3",
+    },
+    {
+      id: "dob",
+      controlType: "date",
+      label: {
+        eng: "Date of Birth",
+        ara: "تاريخ الميلاد",
+        fra: "Date de naissance",
+      },
+      minAge: 2,
+      maxAge: 3,
+      alignmentGroup: "group4",
       required: true,
     },
-    // ... more fields
+    {
+      id: "consent",
+      controlType: "checkbox",
+      label: {
+        eng: "I agree to the <b><a href='#'>Terms & Conditions</a></b> and <b><a href='#'>Privacy Policy</a></b>.",
+        ara: "أوافق على <b><a href='#'>الشروط والأحكام</a></b> و<b><a href='#'>سياسة الخصوصية</a></b>.",
+        fra: "J'accepte les <b><a href='#'>conditions générales</a></b> et la <b><a href='#'>politique de confidentialité</a></b>.",
+      },
+      required: true,
+      alignmentGroup: "group5",
+    },
   ],
+  allowedValues: {
+    gender: {
+      male: {
+        eng: "Male",
+        fra: "Masculin",
+        ara: "ذكر",
+      },
+      female: {
+        eng: "Female",
+        fra: "Féminin",
+        ara: "أنثى",
+      },
+      other: {
+        eng: "Other",
+        fra: "Autre",
+        ara: "آخر",
+      },
+    },
+  },
   errors: {
     required: {
       eng: "This field is required",
       fra: "Ce champ est obligatoire",
+      ara: "هذه الخانة مطلوبه",
     },
-    capsLock: {
-      eng: "Caps Lock is on",
-      fra: "Verr Maj activé"
-    }
+    passwordMismatch: {
+      eng: "Passwords do not match",
+      fra: "Les mots de passe ne correspondent pas",
+      ara: "كلمات المرور غير متطابقة",
+    },
   },
   language: {
     mandatory: ["eng"],
-    optional: ["fra"],
+    optional: ["fra", "ara"],
     langCodeMap: {
       eng: "en",
       fra: "fr",
+      ara: "ar",
     },
   },
 };
@@ -144,7 +250,7 @@ interface AdditionalConfig {
       label: Label;
       placeholder: Label;
     };
-  }
+  };
 }
 ```
 
@@ -246,7 +352,6 @@ The form builder comes with default styles but can be customized using CSS. The 
 - `.caps-lock-icon`: Caps lock icon
 - `.caps-lock-text`: Caps lock text
 
-
 ## Browser Support
 
 - Chrome (latest)
@@ -285,20 +390,21 @@ This will generate:
 - TypeScript declaration files
 
 ### Development with an actual Application
+
 #### This should be used only in local for development purpose only
 
 1. First link the current `json-form-builder` library, with below command
-    ```bash
-    npm link
-    ```
+   ```bash
+   npm link
+   ```
 2. Now go to the application, where you want to use `json-form-builder` library, and run the below command
-    ```bash
-    npm link @anushase/json-form-builder
-    ```
+   ```bash
+   npm link @mosip/json-form-builder
+   ```
 3. This will create a link between the library and application, after that if any changes has been done in the library, just run the below command and it will reflect in the application as well
-    ```bash
-    npm run build
-    ```
+   ```bash
+   npm run build
+   ```
 
 ### Development Mode
 

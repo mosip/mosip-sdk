@@ -18,6 +18,9 @@ import {
   createCheckboxField,
   createPhoneField,
   createPhotoField,
+  createTextareaField,
+  createRadioField,
+  createFileUploadField
 } from "./components";
 
 import {
@@ -151,6 +154,23 @@ const refreshDropdownPlaceholderOptions = (
   );
 };
 
+const updateSubmitButtonState = (state: FormState) => {
+  const formButton: HTMLButtonElement | null = state.container.querySelector(
+    'button[type="submit"]'
+  );
+  if (!formButton) return;
+
+  // Check if form fields are valid (by checking for any errors in lastErrors)
+  const isFormValid = validateForm(state);
+  // Check if reCAPTCHA is valid (if enabled)
+  const isRecaptchaValid = validateRecaptcha(state);
+
+  // The button is disabled if the form fields are not valid OR reCAPTCHA is not valid.
+  const shouldBeDisabled = !isFormValid || !isRecaptchaValid;
+
+  formButton.disabled = shouldBeDisabled;
+};
+
 /**
  * Refreshes all labels in the form based on the current language and schema.
  * It updates the labels for inputs, selects, and error messages according to the current language.
@@ -223,11 +243,12 @@ const refreshLabels = (state: FormState): void => {
         }
       }
 
-      const input = state.container.querySelector(
-        `input#${field.id}`
-      ) as HTMLInputElement;
-      if (input) {
-        input.placeholder = getMultiLangText(
+      const inputOrTextarea = state.container.querySelector(
+        `input#${field.id}, textarea#${field.id}`
+      ) as HTMLInputElement | HTMLTextAreaElement | null;
+
+      if (inputOrTextarea) {
+        inputOrTextarea.placeholder = getMultiLangText(
           state,
           field.placeholder,
           false,
@@ -305,6 +326,49 @@ const refreshLabels = (state: FormState): void => {
       );
     }
 
+    if (field.controlType === ControlType.RADIO) {
+      const mainLabel = state.container.querySelector(
+        `.radio-container[data-field-id="${field.id}"] > .radio-group-label`
+      ) as HTMLLabelElement | null;
+
+      if (mainLabel) {
+        mainLabel.innerHTML = getLabelText(state, field);
+      }
+
+      const radioElements = state.container.querySelectorAll(
+        `input[type="radio"][name="${field.id}"]`
+      ) as NodeListOf<HTMLInputElement>;
+
+      const options = state.allowedValues?.[field.id];
+
+      if (options && typeof options === "object") {
+        radioElements.forEach((radio) => {
+          const originalKey = radio.dataset.originalValue || radio.value;
+
+          // store original key only once
+          radio.dataset.originalValue = originalKey;
+
+          const optionLabelRaw =
+            (options as { [key: string]: Label })[originalKey];
+
+          if (optionLabelRaw) {
+            const translatedValue =
+              getMultiLangText(state, optionLabelRaw) || originalKey;
+
+            radio.value = translatedValue;
+
+            const labelElement = state.container.querySelector(
+              `label[for="${radio.id}"]`
+            ) as HTMLLabelElement | null;
+
+            if (labelElement) {
+              labelElement.innerHTML = translatedValue;
+            }
+          }
+        });
+      }
+    }
+
     if (field.controlType === ControlType.PHOTO) {
       const mainContentDiv = state.container.querySelector(
         `#${field.id}-main-content`
@@ -340,7 +404,7 @@ const refreshLabels = (state: FormState): void => {
           getMultiLangText(
             state,
             state.fallbackErrors?.[
-              `${errorDescription.dataset.errorCode}_description`
+            `${errorDescription.dataset.errorCode}_description`
             ]
           ) || "";
       }
@@ -361,10 +425,47 @@ const refreshLabels = (state: FormState): void => {
         if ((photoData && photoData.value === "") || !photoData) {
           lastError = "required";
         }
+      } else if (field.controlType === ControlType.CHECKBOX) {
+        const checkboxElement = state.container.querySelector(
+          `input#${field.id}[type="checkbox"]`
+        ) as HTMLInputElement | null;
+
+        if (checkboxElement && !checkboxElement.checked) {
+          lastError = "required";
+        }
+      } else if (field.controlType === ControlType.RADIO) {
+        // get all radio buttons for this field
+        const radioElements = state.container.querySelectorAll(
+          `input[type="radio"][name="${field.id}"]`
+        ) as NodeListOf<HTMLInputElement>;
+
+        let isChecked = false;
+
+        // Clear any previous custom validity and check selection
+        radioElements.forEach((radio) => {
+          radio.setCustomValidity(""); // reset
+          if (radio.checked) {
+            isChecked = true;
+            state.formData[field.id] = radio.value; // <-- populate formData
+          }
+        });
+
+        // If none checked, mark error
+        if (!isChecked) {
+          lastError = "required";
+          const firstRadio = radioElements[0];
+          if (firstRadio) {
+            firstRadio.setCustomValidity("This field is required.");
+          }
+        } else {
+          // Ensure formData is always up-to-date for radios
+          state.formData[field.id] = state.formData[field.id] || "";
+        }
       } else {
         const inputElement = state.container.querySelector(
-          `input[data-field-id="${field.id}"]`
-        ) as HTMLInputElement | null;
+          `input[data-field-id="${field.id}"], textarea[data-field-id="${field.id}"]`
+        ) as HTMLInputElement | HTMLTextAreaElement | null;
+
         if (inputElement && !inputElement.value.trim()) {
           lastError = "required";
         } else if (Array.isArray(field.validators) && inputElement) {
@@ -382,7 +483,7 @@ const refreshLabels = (state: FormState): void => {
     state.lastErrors[field.id] = lastError;
 
     // Show error messages if error container exists and error present
-    if (errorContainer && lastError != null) {
+    if (errorContainer && lastError != null && state.isFormInitialized) {
       let errorText = "";
 
       if (lastError === "required") {
@@ -409,6 +510,7 @@ const refreshLabels = (state: FormState): void => {
   if (submitButton) {
     submitButton.textContent = state.submitLabel;
   }
+  updateSubmitButtonState(state);
 };
 
 /**
@@ -420,30 +522,30 @@ const triggerAllEvents = (
   state: FormState,
   mode: "touchedOnly" | "all" = "all"
 ) => {
-  const inputs = state.container.querySelectorAll("input, select");
+  const inputs = state.container.querySelectorAll("input, select, textarea, input[type='checkbox'], input[type='radio']");
 
   inputs.forEach((input) => {
     // Error container selection:
     const errorContainer =
       // 1. Next sibling
       input.nextElementSibling &&
-      input.nextElementSibling.classList.contains("error-message")
+        input.nextElementSibling.classList.contains("error-message")
         ? (input.nextElementSibling as HTMLElement)
         : // 2. Parent's next sibling
-          input.parentElement?.nextElementSibling &&
-            input.parentElement.nextElementSibling.classList.contains(
-              "error-message"
-            )
+        input.parentElement?.nextElementSibling &&
+          input.parentElement.nextElementSibling.classList.contains(
+            "error-message"
+          )
           ? (input.parentElement.nextElementSibling as HTMLElement)
           : // 3. Closest .form-field with .error-message
-            input.closest(".form-field")?.querySelector(".error-message") ||
-            // 4. Closest .form-field-group with .error-message
-            input
-              .closest(".form-field-group")
-              ?.querySelector(".error-message") ||
-            // 5. Fallback: parent query
-            input.parentElement?.querySelector(".error-message") ||
-            null;
+          input.closest(".form-field")?.querySelector(".error-message") ||
+          // 4. Closest .form-field-group with .error-message
+          input
+            .closest(".form-field-group")
+            ?.querySelector(".error-message") ||
+          // 5. Fallback: parent query
+          input.parentElement?.querySelector(".error-message") ||
+          null;
 
     // Only trigger if error message is present (for touchedOnly mode)
     if (
@@ -576,7 +678,8 @@ const JsonFormBuilder = (
     ),
     additionalSchema: additionalConfig.additionalSchema || {},
     isSubmitting: false,
-    maxUploadFileSize: config.maxUploadFileSize || 5242880, // Default to 5MB given as bytes
+    isFormInitialized: false,
+    maxFileSizeMB: config.maxFileSizeMB || 5242880, // Default to 5MB given as bytes
     labels: config.i18nValues?.labels || {},
     placeholders: config.i18nValues?.placeholders || {},
   };
@@ -663,6 +766,7 @@ const JsonFormBuilder = (
     const submitButton = document.createElement("button");
     submitButton.type = "submit";
     submitButton.className = "form-button";
+    submitButton.id = "form-submit-button";
     submitButton.textContent = state.submitLabel;
     form.appendChild(submitButton);
 
@@ -677,6 +781,7 @@ const JsonFormBuilder = (
     state.container.appendChild(form);
 
     initializeRecaptcha(state);
+    updateSubmitButtonState(state);
   };
 
   /**
@@ -689,15 +794,13 @@ const JsonFormBuilder = (
     const form = state.container.querySelector("form");
     if (!form) return;
 
-    const formButton = form.querySelector('button[type="submit"]');
+    const formButton: HTMLButtonElement = form.querySelector('button[type="submit"]')!;
     if (!formButton) return;
 
+    formButton.disabled = true;
     formButton.innerHTML = "";
     formButton.appendChild(createLoadingIcon());
     state.isSubmitting = true;
-
-    // Trigger validation on all inputs
-    triggerAllEvents(state);
 
     // Validate reCAPTCHA if configured and enabled
     const isValid = validateRecaptcha(state);
@@ -711,12 +814,36 @@ const JsonFormBuilder = (
       } else {
         state.isSubmitting = false;
         formButton.innerHTML = state.submitLabel;
+        updateSubmitButtonState(state);
       }
     } else {
       state.isSubmitting = false;
       formButton.innerHTML = state.submitLabel;
       form.reportValidity();
+      updateSubmitButtonState(state);
     }
+  };
+
+  const attachLiveValidationListeners = (state: FormState): void => {
+    // Select all user-editable elements
+    const inputs = state.container.querySelectorAll(
+      "input, select, textarea, input[type='checkbox'], input[type='radio']"
+    );
+
+    inputs.forEach((input) => {
+      // Use 'input' event for immediate feedback on text changes
+      // Use 'change' event for elements like dropdowns, checkboxes, etc.
+      input.addEventListener("input", () => {
+        // 1. Update the state's formData (essential, but likely handled in your field-specific components)
+        // 2. Refresh labels/errors for all fields
+        refreshLabels(state);
+      });
+
+      // Add a 'change' listener as a fallback for elements that don't fire 'input' (like <select>)
+      input.addEventListener("change", () => {
+        refreshLabels(state);
+      });
+    });
   };
 
   return Object.freeze({
@@ -728,6 +855,8 @@ const JsonFormBuilder = (
       }
       await addRecaptchaScript(state);
       render(state);
+      attachLiveValidationListeners(state);
+      state.isFormInitialized = true;
     },
     getFormData: (): FormData => getFormData(state),
     updateLanguage: (
@@ -758,6 +887,8 @@ const createFormElement = (
       return fieldType === InputType.SIMPLE_TYPE
         ? createSimpleTextbox(state, field)
         : createStringField(state, field);
+    case ControlType.TEXTAREA:
+      return createTextareaField(state, field);
     case ControlType.PASSWORD:
       return createPasswordField(state, field);
     case ControlType.DATE:
@@ -766,6 +897,10 @@ const createFormElement = (
       return createDropdownField(state, field);
     case ControlType.CHECKBOX:
       return createCheckboxField(state, field);
+    case ControlType.RADIO:
+      return createRadioField(state, field);
+    case ControlType.FILE:
+      return createFileUploadField(state, field);
     case ControlType.PHONE:
       return createPhoneField(state, field);
     case ControlType.PHOTO:
@@ -799,11 +934,33 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  * @returns {FormData} An object containing the current form data.
  */
 const getFormData = (state: FormState): FormData => {
-  const modifiedData = state.schema.reduce(
-    (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
-    {} as FormData
-  );
-  return modifiedData;
+  return state.schema.reduce((pv: FormData, field: FormField) => {
+    const stored = state.formData[field.id];
+
+    if (field.controlType === ControlType.FILE) {
+      const isPhoto = field.acceptedFileTypes?.some(t => t.startsWith("image/")) ?? false;
+
+      // Photo → single object
+      if (isPhoto) {
+        pv[field.id] = stored && typeof stored === "object" ? stored : { value: "", docType: field.id, format: "" };
+        return pv;
+      }
+
+      // Document → array
+      if (Array.isArray(stored)) {
+        pv[field.id] = stored.filter(item => item && typeof item === "object");
+        return pv;
+      }
+
+      // Default empty array for documents
+      pv[field.id] = [];
+      return pv;
+    }
+
+    // Non-file fields
+    pv[field.id] = stored ?? "";
+    return pv;
+  }, {} as FormData);
 };
 
 /**

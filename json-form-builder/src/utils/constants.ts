@@ -1,12 +1,14 @@
 const ControlType = {
   TEXTBOX: "textbox",
+  TEXTAREA: "textarea",
   PASSWORD: "password",
   DATE: "date",
   DROPDOWN: "dropdown",
   CHECKBOX: "checkbox",
+  RADIO: "radio",
   PHONE: "phone",
   PHOTO: "photo",
-  FILE: "file",
+  FILE: "fileupload",
 };
 
 const InputType = {

@@ -34,10 +34,19 @@ const responsiveStyle = `
 .input_box::-webkit-input-placeholder,
 input[type="date"]::-webkit-datetime-edit-text,
 select option:first-child {
-  color: #a0a8ac;
+  color: #a0a8ac !important;
   font:
     500 14px/21px Inter,
     sans-serif;
+}
+
+input[type="date"] {
+  display: block !important;
+  width: -webkit-fill-available !important;
+}
+
+input[type="date"]:hover, input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer !important;
 }
 
 .input_box.error {
@@ -48,6 +57,166 @@ select option:first-child {
 .input_box.error:focus,
 .input_box.error:focus-within {
   border-color: #fe6b6b !important;
+}
+
+.calendar-icon {
+  position: absolute;
+  left: 10px;
+  top: 54%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #666;
+}
+
+.date-display-input {
+  padding-left: 2.25rem !important;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.real-date-input {
+  height: 0px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+
+  .error-icon {
+    position: relative;
+    top: 2.5px;
+    align-self: start;
+  }
+
+  .error-text {
+    color: #fe6b6b;
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: 500;
+  }
+}
+
+#form-submit-button:disabled {
+  cursor: not-allowed;
+  color: #ffffff !important;
+  background-color: hsl(0, 0%, 80%) !important;
+}
+
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, auto));
+  gap: 1rem;
+  align-items: center;
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    padding-right: 1em;
+    padding-top: 1em;
+
+    .radio-input {
+      width: 1.25rem;
+      height: 1.25rem;
+
+      &:hover:not(:disabled) {
+        cursor: pointer !important;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+
+    label {
+      font-weight: 400 !important;
+      padding-left: 0.5em;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+input[type="radio"]::disabled {
+  cursor: not-allowed !important;
+}
+
+.custom-upload-area {
+  border: 1px solid #E4E7EC;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  margin-top: 8px;
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+}
+
+.uploaded-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #E4E7EC;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.file-preview-left {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.file-icon {
+  width: 1em;
+  align-self: start;
+  position: relative;
+  bottom: 1px;
+}
+
+.file-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-size {
+  font-size: 14px;
+  color: #475467;
+}
+
+.file-delete-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-self: start;
+}
+
+.file-delete-btn:hover svg path {
+  stroke: red !important;
+}
+
+.file-preview-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .input_box {
@@ -88,16 +257,28 @@ select option:first-child {
   position: relative;
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 3rem !important;
+  padding-left: 0.75rem !important;
+}
+
 .password-eye-icon {
   position: absolute;
-  right: 0.75rem; /* Position from the right edge of the input */
-  transform: translateY(130%); /* Adjust for perfect vertical centering */
+  right: 0.75rem;
+  top: 58%;
+  transform: translateY(-50%);
   cursor: pointer;
-  color: #6b7280; /* A neutral gray color */
-  font-size: 1.25rem; /* Adjust icon size */
-  line-height: 1; /* Ensure icon doesn't affect line height */
-  user-select: none;
+  z-index: 2;
 }
+
 /* Password Input Styling End */
 
 /* Checkbox Container Styling */
@@ -141,8 +322,8 @@ select option:first-child {
   align-items: center;
   justify-content: center;
   vertical-align: text-top;
-  height: 1rem;
-  width: 1rem;
+  width: 1rem;    
+  height: 15px;
 }
 
 /* Info Detail Box Styling */
@@ -152,16 +333,16 @@ select option:first-child {
   font-weight: 400;
   display: none; /* Hidden by default */
   position: absolute;
-  top: 100%; /* Position below the icon */
-  left: 50%; /* Center horizontally relative to icon */
+  top: 65%; /* Position below the icon */
+  left: 0%; /* Center horizontally relative to icon */
   transform: translate(10%, -60%); /* Adjust to true center */
   min-width: 250px;
   max-width: 350px;
   background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #E4E7EC;
+  border-radius: 6px;
   padding: 8px 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   z-index: 1000; /* Ensure it's above other content */
   opacity: 0; /* For fade in/out effect */
   visibility: hidden; /* For proper hiding without taking up space */
@@ -181,6 +362,8 @@ select option:first-child {
 @media screen and (max-width: 640px) {
   .info-detail {
     transform: translate(-40%, 5%); /* Adjust for smaller screens */
+    top: 100% !important;
+    left: 50% !important; 
   }
 
   .info-detail-arrow {
@@ -255,7 +438,7 @@ select option:first-child {
 
 /* Change color of dropdown links on hover */
 .prefix-dropdown a:hover {
-  background-color: #ddd;
+  background-color: #E4E7EC;
 }
 
 .prefix-option {
@@ -281,24 +464,28 @@ select option:first-child {
 }
 
 .file-name {
-    flex-grow: 1; /* Allows file name to take available space */
-    color: #555;
-    overflow: hidden; /* Hide overflow text */
-    white-space: nowrap; /* Prevent text wrapping */
-    text-overflow: ellipsis; /* Add ellipsis for overflow */
-    margin-right: 10px; /* Space between text and icon */
-    font-size: 1rem;
+  flex-grow: 1; /* Allows file name to take available space */
+  color: #344054;
+  margin-right: 10px; /* Space between text and icon */
+  font-size: 1rem;
+  position: relative;
+  bottom: 3px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.file-size {
+  color: #475467;
 }
 
 .hidden-file-input {
-    display: none; /* Hide the actual file input */
+  display: none; /* Hide the actual file input */
 }
 
-/* Optional: Focus style for accessibility */
 .file-upload-container:focus-within .file-upload-label {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    outline: none; /* Remove default outline */
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  outline: none; /* Remove default outline */
 }
 /* file input styling end */
 
@@ -308,7 +495,7 @@ select option:first-child {
   justify-content: center;
   cursor: pointer;
   width: 430px;
-  height: 520px;
+  height: 350px;
   align-items: center;
   position: relative;
 }
@@ -321,14 +508,14 @@ select option:first-child {
   position: relative;
   display: inline-block;
   width: 430px;
-  height: 500px;
+  height: 350px;
   background: 1px solid lightgrey;
   border-radius: 10px;
   margin: 10px;
 }
 
 .selected-image img {
-  height: 500px !important;
+  height: 350px !important;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -342,9 +529,9 @@ select option:first-child {
   right: 5px;
   font-size: 9px;
   line-height: 1;
-  color: black;
-  width: 15px;
-  height: 15px;
+  color: white;
+  width: 25px;
+  height: 25px;
   border: none;
   background-color: red;
   display: flex;
@@ -364,7 +551,7 @@ select option:first-child {
 .camera-video-container {
   position: relative; /* All absolutely positioned children are relative to this container */
   width: 432px;
-  height: 500px;
+  height: 350px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -429,7 +616,7 @@ select option:first-child {
 
 .camera-denied-container {
   width: 432px;
-  height: 500px;
+  height: 350px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -450,7 +637,7 @@ select option:first-child {
 .alternate-icon-popup {
   /* Initial styling for the popup */
   position: absolute;
-  bottom: 29%; /* Position it above the image */
+  bottom: 19%; /* Position it above the image */
   left: 50%;
   transform: translateX(-50%); /* Center the popup horizontally */
   
@@ -533,9 +720,14 @@ const rtlStyle = `
   }
 }
 
+[dir="rtl"] .password-input-wrapper input {
+  padding-left: 3rem !important;
+  padding-right: 0.75rem !important;
+}
+
 [dir="rtl"] .password-eye-icon {
   left: 0.75rem;
-  right: unset;
+  right: auto;
 }
 
 [dir="rtl"] .checkbox-container {
@@ -556,6 +748,24 @@ const rtlStyle = `
   right: 0px;
   transform-origin: 3px -7px;
   transform: translateY(50%) rotate(-90deg) translateX(-50%);
+}
+
+[dir="rtl"] .calendar-icon {
+  position: absolute;
+  right: 10px;
+  left: auto;
+  top: 54%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #666;
+}
+
+[dir="rtl"] .date-display-input {
+  padding-right: 2.25rem !important;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 @media screen and (max-width: 640px) {

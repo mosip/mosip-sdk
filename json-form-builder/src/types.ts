@@ -13,7 +13,10 @@ export interface FormField {
   | "dropdown"
   | "checkbox"
   | "phone"
-  | "photo";
+  | "photo"
+  | "radio"
+  | "textarea"
+  | "fileupload";
   type?: "string" | "simpleType";
   labelName: Label;
   required?: boolean;
@@ -27,6 +30,10 @@ export interface FormField {
   prefix?: string[];
   acceptedFileTypes?: string[];
   format?: string;
+  minAge?: number;
+  maxAge?: number;
+  rows?: number;
+  maxFileSizeMB?: number;
 }
 
 export interface AllowedValues {
@@ -80,7 +87,7 @@ export interface FormConfig {
   language: LanguageSettings;
   allowedValues?: AllowedValues;
   errors?: Errors;
-  maxUploadFileSize?: number; // in kilo bytes
+  maxFileSizeMB?: number; // in mega bytes
   i18nValues?: {
     errors?: Errors;
     labels?: { [id: string]: Label };
@@ -143,7 +150,8 @@ export interface FormState {
   languageMap: KeyValuePair;
   additionalSchema?: AdditionalSchema;
   isSubmitting: boolean;
-  maxUploadFileSize: number;
+  maxFileSizeMB: number;
   labels: { [id: string]: Label };
   placeholders: { [id: string]: Label };
+  isFormInitialized: boolean;
 }
