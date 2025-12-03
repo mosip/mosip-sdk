@@ -100,7 +100,7 @@ export const createRadioField = (
 
             // Update formData
             if (selected) {
-                const originalKey = selected.dataset.originalValue || selected.value;
+                const originalKey = selected.value;
                 const optionLabelRaw = (options as any)[originalKey];
 
                 if (field.type === InputType.SIMPLE_TYPE) {

@@ -588,10 +588,10 @@ const hasFormData = (
       return (lng.length === 3 ? langMap[lng] : lng).toLowerCase();
     };
 
-    // required languages in 3 letter form
+    // required languages normalized via langMap
     const required = state.mandatoryLanguages.map(normalize);
 
-    // submitted languages in 3 letter form
+    // submitted languages normalized via langMap
     const submitted = value
       .filter(v => v.value && v.value.trim().length > 0)
       .map(v => normalize(v.language));
