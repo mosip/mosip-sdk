@@ -822,7 +822,12 @@ const getFormData = (state: FormState): FormData => {
     } else if (cv.controlType === ControlType.PHOTO) {
       // for photo type, include only if required or has a value
       const fileData = value as FileUploadData;
-      if (cv.required || (fileData && fileData.value !== "")) {
+      if (
+        cv.required ||
+        (fileData &&
+          ((typeof fileData.value === "string" && fileData.value !== "") ||
+            (fileData.value instanceof Blob && fileData.value.size > 0)))
+      ) {
         pv[cv.id] = fileData;
       }
     } else if (cv.required || (value != null && value !== "")) {
