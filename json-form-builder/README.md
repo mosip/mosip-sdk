@@ -23,7 +23,7 @@ npm install json-form-builder
 ### Basic Usage
 
 ```javascript
-import { JsonFormBuilder } from "mosip@json-form-builder";
+import { JsonFormBuilder } from "@mosip/json-form-builder";
 
 const config = {
   schema: [

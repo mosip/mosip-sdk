@@ -4,7 +4,6 @@ import {
   FormState,
   KeyValuePair,
   Label,
-  FormData,
   FormValue,
 } from "../types";
 type LabelObject = Record<string, string>;
@@ -98,14 +97,6 @@ const appendError = (
     const icon = document.createElement("span");
     icon.innerHTML = errorIconSvg;
     icon.className = "error-icon";
-
-    icon.onload = () => {
-      icon.style.display = "none";
-    };
-
-    icon.onerror = () => {
-      icon.style.display = "inline";
-    };
 
     const textNode = document.createElement("span");
     // If message is object, get multilingual text
@@ -291,7 +282,7 @@ const createInfoIcon = (infoMessage: string): HTMLSpanElement => {
   });
 
   // Optional: ESC key hides it
-  document.addEventListener("keydown", (event) => {
+  infoSpan.addEventListener("keydown", (event) => {
     if (event.key === "Escape") hideInfo();
   });
 
@@ -505,19 +496,30 @@ const validateForm = (state: FormState): boolean => {
           if (fieldDef.type === "simpleType") {
             // SIMPLE TYPE = multilingual array
             state.formData[fieldId] = state.mandatoryLanguages.map((lng) => {
+              const mappedLng = state.languageMap[lng] || lng;
               return {
-                language: lng,
-                value: optionLabels?.[lng] || ""
+                language: mappedLng.length === 3 ? mappedLng : lng,
+                value: optionLabels?.[lng] || optionLabels?.[mappedLng] || ""
               };
             });
           } else {
-            const normalizedUi = state.languageMap[state.currentLanguage] || state.currentLanguage;
-            state.formData[fieldId] = optionLabels?.[normalizedUi] ?? originalKey;
+            const mandatoryLangs: string[] = state?.mandatoryLanguages || [];
+            const firstMandatory = mandatoryLangs[0];
+
+            // fallback: use langMap if needed
+            const mappedMandatory = (state.languageMap && state.languageMap[firstMandatory])
+              ? state.languageMap[firstMandatory]
+              : firstMandatory;
+
+            // assign final value
+            state.formData[fieldId] =
+              optionLabels?.[firstMandatory] ||
+              optionLabels?.[mappedMandatory] ||
+              originalKey;
           }
           break;
         }
         case "date":
-          // TODO: handle date
           break;
         default:
           if (input.value) {
@@ -532,7 +534,7 @@ const validateForm = (state: FormState): boolean => {
     if (
       field.required &&
       field.required === true &&
-      hasFormData(field, state.formData, state.mandatoryLanguages) === false
+      hasFormData(field, state) === false
     ) {
       isFormValid = false;
       break;
@@ -543,36 +545,59 @@ const validateForm = (state: FormState): boolean => {
 };
 
 /**
- * Checks if the form field has data based on its control type and mandatory languages.
- * @param {FormField} formField form field object containing type, id, label, required, and other properties.
- * @param {FormData} formData Current form data containing values for each form field.
- * @param {string[]} mandatoryLanguages  List of mandatory language codes.
- * @returns {boolean}  Returns true if the form field has data, false otherwise.
+ * Checks whether a form field contains valid user-entered data.
+ *
+ * Behavior varies based on the control type:
+ * - For SIMPLE_TYPE (multilingual) fields: verifies that every mandatory language 
+ *   contains a non-empty value.
+ * - For all other field types: checks if the field contains a non-empty or valid value 
+ *   depending on its control type (text, date, dropdown, radio, etc.).
+ *
+ * @param {FormField} formField 
+ *        The form field definition containing id, type, required flag, and other metadata.
+ *
+ * @param {FormState} state 
+ *        The current form state containing formData, mandatoryLanguages, and field configurations.
+ *
+ * @returns {boolean}
+ *          Returns `true` when the field has data according to its type rules;
+ *          returns `false` when the field is empty or missing required multilingual values.
  */
+
 const hasFormData = (
   formField: FormField,
-  formData: FormData,
-  mandatoryLanguages: string[]
+  state: FormState,
 ): boolean => {
   let hasFormData = true;
   const inputId = formField.id;
-  const value = formData[inputId];
+  const value = state.formData[inputId];
   const confirmId = `${inputId}_confirm`;
-  const confirmPass = confirmId in formData ? formData[confirmId] : null;
-  const mandatoryLangs = mandatoryLanguages.map((lang) => lang.toLowerCase());
+  const confirmPass = confirmId in state.formData ? state.formData[confirmId] : null;
 
   if (formField.type === "simpleType") {
     // For simpleType, value is expected to be an array of KeyValuePair
-    if (value && Array.isArray(value) && value.length > 0) {
-      for (const val of value) {
-        const indexLangCode = mandatoryLangs.indexOf(val.language.toLowerCase());
-        if (indexLangCode > -1 && val.value && val.value.trim().length > 0) {
-          mandatoryLangs.splice(indexLangCode, 1);
-        }
-      }
-      return mandatoryLangs.length === 0;
+    if (!value || !Array.isArray(value) || value.length === 0) {
+      return false;
     }
-    return false;
+
+    const langMap = state.languageMap || {};
+
+    // Normalize to 3-letter codes ALWAYS
+    const normalize = (lng: string) => {
+      lng = lng.toLowerCase();
+      return (lng.length === 3 ? langMap[lng] : lng).toLowerCase();
+    };
+
+    // required languages in 3 letter form
+    const required = state.mandatoryLanguages.map(normalize);
+
+    // submitted languages in 3 letter form
+    const submitted = value
+      .filter(v => v.value && v.value.trim().length > 0)
+      .map(v => normalize(v.language));
+
+    // Check if all mandatory languages present
+    return required.every(r => submitted.includes(r));
   }
 
   switch (formField.controlType) {

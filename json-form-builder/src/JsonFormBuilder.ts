@@ -248,13 +248,16 @@ const refreshLabels = (state: FormState): void => {
       ) as HTMLInputElement | HTMLTextAreaElement | null;
 
       if (inputOrTextarea) {
-        inputOrTextarea.placeholder = getMultiLangText(
-          state,
-          field.placeholder,
-          false,
-          lang,
-          defaultLang
-        );
+        // Skip placeholder update entirely for date fields
+        if (field.controlType !== ControlType.DATE) {
+          inputOrTextarea.placeholder = getMultiLangText(
+            state,
+            field.placeholder,
+            false,
+            lang,
+            state.defaultLanguage
+          );
+        }
       }
 
       if (field.controlType === ControlType.PASSWORD) {
@@ -355,14 +358,12 @@ const refreshLabels = (state: FormState): void => {
             const translatedValue =
               getMultiLangText(state, optionLabelRaw) || originalKey;
 
-            radio.value = translatedValue;
-
             const labelElement = state.container.querySelector(
               `label[for="${radio.id}"]`
             ) as HTMLLabelElement | null;
 
             if (labelElement) {
-              labelElement.innerHTML = translatedValue;
+              labelElement.textContent = translatedValue;
             }
           }
         });

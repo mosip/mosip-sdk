@@ -110,14 +110,14 @@ input[type="date"]:hover, input[type="date"]::-webkit-calendar-picker-indicator 
 .radio-group {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(125px, auto));
-  gap: 1rem;
+  gap: 0.5rem 1rem;
   align-items: center;
 
   .radio-option {
     display: flex;
     align-items: center;
-    padding-right: 1em;
-    padding-top: 1em;
+    padding-right: 1rem;
+    padding-top: 0.75rem;
 
     .radio-input {
       width: 1.25rem;
@@ -139,7 +139,7 @@ input[type="date"]:hover, input[type="date"]::-webkit-calendar-picker-indicator 
   }
 }
 
-input[type="radio"]::disabled {
+input[type="radio"]:disabled {
   cursor: not-allowed !important;
 }
 
@@ -177,10 +177,10 @@ input[type="radio"]::disabled {
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
-.file-preview-left {
+.upload-preview-container {
+  position: relative;
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  justify-content: center;
 }
 
 .file-icon {
@@ -207,6 +207,37 @@ input[type="radio"]::disabled {
   border: none;
   cursor: pointer;
   align-self: start;
+}
+
+.photo-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin-left: 0px;
+  background: red !important;
+  border: none;
+  padding: 7px;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+
+  &:hover {
+    background: white !important;
+
+    svg path {
+      stroke: red !important
+    }
+  }
+
+  svg {
+    position: absolute;
+    bottom: 7px;
+
+    path {
+      stroke: white !important;
+    }
+  }
 }
 
 .file-delete-btn:hover svg path {
@@ -322,8 +353,7 @@ input[type="radio"]::disabled {
   align-items: center;
   justify-content: center;
   vertical-align: text-top;
-  width: 1rem;    
-  height: 15px;
+  width: 1rem;
 }
 
 /* Info Detail Box Styling */

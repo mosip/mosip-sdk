@@ -150,7 +150,7 @@ export interface FormState {
   languageMap: KeyValuePair;
   additionalSchema?: AdditionalSchema;
   isSubmitting: boolean;
-  maxFileSizeMB: number;
+  maxFileSizeMB?: number;
   labels: { [id: string]: Label };
   placeholders: { [id: string]: Label };
   isFormInitialized: boolean;

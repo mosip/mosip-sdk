@@ -38,7 +38,7 @@ export const createRadioField = (
 
     // Map UI language -> allowedValues language key
     const lang = state.currentLanguage || state.defaultLanguage;
-    const langMap: Record<string, string> = { en: "eng", km: "khm" };
+    const langMap: Record<string, string> = state.languageMap || {};
     const allowedValueLangKey = langMap[lang] || lang;
 
     const savedValue = state.formData?.[field.id];
@@ -102,23 +102,35 @@ export const createRadioField = (
             if (selected) {
                 const originalKey = selected.dataset.originalValue || selected.value;
                 const optionLabelRaw = (options as any)[originalKey];
-                const langMap = state?.languageMap || {};
 
                 if (field.type === InputType.SIMPLE_TYPE) {
                     const result = state.mandatoryLanguages.map((lng) => {
                         // Use lang code directly as in allowedValues
+
+                        const mappedLng = state.languageMap[lng] || lng;
                         return {
-                            language: lng,
-                            value: optionLabelRaw?.[lng] || ""  // khm/eng keys match allowedValues
+                            language: mappedLng.length === 3 ? mappedLng : lng,
+                            value: optionLabelRaw?.[lng] || optionLabelRaw?.[mappedLng] || ""
                         };
                     });
 
                     state.formData[field.id] = result;
                 }
                 else {
-                    // Normal radio = store translated value for current UI language
-                    const normalizedUi = langMap[state.currentLanguage] || state.currentLanguage;
-                    state.formData[field.id] = optionLabelRaw?.[normalizedUi] || originalKey;
+                    // Non-simpleType → value should be taken from first mandatory language
+                    const mandatoryLangs: string[] = state?.mandatoryLanguages || [];
+                    const firstMandatory = mandatoryLangs[0];
+
+                    // fallback: use langMap if needed
+                    const mappedMandatory = (state.languageMap && state.languageMap[firstMandatory])
+                        ? state.languageMap[firstMandatory]
+                        : firstMandatory;
+
+                    // assign final value
+                    state.formData[field.id] =
+                        optionLabelRaw?.[firstMandatory] ||
+                        optionLabelRaw?.[mappedMandatory] ||
+                        originalKey;
                 }
             }
         });

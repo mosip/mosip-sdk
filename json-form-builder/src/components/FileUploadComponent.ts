@@ -59,8 +59,8 @@ export const createFileUploadField = (
 
     /* ----------------------- CONFIG ----------------------- */
     const allowedTypes = field.acceptedFileTypes || [];
-    const isPhotoUpload = allowedTypes.some(t => t.startsWith("image/"));
-    const maxSizeMB = field.maxFileSizeMB || 10;
+    const isPhotoUpload = allowedTypes.length > 0 && allowedTypes.every(t => t.startsWith("image/"));
+    const maxSizeMB = field.maxFileSizeMB || 5;
     const maxBytes = maxSizeMB * 1024 * 1024;
 
     /* ----------------------- UPLOAD UI ----------------------- */
@@ -70,7 +70,7 @@ export const createFileUploadField = (
     const input = document.createElement("input");
     input.type = "file";
     input.id = field.id;
-    input.multiple = !isPhotoUpload;
+    input.multiple = false;
     input.accept = getAcceptString(allowedTypes);
     input.style.display = "none";
     input.oninvalid = emptyInvalidFn(input);
@@ -108,20 +108,131 @@ export const createFileUploadField = (
     /* ----------------------- PHOTO PREVIEW ----------------------- */
     const previewContainer = document.createElement("div");
     previewContainer.className = "upload-preview-container";
-    previewContainer.style.position = "relative";
-    previewContainer.style.marginTop = "10px";
 
     const previewImg = document.createElement("img");
     previewImg.className = "photo-preview";
     previewImg.style.display = "none";
-    previewImg.style.maxWidth = "150px";
     previewImg.style.borderRadius = "6px";
     previewImg.style.boxShadow = "0 0 5px rgba(0,0,0,0.1)";
 
-    previewContainer.appendChild(previewImg);
+    // delete button for photo upload
+    const photoDeleteBtn = document.createElement("button");
+    photoDeleteBtn.type = "button";
+    photoDeleteBtn.className = "photo-delete-btn";
+    photoDeleteBtn.innerHTML = trashIconSvg;
+    photoDeleteBtn.style.display = "none";
+
+    const photoRow = document.createElement("div");
+    photoRow.style.display = "flex";
+    photoRow.style.alignItems = "center";
+    const photoWrapper = document.createElement("div");
+    photoWrapper.style.position = "relative";
+    photoWrapper.style.display = "inline-block";
+
+    photoWrapper.appendChild(previewImg);
+    photoWrapper.appendChild(photoDeleteBtn);
+    photoRow.appendChild(photoWrapper);
+
+    previewContainer.appendChild(photoRow);
     wrapper.appendChild(previewContainer);
 
     uploadArea.addEventListener("click", () => !field.disabled && input.click());
+
+    /* ----------------------- DRAG & DROP SUPPORT ----------------------- */
+    uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("drag-over");
+    });
+
+    uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("drag-over");
+    });
+
+    uploadArea.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("drag-over");
+
+        if (field.disabled) return;
+
+        const droppedFiles = e.dataTransfer?.files;
+        if (!droppedFiles || droppedFiles.length === 0) return;
+
+        const { isValid, lastError } = validateFiles(droppedFiles);
+        state.lastErrors = state.lastErrors || {};
+        state.lastErrors[field.id] = lastError;
+
+        if (!isValid) {
+            input.classList.add("error");
+            return;
+        }
+        input.classList.remove("error");
+
+        /* ---- Reuse file handling logic ---- */
+        if (isPhotoUpload) {
+            const file = droppedFiles[0];
+            const base64Value = await fileToBase64(file);
+
+            hideUploadArea();
+
+            if (previewImg.src.startsWith("blob:")) {
+                URL.revokeObjectURL(previewImg.src);
+            }
+
+            previewImg.src = URL.createObjectURL(file);
+            previewImg.style.display = "block";
+            photoDeleteBtn.style.display = "block";
+
+            state.formData[field.id] = {
+                value: base64Value,
+                docType: field.id,
+                format: file.type
+            };
+        } else {
+            const previousFiles: any[] = Array.isArray(state.formData[field.id])
+                ? [...(state.formData[field.id] as any[])]
+                : [];
+
+            let newFiles: any[] = [];
+
+            if (!fileListContainer) {
+                fileListContainer = document.createElement("div");
+                fileListContainer.className = "uploaded-file-list";
+                fileListContainer.style.marginTop = "10px";
+                wrapper.appendChild(fileListContainer);
+            }
+
+            hideUploadArea();
+            fileListContainer.style.display = "block";
+
+            for (let i = 0; i < droppedFiles.length; i++) {
+                const file = droppedFiles[i];
+                const fileSizeMB = parseFloat((file.size / (1024 * 1024)).toFixed(1));
+                const base64Value = await fileToBase64(file);
+
+                const fileItem = createDocumentPreviewItem(file.name, fileSizeMB, base64Value);
+                fileListContainer.appendChild(fileItem);
+
+                newFiles.push({
+                    value: base64Value,
+                    docType: field.id,
+                    format: file.type
+                });
+            }
+
+            state.formData[field.id] = [...previousFiles, ...newFiles];
+        }
+    });
+
+    /* ----------------------- MULTIPLE DOC PREVIEW LIST ----------------------- */
+    let fileListContainer: HTMLDivElement | null = null;
+
+    const showUploadArea = () => {
+        uploadArea.style.display = "block";
+    };
+
+    const hideUploadArea = () => {
+        uploadArea.style.display = "none";
+    };
 
     const createDocumentPreviewItem = (
         fileName: string,
@@ -130,19 +241,37 @@ export const createFileUploadField = (
     ) => {
         const item = document.createElement("div");
         item.className = "uploaded-file-item";
-        item.innerHTML = `
-        <div class="file-preview-left">
-            <div class="file-icon">${fileIconSvg}</div>
-            <div class="file-meta">
-                <div class="file-name">${fileName}</div>
-                <div class="file-size">${fileSizeMB} MB</div>
-            </div>
-        </div>
-        <button type="button" class="file-delete-btn">
-            ${trashIconSvg}
-        </button>
-    `;
-        const deleteBtn = item.querySelector(".file-delete-btn") as HTMLButtonElement;
+        const filePreviewLeft = document.createElement("div");
+        filePreviewLeft.className = "file-preview-left";
+
+        const fileIconDiv = document.createElement("div");
+        fileIconDiv.className = "file-icon";
+        fileIconDiv.innerHTML = fileIconSvg;
+
+        const fileMeta = document.createElement("div");
+        fileMeta.className = "file-meta";
+
+        const fileNameDiv = document.createElement("div");
+        fileNameDiv.className = "file-name";
+        fileNameDiv.textContent = fileName;
+
+        const fileSizeDiv = document.createElement("div");
+        fileSizeDiv.className = "file-size";
+        fileSizeDiv.textContent = `${fileSizeMB} MB`;
+
+        fileMeta.appendChild(fileNameDiv);
+        fileMeta.appendChild(fileSizeDiv);
+        filePreviewLeft.appendChild(fileIconDiv);
+        filePreviewLeft.appendChild(fileMeta);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "file-delete-btn";
+        deleteBtn.innerHTML = trashIconSvg;
+
+        item.appendChild(filePreviewLeft);
+        item.appendChild(deleteBtn);
+
         deleteBtn.addEventListener("click", () => {
             const savedFiles: any[] = Array.isArray(state.formData[field.id])
                 ? [...state.formData[field.id] as any[]]
@@ -153,7 +282,11 @@ export const createFileUploadField = (
                 savedFiles.splice(index, 1);
                 state.formData[field.id] = savedFiles.length > 0 ? savedFiles : undefined;
                 item.remove();
-                console.log("Deleted file:", state.formData);
+            }
+
+            if (!state.formData[field.id] || (state.formData[field.id] as any[]).length === 0) {
+                showUploadArea();
+                if (fileListContainer) fileListContainer.style.display = "none";
             }
         });
 
@@ -199,14 +332,19 @@ export const createFileUploadField = (
         if (!isValid) return;
 
         if (isPhotoUpload) {
-            // Only first photo is allowed
             const file = files[0];
             const base64Value = await fileToBase64(file);
 
+            // hide upload area
+            hideUploadArea();
+
+            if (previewImg.src && previewImg.src.startsWith("blob:")) {
+                URL.revokeObjectURL(previewImg.src);
+            }
             previewImg.src = URL.createObjectURL(file);
             previewImg.style.display = "block";
+            photoDeleteBtn.style.display = "block";
 
-            // FIX: Update the specific field ID directly
             state.formData[field.id] = {
                 value: base64Value,
                 docType: field.id,
@@ -214,20 +352,21 @@ export const createFileUploadField = (
             };
 
         } else {
-            // Multiple documents
             const previousFiles: any[] = Array.isArray(state.formData[field.id])
                 ? [...(state.formData[field.id] as any[])]
                 : [];
 
             let newFiles: any[] = [];
 
-            let fileListContainer = wrapper.querySelector(".uploaded-file-list") as HTMLDivElement | null;
             if (!fileListContainer) {
                 fileListContainer = document.createElement("div");
                 fileListContainer.className = "uploaded-file-list";
                 fileListContainer.style.marginTop = "10px";
                 wrapper.appendChild(fileListContainer);
             }
+
+            hideUploadArea();
+            fileListContainer.style.display = "block";
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -244,10 +383,19 @@ export const createFileUploadField = (
                 });
             }
 
-            // FIX: Update the specific field ID directly
             state.formData[field.id] = [...previousFiles, ...newFiles];
         }
-        console.log("Uploaded files for this field:", state.formData);
+    });
+
+    /* ----------------------- PHOTO DELETE HANDLER ----------------------- */
+    photoDeleteBtn.addEventListener("click", () => {
+        previewImg.src = "";
+        previewImg.style.display = "none";
+        photoDeleteBtn.style.display = "none";
+
+        state.formData[field.id] = undefined;
+
+        showUploadArea();
     });
 
     return wrapper;

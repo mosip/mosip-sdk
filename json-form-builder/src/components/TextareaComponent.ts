@@ -52,7 +52,7 @@ export const createTextareaField = (
     textarea.rows = field.rows || 2;
     textarea.oninvalid = emptyInvalidFn(textarea);
     textarea.dataset.fieldId = field.id;
-    textarea.value = (state.allowedValues[field.id] as string) || "";
+    textarea.value = (state.allowedValues?.[field.id] as string) || "";
     textarea.placeholder = getMultiLangText(state, field.placeholder);
 
     if (field.disabled || false) {
