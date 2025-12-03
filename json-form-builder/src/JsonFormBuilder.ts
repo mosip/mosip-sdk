@@ -935,33 +935,41 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  * @returns {FormData} An object containing the current form data.
  */
 const getFormData = (state: FormState): FormData => {
-  return state.schema.reduce((pv: FormData, field: FormField) => {
+  const modifiedData = state.schema.reduce((pv: FormData, field: FormField) => {
     const stored = state.formData[field.id];
 
+    // ---------- FILE & PHOTO HANDLING ----------
     if (field.controlType === ControlType.FILE) {
-      const isPhoto = field.acceptedFileTypes?.some(t => t.startsWith("image/")) ?? false;
+      const isPhoto =
+        field.acceptedFileTypes?.some((t) => t.startsWith("image/")) ?? false;
 
-      // Photo → single object
       if (isPhoto) {
-        pv[field.id] = stored && typeof stored === "object" ? stored : { value: "", docType: field.id, format: "" };
+        // Photo: always single object
+        pv[field.id] =
+          stored && typeof stored === "object"
+            ? stored
+            : { value: "", docType: field.id, format: "" };
         return pv;
       }
 
-      // Document → array
-      if (Array.isArray(stored)) {
-        pv[field.id] = stored.filter(item => item && typeof item === "object");
-        return pv;
-      }
-
-      // Default empty array for documents
-      pv[field.id] = [];
+      // Documents: always an array
+      pv[field.id] = Array.isArray(stored)
+        ? stored.filter((item) => item && typeof item === "object")
+        : [];
       return pv;
     }
 
-    // Non-file fields
+    // ---------- NON-FILE FIELDS ----------
     pv[field.id] = stored ?? "";
     return pv;
   }, {} as FormData);
+
+  // ---------- Add reCAPTCHA if present ----------
+  if (state.formData["recaptchaToken"]) {
+    modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
+  }
+
+  return modifiedData;
 };
 
 /**
