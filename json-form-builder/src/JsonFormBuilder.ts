@@ -7,6 +7,7 @@ import {
   AdditionalConfig,
   AdditionalSchema,
   FileUploadData,
+  KeyValuePair,
 } from "./types";
 
 import {
@@ -799,10 +800,33 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  * @returns {FormData} An object containing the current form data.
  */
 const getFormData = (state: FormState): FormData => {
-  const modifiedData = state.schema.reduce(
-    (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
-    {} as FormData
-  );
+  const modifiedData = state.schema.reduce((pv: FormData, cv: FormField) => {
+    const value = state.formData[cv.id];
+
+    if (cv.required) {
+      // if it a required field, include it even if empty
+      if (cv.type === InputType.SIMPLE_TYPE) {
+        const temp = value as KeyValuePair[];
+        pv[cv.id] = Array.isArray(temp)
+          ? temp.filter((item) => item.value != null && item.value !== "")
+          : value;
+      } else {
+        pv[cv.id] = value;
+      }
+    } else if (cv.type === InputType.SIMPLE_TYPE) {
+      // if it is a simple type, filter out empty values
+      const temp = value as KeyValuePair[];
+      pv[cv.id] = Array.isArray(temp)
+        ? temp.filter((item) => item.value != null && item.value !== "")
+        : value;
+    } else if (value != null && value !== "") {
+      // for other optional fields, include only if value is non-empty
+      pv[cv.id] = value;
+    }
+
+    return pv;
+  }, {} as FormData);
+
   if (state.formData["recaptchaToken"]) {
     modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
   }
