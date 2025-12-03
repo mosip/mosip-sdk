@@ -803,29 +803,31 @@ const getFormData = (state: FormState): FormData => {
   const modifiedData = state.schema.reduce((pv: FormData, cv: FormField) => {
     const value = state.formData[cv.id];
 
-    if (cv.required) {
-      // if it a required field, include it even if empty
-      if (cv.type === InputType.SIMPLE_TYPE) {
-        const temp = value as KeyValuePair[];
-        pv[cv.id] = Array.isArray(temp)
-          ? temp.filter((item) => item.value != null && item.value !== "")
-          : value;
-      } else {
-        pv[cv.id] = value;
-      }
-    } else if (cv.type === InputType.SIMPLE_TYPE) {
-      // if it is a simple type, filter out empty values
+    if (cv.type === InputType.SIMPLE_TYPE) {
+      // for simple type, filter out empty values
       const temp = value as KeyValuePair[];
-      pv[cv.id] = Array.isArray(temp)
+      const filtered = Array.isArray(temp)
         ? temp.filter((item) => item.value != null && item.value !== "")
         : value;
-    } else if (value != null && value !== "") {
-      // for other optional fields, include only if value is non-empty
+
+      // include only if required or has non-empty values
+      if (
+        cv.required ||
+        (Array.isArray(filtered)
+          ? filtered.length > 0
+          : filtered != null && filtered !== "")
+      ) {
+        pv[cv.id] = filtered;
+      }
+    } else if (cv.required || (value != null && value !== "")) {
+      // for other types, include only if required or has non-empty value
       pv[cv.id] = value;
     }
 
     return pv;
   }, {} as FormData);
+
+  console.log({ modifiedData });
 
   if (state.formData["recaptchaToken"]) {
     modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
