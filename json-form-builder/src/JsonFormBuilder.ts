@@ -827,8 +827,6 @@ const getFormData = (state: FormState): FormData => {
     return pv;
   }, {} as FormData);
 
-  console.log({ modifiedData });
-
   if (state.formData["recaptchaToken"]) {
     modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
   }
