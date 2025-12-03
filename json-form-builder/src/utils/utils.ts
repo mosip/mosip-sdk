@@ -174,7 +174,7 @@ const handleRegexValidation = (
   }
   if (!defaultLang) {
     defaultLang =
-      state.languageMap[state.currentLanguage] || state.currentLanguage;
+      state.languageMap[state.defaultLanguage] || state.defaultLanguage;
   }
 
   const normalizedLang = normalizeToThreeLetterCode(
@@ -481,7 +481,7 @@ const validateForm = (state: FormState): boolean => {
           const fieldDef = state.schema.find(f => f.id === fieldId);
           if (!fieldDef) break;
 
-          const originalKey = input.dataset.originalValue || input.value;
+          const originalKey = input.value;
 
           const allOptions = state.allowedValues?.[fieldId];
 
@@ -585,7 +585,7 @@ const hasFormData = (
     // Normalize to 3-letter codes ALWAYS
     const normalize = (lng: string) => {
       lng = lng.toLowerCase();
-      return (lng.length === 3 ? langMap[lng] : lng).toLowerCase();
+      return lng.length === 3 ? langMap[lng] : lng;
     };
 
     // required languages normalized via langMap
