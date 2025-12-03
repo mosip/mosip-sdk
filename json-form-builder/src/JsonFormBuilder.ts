@@ -803,6 +803,9 @@ const getFormData = (state: FormState): FormData => {
     (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
     {} as FormData
   );
+  if (state.formData["recaptchaToken"]) {
+    modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
+  }
   return modifiedData;
 };
 
