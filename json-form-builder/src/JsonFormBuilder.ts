@@ -819,6 +819,12 @@ const getFormData = (state: FormState): FormData => {
       ) {
         pv[cv.id] = filtered;
       }
+    } else if (cv.controlType === ControlType.PHOTO) {
+      // for photo type, include only if required or has a value
+      const fileData = value as FileUploadData;
+      if (cv.required || (fileData && fileData.value !== "")) {
+        pv[cv.id] = fileData;
+      }
     } else if (cv.required || (value != null && value !== "")) {
       // for other types, include only if required or has non-empty value
       pv[cv.id] = value;
