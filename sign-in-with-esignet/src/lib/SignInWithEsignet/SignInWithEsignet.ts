@@ -436,7 +436,7 @@ function buildParAuthorizeUrl(
   url += `&request_uri=${encodeURIComponent(requestUri)}`;
 
   if (oidcConfig.ui_locales) {
-    url += `&ui_locales=${oidcConfig.ui_locales}`;
+    url += `&ui_locales=${encodeURIComponent(oidcConfig.ui_locales)}`;
   }
 
   return url;
