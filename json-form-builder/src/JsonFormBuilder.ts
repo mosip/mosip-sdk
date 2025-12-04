@@ -523,7 +523,7 @@ const triggerAllEvents = (
   state: FormState,
   mode: "touchedOnly" | "all" = "all"
 ) => {
-  const inputs = state.container.querySelectorAll("input, select, textarea, input[type='checkbox'], input[type='radio']");
+  const inputs = state.container.querySelectorAll("input, select, textarea");
 
   inputs.forEach((input) => {
     // Error container selection:
@@ -828,7 +828,7 @@ const JsonFormBuilder = (
   const attachLiveValidationListeners = (state: FormState): void => {
     // Select all user-editable elements
     const inputs = state.container.querySelectorAll(
-      "input, select, textarea, input[type='checkbox'], input[type='radio']"
+      "input, select, textarea"
     );
 
     inputs.forEach((input) => {

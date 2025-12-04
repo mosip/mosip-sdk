@@ -17,6 +17,7 @@ import { eyeCrossedIconSvg, eyeIconSvg } from "../utils/icons";
 
 /**
  * Creates a span element containing the password visibility icon.
+ * The icon toggles between showing and hiding the password when clicked.
  */
 const createPasswordIconSpan = (
   input: HTMLInputElement,
@@ -42,6 +43,7 @@ const createPasswordIconSpan = (
 
 /**
  * Creates a password form element.
+ * @param {FormState} state Current form state containing schema, container, and other properties.
  */
 export const createPasswordField = (
   state: FormState,

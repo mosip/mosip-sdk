@@ -46,11 +46,7 @@ const config = {
         ara: "عليك إدخال بعض النصوص في هذا الحقل",
         fra: "Vous devez saisir du texte dans ce champ",
       },
-      capsLockCheck: {
-        eng: "Caps lock is on",
-        ara: "زر Caps lock قيد التشغيل",
-        fra: "La touche Verr Maj est activée",
-      },
+      capsLockCheck: true,
       cssClasses: "sample-input-field",
       controlType: "textbox",
       validators: [
@@ -169,6 +165,10 @@ const config = {
       eng: "Passwords do not match",
       fra: "Les mots de passe ne correspondent pas",
       ara: "كلمات المرور غير متطابقة",
+    },
+    capsLock: {
+      eng: "Caps Lock is on",
+      fra: "Verr Maj activé",
     },
   },
   language: {
