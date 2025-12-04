@@ -459,8 +459,7 @@ const refreshLabels = (state: FormState): void => {
             firstRadio.setCustomValidity("This field is required.");
           }
         } else {
-          // Ensure formData is always up-to-date for radios
-          state.formData[field.id] = state.formData[field.id] || "";
+          // Do nothing; preserve existing formData value
         }
       } else {
         const inputElement = state.container.querySelector(
@@ -814,12 +813,12 @@ const JsonFormBuilder = (
         state.submitAction(data);
       } else {
         state.isSubmitting = false;
-        formButton.innerHTML = state.submitLabel;
+        formButton.textContent = state.submitLabel;
         updateSubmitButtonState(state);
       }
     } else {
       state.isSubmitting = false;
-      formButton.innerHTML = state.submitLabel;
+      formButton.textContent = state.submitLabel;
       form.reportValidity();
       updateSubmitButtonState(state);
     }
