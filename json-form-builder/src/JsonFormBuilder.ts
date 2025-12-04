@@ -799,10 +799,44 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  * @returns {FormData} An object containing the current form data.
  */
 const getFormData = (state: FormState): FormData => {
-  const modifiedData = state.schema.reduce(
-    (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
-    {} as FormData
-  );
+  const modifiedData = state.schema.reduce((pv: FormData, cv: FormField) => {
+    const value = state.formData[cv.id];
+
+    if (cv.type === InputType.SIMPLE_TYPE) {
+      // for simple type, filter out empty values
+      const temp = value as KeyValuePair[];
+      const filtered = Array.isArray(temp)
+        ? temp.filter((item) => item.value != null && item.value !== "")
+        : value;
+
+      // include only if required or has non-empty values
+      if (
+        cv.required ||
+        (Array.isArray(filtered)
+          ? filtered.length > 0
+          : filtered != null && filtered !== "")
+      ) {
+        pv[cv.id] = filtered;
+      }
+    } else if (cv.controlType === ControlType.PHOTO) {
+      // for photo type, include only if required or has a value
+      const fileData = value as FileUploadData;
+      if (
+        cv.required ||
+        (fileData &&
+          ((typeof fileData.value === "string" && fileData.value !== "") ||
+            (fileData.value instanceof Blob && fileData.value.size > 0)))
+      ) {
+        pv[cv.id] = fileData;
+      }
+    } else if (cv.required || (value != null && value !== "")) {
+      // for other types, include only if required or has non-empty value
+      pv[cv.id] = value;
+    }
+
+    return pv;
+  }, {} as FormData);
+
   if (state.formData["recaptchaToken"]) {
     modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
   }
