@@ -165,8 +165,8 @@ const updateSubmitButtonState = (state: FormState) => {
   // Check if reCAPTCHA is valid (if enabled)
   const isRecaptchaValid = validateRecaptcha(state);
 
-  // The button is disabled if the form fields are not valid OR reCAPTCHA is not valid.
-  const shouldBeDisabled = !isFormValid || !isRecaptchaValid;
+  // The button is disabled if it is in submitting state, form fields are not valid OR reCAPTCHA is not valid.
+  const shouldBeDisabled = state.isSubmitting || !isFormValid || !isRecaptchaValid;
 
   formButton.disabled = shouldBeDisabled;
 };
