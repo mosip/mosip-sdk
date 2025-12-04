@@ -899,8 +899,9 @@ const createFormElement = (
       return createCheckboxField(state, field);
     case ControlType.RADIO:
       return createRadioField(state, field);
-    case ControlType.FILE:
-      return createFileUploadField(state, field);
+    // disabled for a temporary (WIP)
+    // case ControlType.FILE:
+    //   return createFileUploadField(state, field);
     case ControlType.PHONE:
       return createPhoneField(state, field);
     case ControlType.PHOTO:
@@ -934,40 +935,13 @@ const groupFields = (state: FormState): { [key: string]: FormField[] } =>
  * @returns {FormData} An object containing the current form data.
  */
 const getFormData = (state: FormState): FormData => {
-  const modifiedData = state.schema.reduce((pv: FormData, field: FormField) => {
-    const stored = state.formData[field.id];
-
-    // ---------- FILE & PHOTO HANDLING ----------
-    if (field.controlType === ControlType.FILE) {
-      const isPhoto =
-        field.acceptedFileTypes?.some((t) => t.startsWith("image/")) ?? false;
-
-      if (isPhoto) {
-        // Photo: always single object
-        pv[field.id] =
-          stored && typeof stored === "object"
-            ? stored
-            : { value: "", docType: field.id, format: "" };
-        return pv;
-      }
-
-      // Documents: always an array
-      pv[field.id] = Array.isArray(stored)
-        ? stored.filter((item) => item && typeof item === "object")
-        : [];
-      return pv;
-    }
-
-    // ---------- NON-FILE FIELDS ----------
-    pv[field.id] = stored ?? "";
-    return pv;
-  }, {} as FormData);
-
-  // ---------- Add reCAPTCHA if present ----------
+  const modifiedData = state.schema.reduce(
+    (pv: FormData, cv: FormField) => ((pv[cv.id] = state.formData[cv.id]), pv),
+    {} as FormData
+  );
   if (state.formData["recaptchaToken"]) {
     modifiedData["recaptchaToken"] = state.formData["recaptchaToken"];
   }
-
   return modifiedData;
 };
 
