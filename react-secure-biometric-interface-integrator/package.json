@@ -1,11 +1,21 @@
 {
-  "name": "react-secure-biometric-interface-integrator",
+  "name": "@mosip/react-secure-biometric-interface-integrator",
+  "description": "A React JS library for integrating Secure Biometric Devices",
   "version": "0.1.0",
-  "private": true,
+  "author": "MOSIP",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
     "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosip/mosip-sdk"
+  },
+  "keywords": [
+    "mosip",
+    "sbi",
+    "secure-biometric-interface-integrator"
   ],
   "license": "MPL-2.0",
   "types": "dist/index.d.ts",
@@ -82,7 +92,8 @@
     "rollup": "rollup -c",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "package": "npm run rollup && npm pack"
+    "package": "npm run rollup && npm pack",
+    "verify": "npm run build"
   },
   "eslintConfig": {
     "extends": [
