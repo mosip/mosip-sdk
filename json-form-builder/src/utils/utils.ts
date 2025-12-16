@@ -5,8 +5,10 @@ import {
   KeyValuePair,
   Label,
   FormValue,
+  SubTypeField
 } from "../types";
 type LabelObject = Record<string, string>;
+import { ControlType } from "./constants";
 
 /**
  * Helps to get the label text for a form field, including a required indicator if the field is marked as required.
@@ -698,6 +700,11 @@ const mimeToLabel = (mime: string): string => {
   return ext.toUpperCase();
 };
 
+const isSubTypeField = (field: FormField): field is SubTypeField =>
+  field.controlType === ControlType.DROPDOWN ||
+  field.controlType === ControlType.RADIO ||
+  field.controlType === ControlType.FILE;
+
 export {
   getLabelText,
   getMultiLangText,
@@ -716,5 +723,6 @@ export {
   validateForm,
   emptyInvalidFn,
   getAcceptString,
-  mimeToLabel
+  mimeToLabel,
+  isSubTypeField
 };

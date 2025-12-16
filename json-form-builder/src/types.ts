@@ -36,6 +36,11 @@ export interface FormField {
   maxFileSizeMB?: number;
 }
 
+export interface SubTypeField extends FormField {
+  controlType: "dropdown" | "radio" | "fileupload";
+  subType: string;
+}
+
 export interface AllowedValues {
   [key: string]:
   | {
@@ -128,7 +133,7 @@ export interface Validator {
 }
 
 export interface FormState {
-  schema: FormField[];
+  schema: FormField[] | SubTypeField[];
   allowedValues: AllowedValues;
   mandatoryLanguages: string[];
   optionalLanguages: string[];

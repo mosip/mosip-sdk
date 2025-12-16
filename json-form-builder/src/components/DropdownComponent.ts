@@ -1,4 +1,4 @@
-import { FormState, FormField } from "../types";
+import { FormState, SubTypeField } from "../types";
 import {
   getMultiLangText,
   createErrorContainer,
@@ -12,12 +12,13 @@ import {
 /**
  * Creates a dropdown select form element.
  * @param {FormState} state Current form state containing schema, container, and other properties.
- * @param {FormField} field Form field object containing type, id, label, required, and other properties.
+ * @param {SubTypeField} field Form field object containing type, id, label, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the form field with its label and select dropdown.
  */
 export const createDropdownField = (
   state: FormState,
-  field: FormField
+  field: SubTypeField,
+  isSubComponent = false
 ): HTMLDivElement => {
   const wrapper = document.createElement("div");
   wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
@@ -52,15 +53,17 @@ export const createDropdownField = (
   select.appendChild(placeholder);
 
   // Options
-  Object.entries(state.allowedValues[field.id] || {}).forEach(
-    ([value, labels]) => {
-      const option = document.createElement("option");
-      option.className = "select-option";
-      option.value = value;
-      option.textContent = getMultiLangText(state, labels);
-      select.appendChild(option);
-    }
-  );
+  const optionSource =
+    (state.allowedValues?.[field.subType] ??
+      state.allowedValues?.[field.id]) || {};
+
+  Object.entries(optionSource).forEach(([value, labels]) => {
+    const option = document.createElement("option");
+    option.className = "select-option";
+    option.value = value;
+    option.textContent = getMultiLangText(state, labels);
+    select.appendChild(option);
+  });
 
   const errorContainer = createErrorContainer();
 
@@ -84,7 +87,11 @@ export const createDropdownField = (
 
   select.addEventListener("change", (e) => {
     const target = e.target as HTMLSelectElement;
-    state.formData[field.id] = target.value;
+
+    if (!isSubComponent) {
+      state.formData[field.id] = target.value;
+    }
+
     select.style.color = target.value ? "black" : "";
     validateSelect();
   });

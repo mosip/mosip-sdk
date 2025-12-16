@@ -17,6 +17,10 @@ const responsiveStyle = `
   margin-bottom: 0.5rem;
 }
 
+.form-field-group  {
+  margin-bottom: 1rem;
+}
+
 .form-field label,
 .form-field-group label {
   font-size: 14px;
@@ -144,14 +148,14 @@ input[type="radio"]:disabled {
 }
 
 .custom-upload-area {
-  border: 1px solid #E4E7EC;
+  border: 1px solid rgb(204, 204, 204);
   border-radius: 8px;
   padding: 30px;
   text-align: center;
   cursor: pointer;
   position: relative;
   user-select: none;
-  margin-top: 8px;
+  margin-top: 0.25rem;
 
   .icon-wrapper {
     width: 40px;
@@ -165,22 +169,38 @@ input[type="radio"]:disabled {
   }
 }
 
+.custom-group-box {
+  border: 1px solid rgb(204, 204, 204);
+  padding: 12px 16px;
+  margin-top: 10px;
+  margin-bottom: 1em;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-weight: 500 !important;
+  }
+}
+
+.password-container {
+  margin-bottom: 6px !important;
+}
+
+.form-field[class*="lang-"] {
+  margin-bottom: 6px !important;
+}
+
 .uploaded-file-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px;
   margin-bottom: 10px;
-  border: 1px solid #E4E7EC;
+  border: 1px solid rgb(204, 204, 204);
   border-radius: 6px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-
-.upload-preview-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
 }
 
 .file-icon {
@@ -253,9 +273,19 @@ input[type="radio"]:disabled {
 .input_box {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(204, 204, 204) !important;
   border-radius: 4px;
   font-size: 0.9rem;
+}
+
+.file-upload {
+  .form-field {
+    margin-bottom: 0px !important; 
+  }
+
+  .input_box {
+    margin-bottom: 1rem !important
+  }
 }
 
 .language-switcher label {
@@ -454,7 +484,7 @@ input[type="radio"]:disabled {
   top: 100%; /* Position below the button */
   background-color: #f1f1f1;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   z-index: 1;
 }
 

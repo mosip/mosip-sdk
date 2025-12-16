@@ -2,6 +2,7 @@ import {
   FormConfig,
   FormState,
   FormField,
+  SubTypeField,
   FormData,
   Label,
   AdditionalConfig,
@@ -29,6 +30,7 @@ import {
   createInfoIcon,
   buildBidirectionalLanguageMap,
   validateForm,
+  isSubTypeField
 } from "./utils/utils";
 
 import { addResponsiveStyles, addRTLStyles } from "./utils/responsive-style";
@@ -117,7 +119,8 @@ const refreshDropdownPlaceholderOptions = (
   state: FormState,
   selectElement: HTMLSelectElement | null | undefined,
   fieldId: string,
-  optionPlaceholder: Label | undefined
+  optionPlaceholder: Label | undefined,
+  subType?: string
 ) => {
   if (!selectElement) {
     return;
@@ -137,7 +140,9 @@ const refreshDropdownPlaceholderOptions = (
   placeholder.hidden = true;
   selectElement.appendChild(placeholder);
 
-  Object.entries(state.allowedValues[fieldId] || {}).forEach(
+  const key = subType || fieldId;
+
+  Object.entries(state.allowedValues[key] || {}).forEach(
     ([value, labels]) => {
       const option = document.createElement("option");
       option.value = value;
@@ -325,7 +330,8 @@ const refreshLabels = (state: FormState): void => {
         state,
         select,
         field.id,
-        field.placeholder
+        field.placeholder,
+        isSubTypeField(field) ? field.subType : undefined
       );
     }
 
@@ -342,7 +348,9 @@ const refreshLabels = (state: FormState): void => {
         `input[type="radio"][name="${field.id}"]`
       ) as NodeListOf<HTMLInputElement>;
 
-      const options = state.allowedValues?.[field.id];
+      const key = isSubTypeField(field) ? field.subType : field.id;
+
+      const options = state.allowedValues?.[key];
 
       if (options && typeof options === "object") {
         radioElements.forEach((radio) => {
@@ -409,6 +417,80 @@ const refreshLabels = (state: FormState): void => {
             ]
           ) || "";
       }
+    }
+
+    if (field.controlType === ControlType.FILE) {
+      const fileEl = state.container.querySelector(
+        `.file-upload[data-field-id="${field.id}"]`
+      ) as HTMLElement | null;
+
+      if (!fileEl) return;
+
+      // Main upload placeholder
+      const uploadText = fileEl.querySelector(".upload-text");
+      if (uploadText) {
+        uploadText.innerHTML =
+          getMultiLangText(state, state.placeholders?.proofOfDoc, false, lang, defaultLang) ||
+          "Click to upload";
+      }
+
+      // Info text
+      const infoText = fileEl.querySelector(".file-info-text");
+      if (infoText) {
+        infoText.innerHTML =
+          getMultiLangText(state, state.placeholders?.fileTypesInfo, false, lang, defaultLang) ||
+          infoText.innerHTML;
+      }
+
+      // Update all subfields: docType, docRef, proofOfDoc
+      const subFields = ["docType", "docRef", "proofOfDoc"];
+      subFields.forEach((subId) => {
+        const subFieldEl = fileEl.querySelector(`.file-subfield[data-sub-id="${subId}"]`);
+        if (!subFieldEl) return;
+
+        const labelEl = subFieldEl.querySelector("label");
+        const inputEl = subFieldEl.querySelector("input, textarea, select");
+
+        if (labelEl) {
+          labelEl.innerHTML = getLabelText(state, {
+            required: subId !== "docRef",
+            labelName: state.labels?.[subId]
+          } as FormField);
+        }
+
+        if (inputEl) {
+          if (inputEl instanceof HTMLInputElement || inputEl instanceof HTMLTextAreaElement) {
+            inputEl.placeholder =
+              getMultiLangText(state, state.placeholders?.[subId], false, lang, defaultLang) ||
+              inputEl.placeholder || "";
+          }
+
+          if (inputEl instanceof HTMLSelectElement) {
+            const key = isSubTypeField(field) ? field.subType : field.id;
+            const optionsMap = state.allowedValues?.[key] as { [key: string]: Label } | undefined;
+            if (!optionsMap) return;
+
+            const langCode = state.currentLanguage || state.defaultLanguage;
+
+            Array.from(inputEl.options).forEach((option) => {
+              if (!option.value) {
+                // This is the placeholder option
+                option.innerHTML =
+                  getMultiLangText(state, state.placeholders?.[subFields[0]], false, langCode, state.defaultLanguage) ||
+                  option.innerHTML;
+              } else {
+                const translations = optionsMap[option.value];
+                if (translations && typeof translations === "object") {
+                  option.innerHTML =
+                    translations[langCode] ||
+                    translations[state.defaultLanguage] ||
+                    option.innerHTML;
+                }
+              }
+            });
+          }
+        }
+      });
     }
 
     const errorContainer = state.container.querySelector(
@@ -894,14 +976,14 @@ const createFormElement = (
     case ControlType.DATE:
       return createDateField(state, field);
     case ControlType.DROPDOWN:
-      return createDropdownField(state, field);
+      return createDropdownField(state, field as SubTypeField);
     case ControlType.CHECKBOX:
       return createCheckboxField(state, field);
     case ControlType.RADIO:
-      return createRadioField(state, field);
-    // disabled for a temporary (WIP)
+      return createRadioField(state, field as SubTypeField);
+    // tentatively disabled (WIP)
     // case ControlType.FILE:
-    //   return createFileUploadField(state, field);
+    //   return createFileUploadField(state, field as SubTypeField);
     case ControlType.PHONE:
       return createPhoneField(state, field);
     case ControlType.PHOTO:

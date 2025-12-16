@@ -1,4 +1,4 @@
-import { FormState, FormField } from "../types";
+import { FormState, FormField, SubTypeField, FileUploadData } from "../types";
 import {
     getMultiLangText,
     disableField,
@@ -12,36 +12,39 @@ import {
     mimeToLabel
 } from "../utils/utils";
 import { uploadIconSvg, trashIconSvg, fileIconSvg } from "../utils/icons";
+import { createStringField } from "./TextInputComponent";
+import { createDropdownField } from "./DropdownComponent";
 
 /* ----------------------- Base64 Converter ----------------------- */
 async function fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result!.toString().split(",")[1]);
+        reader.onload = () =>
+            resolve(reader.result!.toString().split(",")[1]);
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
 }
 
 /* ----------------------- Allowed File Types Text ----------------------- */
-function getAllowedFileTypesText(allowedTypes: string[], maxSizeMB: number): string {
+function getAllowedFileTypesText(
+    allowedTypes: string[],
+    maxSizeMB: number
+): string {
     const uniqueTypes = Array.from(new Set(allowedTypes));
     const labels = uniqueTypes.map(mimeToLabel).filter(Boolean).join(", ");
     return `${labels} (max. ${maxSizeMB} MB)`;
 }
 
-/* ========================================================================
-   FILE UPLOAD FIELD
-   ======================================================================== */
 export const createFileUploadField = (
     state: FormState,
-    field: FormField
+    field: SubTypeField
 ): HTMLDivElement => {
-
     const wrapper = document.createElement("div");
     wrapper.className = `form-field file-upload ${field.cssClasses?.join(" ") || ""}`;
+    wrapper.setAttribute("data-field-id", field.id);
 
-    /* ----------------------- LABEL ----------------------- */
+    /* ----------------------- MAIN LABEL ----------------------- */
     const labelDiv = document.createElement("div");
     labelDiv.className = "label-div-display";
 
@@ -57,13 +60,89 @@ export const createFileUploadField = (
     labelDiv.appendChild(label);
     wrapper.appendChild(labelDiv);
 
-    /* ----------------------- CONFIG ----------------------- */
+    /* ----------------------- GROUP BOX ----------------------- */
+    const groupBox = document.createElement("div");
+    groupBox.className = "custom-group-box";
+
+    /* ----------------------- DOCUMENT TYPE DROPDOWN ----------------------- */
+
+    let docTypeFieldEl: HTMLDivElement | null = null;
+
+    if (field.subType && state.allowedValues[field.subType]) {
+        const docTypeField: SubTypeField = {
+            ...field,
+            id: `${field.id}_docType`,
+            controlType: "dropdown",
+            labelName: state.labels?.docType
+                || { en: "Document Type" },
+            placeholder: state.placeholders?.docType || { en: "Select an option" },
+            subType: field.subType,
+            required: true
+        };
+        docTypeFieldEl = createDropdownField(state, docTypeField, true);
+        docTypeFieldEl.dataset.i18nLabel = "docType";
+        docTypeFieldEl.dataset.i18nPlaceholder = "docType";
+        groupBox.appendChild(docTypeFieldEl);
+    }
+
+    /* ----------------------- REF ID FIELD ----------------------- */
+
+    const refIdField: FormField = {
+        ...field,
+        id: `${field.id}_refId`,
+        controlType: "textbox",
+        labelName: state.labels?.docRef
+            || { en: "Document Reference ID" },
+        placeholder: state.placeholders?.docRef || { en: "Enter Reference ID here" },
+        required: false
+    };
+
+    const refEl = createStringField(state, refIdField);
+    refEl.dataset.i18nLabel = "docRef";
+    refEl.dataset.i18nPlaceholder = "docRef";
+    groupBox.appendChild(refEl);
+
+    /* ----------------------- PROOF OF DOCUMENT LABEL ----------------------- */
+    const podLabel = document.createElement("label");
+    podLabel.dataset.i18nLabel = "proofOfDoc";
+    podLabel.style.marginBottom = "4px";
+    podLabel.innerHTML = getLabelText(state, {
+        ...field,
+        required: true,
+        labelName: state.labels?.proofOfDoc
+            || { en: "Proof Of Document" }
+    });
+    groupBox.appendChild(podLabel);
+
+    /* ----------------------- Wrap docType ----------------------- */
+    if (docTypeFieldEl) {
+        const docTypeWrapper = document.createElement("div");
+        docTypeWrapper.className = "file-subfield";
+        docTypeWrapper.dataset.subId = "docType";
+        docTypeWrapper.appendChild(docTypeFieldEl);
+        groupBox.appendChild(docTypeWrapper);
+    }
+
+    /* ----------------------- Wrap refId ----------------------- */
+    const refWrapper = document.createElement("div");
+    refWrapper.className = "file-subfield";
+    refWrapper.dataset.subId = "docRef";
+    refWrapper.appendChild(refEl);
+    groupBox.appendChild(refWrapper);
+
+    /* ----------------------- Wrap proofOfDoc ----------------------- */
+    const podWrapper = document.createElement("div");
+    podWrapper.className = "file-subfield";
+    podWrapper.dataset.subId = "proofOfDoc";
+    podWrapper.appendChild(podLabel);
+    groupBox.appendChild(podWrapper);
+
+    /* ----------------------- UPLOAD AREA ----------------------- */
     const allowedTypes = field.acceptedFileTypes || [];
-    const isPhotoUpload = allowedTypes.length > 0 && allowedTypes.every(t => t.startsWith("image/"));
-    const maxSizeMB = field.maxFileSizeMB || 5;
+    const isPhotoUpload = allowedTypes.every(t => t.startsWith("image/"));
+    const maxSizeMB = field.maxFileSizeMB || 5242880;
     const maxBytes = maxSizeMB * 1024 * 1024;
 
-    /* ----------------------- UPLOAD UI ----------------------- */
     const uploadArea = document.createElement("div");
     uploadArea.className = "custom-upload-area";
 
@@ -79,13 +158,14 @@ export const createFileUploadField = (
 
     const iconWrapper = document.createElement("div");
     iconWrapper.className = "icon-wrapper";
-    iconWrapper.style.marginBottom = "10px";
     iconWrapper.innerHTML = uploadIconSvg;
+    iconWrapper.style.marginBottom = "8px";
 
     const text = document.createElement("div");
-    text.innerHTML = `<span class="upload-text" style="color:#1B75D0; font-weight:600;">Click to upload</span> or drag & drop`;
+    text.innerHTML = `<span class="upload-text" style="color:#1B75D0; font-weight:600;">${getMultiLangText(state, state.placeholders?.proofOfDoc)}</span>`;
 
     const infoText = document.createElement("div");
+    infoText.classList.add("file-info-text");
     infoText.style.marginTop = "6px";
     infoText.style.fontSize = "12px";
     infoText.style.color = "#666";
@@ -98,305 +178,185 @@ export const createFileUploadField = (
     uploadArea.appendChild(text);
     uploadArea.appendChild(infoText);
 
-    wrapper.appendChild(input);
-    wrapper.appendChild(uploadArea);
-
-    /* ----------------------- ERROR CONTAINER ----------------------- */
     const errorContainer = createErrorContainer();
-    wrapper.appendChild(errorContainer);
 
-    /* ----------------------- PHOTO PREVIEW ----------------------- */
+    groupBox.appendChild(input);
+    groupBox.appendChild(uploadArea);
+    groupBox.appendChild(errorContainer);
+
+    /* ----------------------- PREVIEW CONTAINER ----------------------- */
     const previewContainer = document.createElement("div");
     previewContainer.className = "upload-preview-container";
 
     const previewImg = document.createElement("img");
     previewImg.className = "photo-preview";
     previewImg.style.display = "none";
-    previewImg.style.borderRadius = "6px";
-    previewImg.style.boxShadow = "0 0 5px rgba(0,0,0,0.1)";
 
-    // delete button for photo upload
     const photoDeleteBtn = document.createElement("button");
     photoDeleteBtn.type = "button";
     photoDeleteBtn.className = "photo-delete-btn";
     photoDeleteBtn.innerHTML = trashIconSvg;
     photoDeleteBtn.style.display = "none";
 
-    const photoRow = document.createElement("div");
-    photoRow.style.display = "flex";
-    photoRow.style.alignItems = "center";
-    const photoWrapper = document.createElement("div");
-    photoWrapper.style.position = "relative";
-    photoWrapper.style.display = "inline-block";
+    const previewRow = document.createElement("div");
+    const previewWrapper = document.createElement("div");
+    previewWrapper.style.position = "relative";
 
-    photoWrapper.appendChild(previewImg);
-    photoWrapper.appendChild(photoDeleteBtn);
-    photoRow.appendChild(photoWrapper);
+    previewWrapper.appendChild(previewImg);
+    previewWrapper.appendChild(photoDeleteBtn);
+    previewRow.appendChild(previewWrapper);
+    previewContainer.appendChild(previewRow);
 
-    previewContainer.appendChild(photoRow);
-    wrapper.appendChild(previewContainer);
+    groupBox.appendChild(previewContainer);
 
-    uploadArea.addEventListener("click", () => !field.disabled && input.click());
-
-    /* ----------------------- DRAG & DROP SUPPORT ----------------------- */
-    uploadArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        uploadArea.classList.add("drag-over");
-    });
-
-    uploadArea.addEventListener("dragleave", () => {
-        uploadArea.classList.remove("drag-over");
-    });
-
-    uploadArea.addEventListener("drop", async (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove("drag-over");
-
-        if (field.disabled) return;
-
-        const droppedFiles = e.dataTransfer?.files;
-        if (!droppedFiles || droppedFiles.length === 0) return;
-
-        const { isValid, lastError } = validateFiles(droppedFiles);
-        state.lastErrors = state.lastErrors || {};
-        state.lastErrors[field.id] = lastError;
-
-        if (!isValid) {
-            input.classList.add("error");
-            return;
-        }
-        input.classList.remove("error");
-
-        /* ---- Reuse file handling logic ---- */
-        if (isPhotoUpload) {
-            const file = droppedFiles[0];
-            const base64Value = await fileToBase64(file);
-
-            hideUploadArea();
-
-            if (previewImg.src.startsWith("blob:")) {
-                URL.revokeObjectURL(previewImg.src);
-            }
-
-            previewImg.src = URL.createObjectURL(file);
-            previewImg.style.display = "block";
-            photoDeleteBtn.style.display = "block";
-
-            state.formData[field.id] = {
-                value: base64Value,
-                docType: field.id,
-                format: file.type
-            };
-        } else {
-            const previousFiles: any[] = Array.isArray(state.formData[field.id])
-                ? [...(state.formData[field.id] as any[])]
-                : [];
-
-            let newFiles: any[] = [];
-
-            if (!fileListContainer) {
-                fileListContainer = document.createElement("div");
-                fileListContainer.className = "uploaded-file-list";
-                fileListContainer.style.marginTop = "10px";
-                wrapper.appendChild(fileListContainer);
-            }
-
-            hideUploadArea();
-            fileListContainer.style.display = "block";
-
-            for (let i = 0; i < droppedFiles.length; i++) {
-                const file = droppedFiles[i];
-                const fileSizeMB = parseFloat((file.size / (1024 * 1024)).toFixed(1));
-                const base64Value = await fileToBase64(file);
-
-                const fileItem = createDocumentPreviewItem(file.name, fileSizeMB, base64Value);
-                fileListContainer.appendChild(fileItem);
-
-                newFiles.push({
-                    value: base64Value,
-                    docType: field.id,
-                    format: file.type
-                });
-            }
-
-            state.formData[field.id] = [...previousFiles, ...newFiles];
-        }
-    });
-
-    /* ----------------------- MULTIPLE DOC PREVIEW LIST ----------------------- */
-    let fileListContainer: HTMLDivElement | null = null;
-
-    const showUploadArea = () => {
-        uploadArea.style.display = "block";
-    };
-
-    const hideUploadArea = () => {
-        uploadArea.style.display = "none";
-    };
-
-    const createDocumentPreviewItem = (
-        fileName: string,
-        fileSizeMB: number,
-        base64Value: string
-    ) => {
-        const item = document.createElement("div");
-        item.className = "uploaded-file-item";
-        const filePreviewLeft = document.createElement("div");
-        filePreviewLeft.className = "file-preview-left";
-
-        const fileIconDiv = document.createElement("div");
-        fileIconDiv.className = "file-icon";
-        fileIconDiv.innerHTML = fileIconSvg;
-
-        const fileMeta = document.createElement("div");
-        fileMeta.className = "file-meta";
-
-        const fileNameDiv = document.createElement("div");
-        fileNameDiv.className = "file-name";
-        fileNameDiv.textContent = fileName;
-
-        const fileSizeDiv = document.createElement("div");
-        fileSizeDiv.className = "file-size";
-        fileSizeDiv.textContent = `${fileSizeMB} MB`;
-
-        fileMeta.appendChild(fileNameDiv);
-        fileMeta.appendChild(fileSizeDiv);
-        filePreviewLeft.appendChild(fileIconDiv);
-        filePreviewLeft.appendChild(fileMeta);
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.className = "file-delete-btn";
-        deleteBtn.innerHTML = trashIconSvg;
-
-        item.appendChild(filePreviewLeft);
-        item.appendChild(deleteBtn);
-
-        deleteBtn.addEventListener("click", () => {
-            const savedFiles: any[] = Array.isArray(state.formData[field.id])
-                ? [...state.formData[field.id] as any[]]
-                : [];
-
-            const index = savedFiles.findIndex(f => f.value === base64Value);
-            if (index > -1) {
-                savedFiles.splice(index, 1);
-                state.formData[field.id] = savedFiles.length > 0 ? savedFiles : undefined;
-                item.remove();
-            }
-
-            if (!state.formData[field.id] || (state.formData[field.id] as any[]).length === 0) {
-                showUploadArea();
-                if (fileListContainer) fileListContainer.style.display = "none";
-            }
-        });
-
-        return item;
-    };
-
-    /* ----------------------- VALIDATION ----------------------- */
-    function validateFiles(files: FileList) {
-        appendError(errorContainer, "");
-        let isValid = true;
-        let lastError: number | "required" | null = null;
-
-        if (field.required && files.length === 0) {
-            const result = handleRequiredValidation(state, errorContainer);
-            return { isValid: false, lastError: result.lastError };
-        }
-
-        for (const file of Array.from(files)) {
-            if (!allowedTypes.includes(file.type)) {
-                appendError(errorContainer, `Unsupported file type: ${file.name}`);
-                isValid = false;
-                lastError = 1001;
-            }
-            if (file.size > maxBytes) {
-                appendError(errorContainer, `File too large (${file.name})`);
-                isValid = false;
-                lastError = 1002;
-            }
-        }
-
-        return { isValid, lastError };
-    }
-
-    /* ----------------------- HANDLE FILE SELECTION ----------------------- */
-    input.addEventListener("change", async (event) => {
-        const files = (event.target as HTMLInputElement).files;
-        if (!files || files.length === 0) return;
-
-        const { isValid, lastError } = validateFiles(files);
-        state.lastErrors = state.lastErrors || {};
-        state.lastErrors[field.id] = lastError;
-        input.classList.toggle("error", !isValid);
-        if (!isValid) return;
-
-        if (isPhotoUpload) {
-            const file = files[0];
-            const base64Value = await fileToBase64(file);
-
-            // hide upload area
-            hideUploadArea();
-
-            if (previewImg.src && previewImg.src.startsWith("blob:")) {
-                URL.revokeObjectURL(previewImg.src);
-            }
-            previewImg.src = URL.createObjectURL(file);
-            previewImg.style.display = "block";
-            photoDeleteBtn.style.display = "block";
-
-            state.formData[field.id] = {
-                value: base64Value,
-                docType: field.id,
-                format: file.type
-            };
-
-        } else {
-            const previousFiles: any[] = Array.isArray(state.formData[field.id])
-                ? [...(state.formData[field.id] as any[])]
-                : [];
-
-            let newFiles: any[] = [];
-
-            if (!fileListContainer) {
-                fileListContainer = document.createElement("div");
-                fileListContainer.className = "uploaded-file-list";
-                fileListContainer.style.marginTop = "10px";
-                wrapper.appendChild(fileListContainer);
-            }
-
-            hideUploadArea();
-            fileListContainer.style.display = "block";
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileSizeMB = parseFloat((file.size / (1024 * 1024)).toFixed(1));
-                const base64Value = await fileToBase64(file);
-
-                const fileItem = createDocumentPreviewItem(file.name, fileSizeMB, base64Value);
-                fileListContainer.appendChild(fileItem);
-
-                newFiles.push({
-                    value: base64Value,
-                    docType: field.id,
-                    format: file.type
-                });
-            }
-
-            state.formData[field.id] = [...previousFiles, ...newFiles];
-        }
-    });
-
-    /* ----------------------- PHOTO DELETE HANDLER ----------------------- */
     photoDeleteBtn.addEventListener("click", () => {
+        state.formData[field.id] = "";
+
         previewImg.src = "";
         previewImg.style.display = "none";
         photoDeleteBtn.style.display = "none";
 
-        state.formData[field.id] = undefined;
-
         showUploadArea();
     });
+
+    wrapper.appendChild(groupBox);
+
+    /* ----------------------- EVENTS ----------------------- */
+    uploadArea.addEventListener("click", () => !field.disabled && input.click());
+
+    uploadArea.addEventListener("dragover", e => {
+        e.preventDefault();
+        uploadArea.classList.add("drag-over");
+    });
+
+    uploadArea.addEventListener("dragleave", () =>
+        uploadArea.classList.remove("drag-over")
+    );
+
+    uploadArea.addEventListener("drop", async e => {
+        e.preventDefault();
+        uploadArea.classList.remove("drag-over");
+        if (field.disabled) return;
+        const files = e.dataTransfer?.files;
+        if (!files || files.length === 0) return;
+
+        await processFiles(files);
+    });
+
+    input.addEventListener("change", async e => {
+        const files = (e.target as HTMLInputElement).files;
+        if (!files || files.length === 0) return;
+        await processFiles(files);
+    });
+
+    /* ----------------------- PROCESS FILES – SINGLE OBJECT ----------------------- */
+    async function processFiles(files: FileList) {
+        appendError(errorContainer, "");
+
+        const file = files[0];
+
+        /* Validation */
+        if (field.required && !file) {
+            const result = handleRequiredValidation(state, errorContainer);
+            state.lastErrors![field.id] = result.lastError;
+            return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            appendError(errorContainer, `Unsupported file type: ${file.name}`);
+            return;
+        }
+
+        if (file.size > maxBytes) {
+            appendError(errorContainer, `File too large (${file.name})`);
+            return;
+        }
+
+        /* Dropdown value */
+        const docTypeEl = docTypeFieldEl?.querySelector("select");
+        const docType = docTypeEl ? docTypeEl.value : null;
+
+        /* Ref ID value */
+        const refInput = refEl.querySelector("input") as HTMLInputElement;
+        const refId = refInput ? refInput.value : null;
+
+        const base64Value = await fileToBase64(file);
+
+        /* Save into formData (final expected format) */
+        state.formData[field.id] = {
+            value: base64Value,
+            docType: docType,
+            refId: refId,
+            format: file.type
+        } as FileUploadData;
+
+        /* Render preview */
+        hideUploadArea();
+
+        if (isPhotoUpload) {
+            previewImg.src = URL.createObjectURL(file);
+            previewImg.style.display = "block";
+            photoDeleteBtn.style.display = "block";
+        } else {
+            renderFilePreview(file.name, file.size);
+        }
+    }
+
+    /* ----------------------- FILE PREVIEW FOR NON-PHOTO ----------------------- */
+    function renderFilePreview(fileName: string, fileSize: number) {
+        previewWrapper.innerHTML = ""; // clear
+        previewImg.style.display = "none";
+        photoDeleteBtn.style.display = "none";
+
+        const fileRow = document.createElement("div");
+        fileRow.className = "uploaded-file-item";
+
+        const left = document.createElement("div");
+        left.className = "file-preview-left";
+
+        const icon = document.createElement("div");
+        icon.className = "file-icon";
+        icon.innerHTML = fileIconSvg;
+
+        const meta = document.createElement("div");
+        meta.className = "file-meta";
+
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "file-name";
+        nameDiv.textContent = fileName;
+
+        const sizeDiv = document.createElement("div");
+        sizeDiv.className = "file-size";
+        sizeDiv.textContent = `${(fileSize / (1024 * 1024)).toFixed(1)} MB`;
+
+        meta.appendChild(nameDiv);
+        meta.appendChild(sizeDiv);
+        left.appendChild(icon);
+        left.appendChild(meta);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "file-delete-btn";
+        delBtn.innerHTML = trashIconSvg;
+
+        delBtn.addEventListener("click", () => {
+            state.formData[field.id] = "";
+            previewWrapper.innerHTML = "";
+            showUploadArea();
+        });
+
+        fileRow.appendChild(left);
+        fileRow.appendChild(delBtn);
+        previewWrapper.appendChild(fileRow);
+    }
+
+    /* ----------------------- HELPERS ----------------------- */
+    function hideUploadArea() {
+        uploadArea.style.display = "none";
+    }
+
+    function showUploadArea() {
+        uploadArea.style.display = "block";
+    }
 
     return wrapper;
 };

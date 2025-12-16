@@ -1,4 +1,4 @@
-import { FormField, FormState } from "../types";
+import { SubTypeField, FormState } from "../types";
 import {
     appendError,
     createErrorContainer,
@@ -12,12 +12,12 @@ import { InputType } from "../utils/constants";
 /**
  * Creates a radio-button form element.
  * @param {FormState} state Current form state containing schema, container, and other properties.
- * @param {FormField} field Form field object containing id, labelName, required, and other properties.
+ * @param {SubTypeField} field Form field object containing id, labelName, required, and other properties.
  * @returns {HTMLDivElement} A div element containing the radio group with its label and options.
  */
 export const createRadioField = (
     state: FormState,
-    field: FormField
+    field: SubTypeField
 ): HTMLDivElement => {
     const wrapper = document.createElement("div");
     wrapper.className = `form-field radio-container ${field.cssClasses?.join(" ") || ""}`;
@@ -34,7 +34,9 @@ export const createRadioField = (
     const radioGroup = document.createElement("div");
     radioGroup.className = "radio-group";
 
-    const options = state.allowedValues?.[field.id] || {};
+    const options =
+        (state.allowedValues?.[field.subType] ??
+            state.allowedValues?.[field.id]) || {};
 
     // Map UI language -> allowedValues language key
     const lang = state.currentLanguage || state.defaultLanguage;
