@@ -426,6 +426,22 @@ function promiseWithTimeout<T>(
   ]);
 }
 
+function buildParAuthorizeUrl(
+  oidcConfig: OidcConfigProp,
+  requestUri: string
+): string {
+  let url = `${oidcConfig.authorizeUri}?`;
+
+  url += `client_id=${encodeURIComponent(oidcConfig.client_id)}`;
+  url += `&request_uri=${encodeURIComponent(requestUri)}`;
+
+  if (oidcConfig.ui_locales) {
+    url += `&ui_locales=${encodeURIComponent(oidcConfig.ui_locales)}`;
+  }
+
+  return url;
+}
+
 async function par_callback(
   callbackFunction: CallbackFunctionProp,
   oidcConfig: OidcConfigProp,
@@ -522,9 +538,7 @@ const SignInWithEsignet = async ({
       typeof result === "string" &&
       result.startsWith("urn:ietf:params:oauth:request_uri:")
     ) {
-      urlToNavigate = `${oidcConfig.authorizeUri}?client_id=${encodeURIComponent(
-        oidcConfig.client_id
-      )}&request_uri=${encodeURIComponent(result)}`;
+      urlToNavigate = buildParAuthorizeUrl(oidcConfig, result);
       window.location.href = urlToNavigate;
       return;
     }
