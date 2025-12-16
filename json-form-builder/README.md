@@ -15,7 +15,7 @@ A flexible and customizable form builder that creates forms from JSON configurat
 ## Installation
 
 ```bash
-npm install json-form-builder
+npm install @mosip/json-form-builder
 ```
 
 ## Usage
@@ -23,14 +23,14 @@ npm install json-form-builder
 ### Basic Usage
 
 ```javascript
-import { JsonFormBuilder } from "anushase@json-form-builder";
+import { JsonFormBuilder } from "@mosip/json-form-builder";
 
 const config = {
   schema: [
     {
       id: "name",
       controlType: "textbox",
-      label: {
+      labelName: {
         eng: "Name",
         fra: "Nom",
       },
@@ -56,14 +56,16 @@ const config = {
     },
     // ... more fields
   ],
-  errors: {
-    required: {
-      eng: "This field is required",
-      fra: "Ce champ est obligatoire",
-    },
-    capsLock: {
-      eng: "Caps Lock is on",
-      fra: "Verr Maj activé"
+  i18nValues: {
+    errors: {
+      required: {
+        eng: "This field is required",
+        fra: "Ce champ est obligatoire",
+      },
+      capsLock: {
+        eng: "Caps Lock is on",
+        fra: "Verr Maj activé"
+      }
     }
   },
   language: {
@@ -110,9 +112,65 @@ interface FormConfig {
   schema: FormField[];
   language: LanguageSettings;
   allowedValues?: AllowedValues;
+  i18nValues?: {
+    errors?: Errors;
+    labels?: { [id: string]: Label };
+    placeholders?: { [id: string]: Label };
+  }
   errors?: Errors;
 }
 ```
+
+## 📘 Schema Properties
+
+The schema consists of the following properties:
+
+### Field Properties Section (mandatory)
+
+| Property            | Type     | Requirement   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------- | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `alignmentGroup`    | string   | Optional      | Fields with the same alignment group are placed horizontally next to each other in the UI.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `capsLockCheck`     | boolean  | Optional      | It enable a caps lock indication in top right corner(or top left corner if in rtl direction).                                                                                                                                                                                                                                                                                                                                                                                               |
+| `controlType`       | string   | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`.                                                                                                                                                                                                                                                                                                                                                              |
+| `cssClasses`        | string   | Optional      | External css class which can be added to the component.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `disabled`          | boolean  | Optional      | By enabling this, it will disable that field. By default it will be `false`.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `format`            | string   | Optional      | It will return date value in the prescribe format for date field. Used only in when you pass controlType as `date`. |
+| `id`                | string   | **Mandatory** | Unique identifier for the field. Used internally to map the field.                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `info`              | object   | Optional      | It will create an info icon beside the label of the component, to show some info in the tooltip. It will be a multilingual fields and keys represent with language codes.                                                                                                                                                                                                                                                                                                                   |
+| `labelName`         | object   | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `placeholder`       | object   | Optional      | Multilingual placeholders shown inside input fields before user enters data.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `prefix`            | string[] | Optional      | Multiple or single prefix for phone component, so that it can be selected as per the needs, it will work only when controlType is `phone`                                                                                                                                                                                                                                                                                                                                                   |
+| `required`          | boolean  | Optional      | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.                                                                                                                                                                                                                                                                                                                                                   |
+| `type`              | string   | Optional      | Type of data expected. Can be `string` for a single-language input, or `simpleType` for multilingual input where each input ID renders multiple input fields, one for each language.                                                                                                                                                                                                                                                                                                        |
+| `validators`        | array    | Optional      | List of validation rules. Each validator object has the following structure:<br><br> <table><tr><th>Property</th><th>Type</th><th>Requirement</th><th>Description</th></tr><tr><td>`regex`</td><td>string</td><td>**Mandatory**</td><td>Validation pattern</td></tr><tr><td>`error`</td><td>object</td><td>**Mandatory**</td><td>Multilingual error messages</td></tr><tr><td>`langCode`</td><td>string</td><td>Optional</td><td>Language code; if `null`, applies to all</td></tr></table> |
+
+### Allowed Values Section (optional)
+
+| Property        | Type   | Description                                                                                                                |
+| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. |
+
+### i18nValues Section (optional)
+#### It contains errors, additional labels & placeholders
+Errors Section
+
+| Property           | Type   | Description                                                       |
+| ------------------ | ------ | ----------------------------------------------------------------- |
+| `required`         | object | Defines multilingual error messages for required fields.          |
+| `passwordMismatch` | object | Defines multilingual error messages for password mismatch.        |
+| `capsLock` | object | Defines multilingual error messages for caps lock enabled.       |
+
+
+
+### Language Section (mandatory)
+
+| Property      | Type   | Description                                                                               |
+| ------------- | ------ | ----------------------------------------------------------------------------------------- |
+| `mandatory`   | array  | List of mandatory language codes that must be present in the schema.                      |
+| `optional`    | array  | List of optional language codes that may be included if available.                        |
+| `langCodeMap` | object | Bi-directional mapping between 2-letter and 3-letter language codes (e.g., `eng` ↔ `en`). |
+
+
 
 ### Additional Configuration
 
@@ -137,14 +195,6 @@ interface AdditionalConfig {
     enabled?: boolean;
     language?: string;
   };
-  additionalSchema?: {
-    // additional schema is for passing some schema's label & placeholder on later
-    // stage of form rendering, here id will be the same id given in the schema
-    [id: string]: {
-      label: Label;
-      placeholder: Label;
-    };
-  }
 }
 ```
 
@@ -184,6 +234,8 @@ The form builder supports the following field types:
 - Date
 - Dropdown
 - Checkbox
+- Phone
+- Photo
 
 ## Validation
 
@@ -293,7 +345,7 @@ This will generate:
     ```
 2. Now go to the application, where you want to use `json-form-builder` library, and run the below command
     ```bash
-    npm link @anushase/json-form-builder
+    npm link @mosip/json-form-builder
     ```
 3. This will create a link between the library and application, after that if any changes has been done in the library, just run the below command and it will reflect in the application as well
     ```bash
