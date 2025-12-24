@@ -761,7 +761,7 @@ const JsonFormBuilder = (
     additionalSchema: additionalConfig.additionalSchema || {},
     isSubmitting: false,
     isFormInitialized: false,
-    maxFileSizeMB: config.maxFileSizeMB || 5242880, // Default to 5MB given as bytes
+    maxFileSizeMB: config.maxFileSizeMB || 5, // Default to 5MB
     labels: config.i18nValues?.labels || {},
     placeholders: config.i18nValues?.placeholders || {},
   };

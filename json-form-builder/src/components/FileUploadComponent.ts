@@ -157,7 +157,7 @@ export const createFileUploadField = (
     /* ----------------------- UPLOAD AREA ----------------------- */
     const allowedTypes = field.acceptedFileTypes || [];
     const isPhotoUpload = allowedTypes.every(t => t.startsWith("image/"));
-    const maxSizeMB = field.maxFileSizeMB || 5242880;
+    const maxSizeMB = field.maxFileSizeMB || 5;
     const maxBytes = maxSizeMB * 1024 * 1024;
 
     const uploadArea = document.createElement("div");
