@@ -31,7 +31,7 @@ const config = {
       id: "sampleInputId",
       required: true,
       type: "string",
-      label: {
+      labelName: {
         eng: "Sample Field",
         ara: "حقل تجريبي",
         fra: "Champ d'exemple",
@@ -65,7 +65,7 @@ const config = {
     {
       id: "gender",
       controlType: "dropdown",
-      label: {
+      labelName: {
         eng: "Gender",
         fra: "Genre",
         ara: "جنس",
@@ -79,7 +79,7 @@ const config = {
       disabled: true,
       required: false,
       prefix: ["+91"],
-      label: {
+      labelName: {
         eng: "Phone Number",
         ara: "رقم الهاتف",
         fra: "Numéro de téléphone",
@@ -93,7 +93,7 @@ const config = {
     {
       id: "password",
       controlType: "password",
-      label: {
+      labelName: {
         eng: "Password",
         ara: "كلمة المرور",
         fra: "Mot de passe",
@@ -114,7 +114,7 @@ const config = {
     {
       id: "dob",
       controlType: "date",
-      label: {
+      labelName: {
         eng: "Date of Birth",
         ara: "تاريخ الميلاد",
         fra: "Date de naissance",
@@ -127,7 +127,7 @@ const config = {
     {
       id: "consent",
       controlType: "checkbox",
-      label: {
+      labelName: {
         eng: "I agree to the <b><a href='#'>Terms & Conditions</a></b> and <b><a href='#'>Privacy Policy</a></b>.",
         ara: "أوافق على <b><a href='#'>الشروط والأحكام</a></b> و<b><a href='#'>سياسة الخصوصية</a></b>.",
         fra: "J'accepte les <b><a href='#'>conditions générales</a></b> et la <b><a href='#'>politique de confidentialité</a></b>.",

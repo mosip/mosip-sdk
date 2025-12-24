@@ -5,7 +5,8 @@ import {
   KeyValuePair,
   Label,
   FormValue,
-  SubTypeField
+  SubTypeField,
+  FileUploadData
 } from "../types";
 type LabelObject = Record<string, string>;
 import { ControlType } from "./constants";
@@ -453,6 +454,10 @@ const validateForm = (state: FormState): boolean => {
     const fieldId = input.dataset.fieldId;
     const lang = input.dataset.lang;
 
+    if (input.type === "file") {
+      return; // skip native file input completely
+    }
+
     if (fieldId && lang) {
       // Always normalize to 3-letter code
       const normalizedLang = state.languageMap[lang];
@@ -631,6 +636,25 @@ const hasFormData = (
       if (!value || (typeof value === "object" && "value" in value && value.value === "")) {
         hasFormData = false;
       }
+      break;
+    case "fileupload":
+      if (formField.required) {
+        if (!value || typeof value !== "object") {
+          hasFormData = false;
+        }
+
+        const fileData = value as FileUploadData;
+
+        if (fileData && (!fileData.value || fileData.value === "")) {
+          hasFormData = false;
+        }
+
+        if (fileData &&
+          (!fileData.docType || fileData.docType === "")) {
+          hasFormData = false;
+        }
+      }
+      else return true;
       break;
   }
   return hasFormData;

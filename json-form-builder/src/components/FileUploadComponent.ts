@@ -85,6 +85,16 @@ export const createFileUploadField = (
         groupBox.appendChild(docTypeFieldEl);
     }
 
+    if (docTypeFieldEl) {
+        const selectEl = (docTypeFieldEl as HTMLDivElement).querySelector("select");
+
+        selectEl?.addEventListener("change", () => {
+            state.formData[field.id] ??= {} as FileUploadData;
+            (state.formData[field.id] as FileUploadData).docType = selectEl.value;
+        });
+
+    }
+
     /* ----------------------- REF ID FIELD ----------------------- */
 
     const refIdField: FormField = {
@@ -101,6 +111,13 @@ export const createFileUploadField = (
     refEl.dataset.i18nLabel = "docRef";
     refEl.dataset.i18nPlaceholder = "docRef";
     groupBox.appendChild(refEl);
+
+    const refInputEl = refEl.querySelector("input") as HTMLInputElement;
+
+    refInputEl?.addEventListener("input", () => {
+        state.formData[field.id] ??= {} as FileUploadData;
+        (state.formData[field.id] as FileUploadData).refId = refInputEl.value;
+    });
 
     /* ----------------------- PROOF OF DOCUMENT LABEL ----------------------- */
     const podLabel = document.createElement("label");
@@ -210,13 +227,22 @@ export const createFileUploadField = (
     groupBox.appendChild(previewContainer);
 
     photoDeleteBtn.addEventListener("click", () => {
-        state.formData[field.id] = "";
+        const existing = state.formData[field.id] as FileUploadData | undefined;
 
+        if (existing) {
+            existing.value = "";
+            existing.format = "";
+        }
+
+        input.value = "";
         previewImg.src = "";
         previewImg.style.display = "none";
         photoDeleteBtn.style.display = "none";
 
         showUploadArea();
+
+        // re-run form validation
+        input.dispatchEvent(new Event("change", { bubbles: true }));
     });
 
     wrapper.appendChild(groupBox);
@@ -272,26 +298,20 @@ export const createFileUploadField = (
             return;
         }
 
-        /* Dropdown value */
-        const docTypeEl = docTypeFieldEl?.querySelector("select");
-        const docType = docTypeEl ? docTypeEl.value : null;
-
-        /* Ref ID value */
-        const refInput = refEl.querySelector("input") as HTMLInputElement;
-        const refId = refInput ? refInput.value : null;
-
         const base64Value = await fileToBase64(file);
 
-        /* Save into formData (final expected format) */
-        state.formData[field.id] = {
-            value: base64Value,
-            docType: docType,
-            refId: refId,
-            format: file.type
-        } as FileUploadData;
+        state.formData[field.id] ??= {} as FileUploadData;
+
+        const fileData = state.formData[field.id] as FileUploadData;
+        fileData.value = base64Value;
+        fileData.format = file.type;
+
+        input.value = "";
 
         /* Render preview */
         hideUploadArea();
+
+        input.dispatchEvent(new Event("change", { bubbles: true }));
 
         if (isPhotoUpload) {
             previewImg.src = URL.createObjectURL(file);
@@ -339,9 +359,19 @@ export const createFileUploadField = (
         delBtn.innerHTML = trashIconSvg;
 
         delBtn.addEventListener("click", () => {
-            state.formData[field.id] = "";
+            const existing = state.formData[field.id] as FileUploadData | undefined;
+
+            if (existing) {
+                existing.value = "";
+                existing.format = "";
+            }
+
+            input.value = "";
             previewWrapper.innerHTML = "";
             showUploadArea();
+
+            // re-run form validation
+            input.dispatchEvent(new Event("change", { bubbles: true }));
         });
 
         fileRow.appendChild(left);

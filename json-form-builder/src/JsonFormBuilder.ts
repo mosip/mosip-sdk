@@ -981,9 +981,8 @@ const createFormElement = (
       return createCheckboxField(state, field);
     case ControlType.RADIO:
       return createRadioField(state, field as SubTypeField);
-    // tentatively disabled (WIP)
-    // case ControlType.FILE:
-    //   return createFileUploadField(state, field as SubTypeField);
+    case ControlType.FILE:
+      return createFileUploadField(state, field as SubTypeField);
     case ControlType.PHONE:
       return createPhoneField(state, field);
     case ControlType.PHOTO:
