@@ -82,7 +82,6 @@ export const createFileUploadField = (
         docTypeFieldEl = createDropdownField(state, docTypeField, true);
         docTypeFieldEl.dataset.i18nLabel = "docType";
         docTypeFieldEl.dataset.i18nPlaceholder = "docType";
-        groupBox.appendChild(docTypeFieldEl);
     }
 
     if (docTypeFieldEl) {
@@ -110,7 +109,6 @@ export const createFileUploadField = (
     const refEl = createStringField(state, refIdField);
     refEl.dataset.i18nLabel = "docRef";
     refEl.dataset.i18nPlaceholder = "docRef";
-    groupBox.appendChild(refEl);
 
     const refInputEl = refEl.querySelector("input") as HTMLInputElement;
 
@@ -129,7 +127,6 @@ export const createFileUploadField = (
         labelName: state.labels?.proofOfDoc
             || { en: "Proof Of Document" }
     });
-    groupBox.appendChild(podLabel);
 
     /* ----------------------- Wrap docType ----------------------- */
     if (docTypeFieldEl) {

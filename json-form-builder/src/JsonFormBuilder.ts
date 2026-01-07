@@ -540,8 +540,6 @@ const refreshLabels = (state: FormState): void => {
           if (firstRadio) {
             firstRadio.setCustomValidity("This field is required.");
           }
-        } else {
-          // Do nothing; preserve existing formData value
         }
       } else {
         const inputElement = state.container.querySelector(
