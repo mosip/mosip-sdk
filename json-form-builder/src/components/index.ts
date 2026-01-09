@@ -6,6 +6,9 @@ import { createPasswordField } from "./PasswordComponent";
 import { createStringField } from "./TextInputComponent";
 import { createPhoneField } from "./PhoneInputComponent";
 import { createPhotoField } from "./PhotoComponent";
+import { createTextareaField } from "./TextareaComponent";
+import { createRadioField } from "./RadioComponent";
+import { createFileUploadField } from "./FileUploadComponent";
 
 export {
   createCheckboxField,
@@ -16,4 +19,7 @@ export {
   createStringField,
   createPhoneField,
   createPhotoField,
+  createTextareaField,
+  createRadioField,
+  createFileUploadField
 };

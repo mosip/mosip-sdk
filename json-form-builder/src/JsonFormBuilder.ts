@@ -2,6 +2,7 @@ import {
   FormConfig,
   FormState,
   FormField,
+  SubTypeField,
   FormData,
   Label,
   AdditionalConfig,
@@ -18,6 +19,9 @@ import {
   createCheckboxField,
   createPhoneField,
   createPhotoField,
+  createTextareaField,
+  createRadioField,
+  createFileUploadField
 } from "./components";
 
 import {
@@ -26,6 +30,7 @@ import {
   createInfoIcon,
   buildBidirectionalLanguageMap,
   validateForm,
+  isSubTypeField
 } from "./utils/utils";
 
 import { addResponsiveStyles, addRTLStyles } from "./utils/responsive-style";
@@ -114,7 +119,8 @@ const refreshDropdownPlaceholderOptions = (
   state: FormState,
   selectElement: HTMLSelectElement | null | undefined,
   fieldId: string,
-  optionPlaceholder: Label | undefined
+  optionPlaceholder: Label | undefined,
+  subType?: string
 ) => {
   if (!selectElement) {
     return;
@@ -134,7 +140,9 @@ const refreshDropdownPlaceholderOptions = (
   placeholder.hidden = true;
   selectElement.appendChild(placeholder);
 
-  Object.entries(state.allowedValues[fieldId] || {}).forEach(
+  const key = subType || fieldId;
+
+  Object.entries(state.allowedValues[key] || {}).forEach(
     ([value, labels]) => {
       const option = document.createElement("option");
       option.value = value;
@@ -149,6 +157,23 @@ const refreshDropdownPlaceholderOptions = (
       selectElement.appendChild(option);
     }
   );
+};
+
+const updateSubmitButtonState = (state: FormState) => {
+  const formButton: HTMLButtonElement | null = state.container.querySelector(
+    'button[type="submit"]'
+  );
+  if (!formButton) return;
+
+  // Check if form fields are valid (by checking for any errors in lastErrors)
+  const isFormValid = validateForm(state);
+  // Check if reCAPTCHA is valid (if enabled)
+  const isRecaptchaValid = validateRecaptcha(state);
+
+  // The button is disabled if it is in submitting state, form fields are not valid OR reCAPTCHA is not valid.
+  const shouldBeDisabled = state.isSubmitting || !isFormValid || !isRecaptchaValid;
+
+  formButton.disabled = shouldBeDisabled;
 };
 
 /**
@@ -223,17 +248,21 @@ const refreshLabels = (state: FormState): void => {
         }
       }
 
-      const input = state.container.querySelector(
-        `input#${field.id}`
-      ) as HTMLInputElement;
-      if (input) {
-        input.placeholder = getMultiLangText(
-          state,
-          field.placeholder,
-          false,
-          lang,
-          defaultLang
-        );
+      const inputOrTextarea = state.container.querySelector(
+        `input#${field.id}, textarea#${field.id}`
+      ) as HTMLInputElement | HTMLTextAreaElement | null;
+
+      if (inputOrTextarea) {
+        // Skip placeholder update entirely for date fields
+        if (field.controlType !== ControlType.DATE) {
+          inputOrTextarea.placeholder = getMultiLangText(
+            state,
+            field.placeholder,
+            false,
+            lang,
+            state.defaultLanguage
+          );
+        }
       }
 
       if (field.controlType === ControlType.PASSWORD) {
@@ -301,8 +330,52 @@ const refreshLabels = (state: FormState): void => {
         state,
         select,
         field.id,
-        field.placeholder
+        field.placeholder,
+        isSubTypeField(field) ? field.subType : undefined
       );
+    }
+
+    if (field.controlType === ControlType.RADIO) {
+      const mainLabel = state.container.querySelector(
+        `.radio-container[data-field-id="${field.id}"] > .radio-group-label`
+      ) as HTMLLabelElement | null;
+
+      if (mainLabel) {
+        mainLabel.innerHTML = getLabelText(state, field);
+      }
+
+      const radioElements = state.container.querySelectorAll(
+        `input[type="radio"][name="${field.id}"]`
+      ) as NodeListOf<HTMLInputElement>;
+
+      const key = isSubTypeField(field) ? field.subType : field.id;
+
+      const options = state.allowedValues?.[key];
+
+      if (options && typeof options === "object") {
+        radioElements.forEach((radio) => {
+          const originalKey = radio.dataset.originalValue || radio.value;
+
+          // store original key only once
+          radio.dataset.originalValue = originalKey;
+
+          const optionLabelRaw =
+            (options as { [key: string]: Label })[originalKey];
+
+          if (optionLabelRaw) {
+            const translatedValue =
+              getMultiLangText(state, optionLabelRaw) || originalKey;
+
+            const labelElement = state.container.querySelector(
+              `label[for="${radio.id}"]`
+            ) as HTMLLabelElement | null;
+
+            if (labelElement) {
+              labelElement.textContent = translatedValue;
+            }
+          }
+        });
+      }
     }
 
     if (field.controlType === ControlType.PHOTO) {
@@ -340,10 +413,84 @@ const refreshLabels = (state: FormState): void => {
           getMultiLangText(
             state,
             state.fallbackErrors?.[
-              `${errorDescription.dataset.errorCode}_description`
+            `${errorDescription.dataset.errorCode}_description`
             ]
           ) || "";
       }
+    }
+
+    if (field.controlType === ControlType.FILE) {
+      const fileEl = state.container.querySelector(
+        `.file-upload[data-field-id="${field.id}"]`
+      ) as HTMLElement | null;
+
+      if (!fileEl) return;
+
+      // Main upload placeholder
+      const uploadText = fileEl.querySelector(".upload-text");
+      if (uploadText) {
+        uploadText.innerHTML =
+          getMultiLangText(state, state.placeholders?.proofOfDoc, false, lang, defaultLang) ||
+          "Click to upload";
+      }
+
+      // Info text
+      const infoText = fileEl.querySelector(".file-info-text");
+      if (infoText) {
+        infoText.innerHTML =
+          getMultiLangText(state, state.placeholders?.fileTypesInfo, false, lang, defaultLang) ||
+          infoText.innerHTML;
+      }
+
+      // Update all subfields: docType, docRef, proofOfDoc
+      const subFields = ["docType", "docRef", "proofOfDoc"];
+      subFields.forEach((subId) => {
+        const subFieldEl = fileEl.querySelector(`.file-subfield[data-sub-id="${subId}"]`);
+        if (!subFieldEl) return;
+
+        const labelEl = subFieldEl.querySelector("label");
+        const inputEl = subFieldEl.querySelector("input, textarea, select");
+
+        if (labelEl) {
+          labelEl.innerHTML = getLabelText(state, {
+            required: subId !== "docRef",
+            labelName: state.labels?.[subId]
+          } as FormField);
+        }
+
+        if (inputEl) {
+          if (inputEl instanceof HTMLInputElement || inputEl instanceof HTMLTextAreaElement) {
+            inputEl.placeholder =
+              getMultiLangText(state, state.placeholders?.[subId], false, lang, defaultLang) ||
+              inputEl.placeholder || "";
+          }
+
+          if (inputEl instanceof HTMLSelectElement) {
+            const key = isSubTypeField(field) ? field.subType : field.id;
+            const optionsMap = state.allowedValues?.[key] as { [key: string]: Label } | undefined;
+            if (!optionsMap) return;
+
+            const langCode = state.currentLanguage || state.defaultLanguage;
+
+            Array.from(inputEl.options).forEach((option) => {
+              if (!option.value) {
+                // This is the placeholder option
+                option.innerHTML =
+                  getMultiLangText(state, state.placeholders?.[subFields[0]], false, langCode, state.defaultLanguage) ||
+                  option.innerHTML;
+              } else {
+                const translations = optionsMap[option.value];
+                if (translations && typeof translations === "object") {
+                  option.innerHTML =
+                    translations[langCode] ||
+                    translations[state.defaultLanguage] ||
+                    option.innerHTML;
+                }
+              }
+            });
+          }
+        }
+      });
     }
 
     const errorContainer = state.container.querySelector(
@@ -361,10 +508,44 @@ const refreshLabels = (state: FormState): void => {
         if ((photoData && photoData.value === "") || !photoData) {
           lastError = "required";
         }
+      } else if (field.controlType === ControlType.CHECKBOX) {
+        const checkboxElement = state.container.querySelector(
+          `input#${field.id}[type="checkbox"]`
+        ) as HTMLInputElement | null;
+
+        if (checkboxElement && !checkboxElement.checked) {
+          lastError = "required";
+        }
+      } else if (field.controlType === ControlType.RADIO) {
+        // get all radio buttons for this field
+        const radioElements = state.container.querySelectorAll(
+          `input[type="radio"][name="${field.id}"]`
+        ) as NodeListOf<HTMLInputElement>;
+
+        let isChecked = false;
+
+        // Clear any previous custom validity and check selection
+        radioElements.forEach((radio) => {
+          radio.setCustomValidity(""); // reset
+          if (radio.checked) {
+            isChecked = true;
+            state.formData[field.id] = radio.value; // <-- populate formData
+          }
+        });
+
+        // If none checked, mark error
+        if (!isChecked) {
+          lastError = "required";
+          const firstRadio = radioElements[0];
+          if (firstRadio) {
+            firstRadio.setCustomValidity("This field is required.");
+          }
+        }
       } else {
         const inputElement = state.container.querySelector(
-          `input[data-field-id="${field.id}"]`
-        ) as HTMLInputElement | null;
+          `input[data-field-id="${field.id}"], textarea[data-field-id="${field.id}"]`
+        ) as HTMLInputElement | HTMLTextAreaElement | null;
+
         if (inputElement && !inputElement.value.trim()) {
           lastError = "required";
         } else if (Array.isArray(field.validators) && inputElement) {
@@ -382,7 +563,7 @@ const refreshLabels = (state: FormState): void => {
     state.lastErrors[field.id] = lastError;
 
     // Show error messages if error container exists and error present
-    if (errorContainer && lastError != null) {
+    if (errorContainer && lastError != null && state.isFormInitialized) {
       let errorText = "";
 
       if (lastError === "required") {
@@ -409,6 +590,7 @@ const refreshLabels = (state: FormState): void => {
   if (submitButton) {
     submitButton.textContent = state.submitLabel;
   }
+  updateSubmitButtonState(state);
 };
 
 /**
@@ -420,30 +602,30 @@ const triggerAllEvents = (
   state: FormState,
   mode: "touchedOnly" | "all" = "all"
 ) => {
-  const inputs = state.container.querySelectorAll("input, select");
+  const inputs = state.container.querySelectorAll("input, select, textarea");
 
   inputs.forEach((input) => {
     // Error container selection:
     const errorContainer =
       // 1. Next sibling
       input.nextElementSibling &&
-      input.nextElementSibling.classList.contains("error-message")
+        input.nextElementSibling.classList.contains("error-message")
         ? (input.nextElementSibling as HTMLElement)
         : // 2. Parent's next sibling
-          input.parentElement?.nextElementSibling &&
-            input.parentElement.nextElementSibling.classList.contains(
-              "error-message"
-            )
+        input.parentElement?.nextElementSibling &&
+          input.parentElement.nextElementSibling.classList.contains(
+            "error-message"
+          )
           ? (input.parentElement.nextElementSibling as HTMLElement)
           : // 3. Closest .form-field with .error-message
-            input.closest(".form-field")?.querySelector(".error-message") ||
-            // 4. Closest .form-field-group with .error-message
-            input
-              .closest(".form-field-group")
-              ?.querySelector(".error-message") ||
-            // 5. Fallback: parent query
-            input.parentElement?.querySelector(".error-message") ||
-            null;
+          input.closest(".form-field")?.querySelector(".error-message") ||
+          // 4. Closest .form-field-group with .error-message
+          input
+            .closest(".form-field-group")
+            ?.querySelector(".error-message") ||
+          // 5. Fallback: parent query
+          input.parentElement?.querySelector(".error-message") ||
+          null;
 
     // Only trigger if error message is present (for touchedOnly mode)
     if (
@@ -576,7 +758,8 @@ const JsonFormBuilder = (
     ),
     additionalSchema: additionalConfig.additionalSchema || {},
     isSubmitting: false,
-    maxUploadFileSize: config.maxUploadFileSize || 5242880, // Default to 5MB given as bytes
+    isFormInitialized: false,
+    maxFileSizeMB: config.maxFileSizeMB || 5, // Default to 5MB
     labels: config.i18nValues?.labels || {},
     placeholders: config.i18nValues?.placeholders || {},
   };
@@ -663,6 +846,7 @@ const JsonFormBuilder = (
     const submitButton = document.createElement("button");
     submitButton.type = "submit";
     submitButton.className = "form-button";
+    submitButton.id = "form-submit-button";
     submitButton.textContent = state.submitLabel;
     form.appendChild(submitButton);
 
@@ -677,6 +861,7 @@ const JsonFormBuilder = (
     state.container.appendChild(form);
 
     initializeRecaptcha(state);
+    updateSubmitButtonState(state);
   };
 
   /**
@@ -689,15 +874,13 @@ const JsonFormBuilder = (
     const form = state.container.querySelector("form");
     if (!form) return;
 
-    const formButton = form.querySelector('button[type="submit"]');
+    const formButton: HTMLButtonElement = form.querySelector('button[type="submit"]')!;
     if (!formButton) return;
 
+    formButton.disabled = true;
     formButton.innerHTML = "";
     formButton.appendChild(createLoadingIcon());
     state.isSubmitting = true;
-
-    // Trigger validation on all inputs
-    triggerAllEvents(state);
 
     // Validate reCAPTCHA if configured and enabled
     const isValid = validateRecaptcha(state);
@@ -710,13 +893,37 @@ const JsonFormBuilder = (
         state.submitAction(data);
       } else {
         state.isSubmitting = false;
-        formButton.innerHTML = state.submitLabel;
+        formButton.textContent = state.submitLabel;
+        updateSubmitButtonState(state);
       }
     } else {
       state.isSubmitting = false;
-      formButton.innerHTML = state.submitLabel;
+      formButton.textContent = state.submitLabel;
       form.reportValidity();
+      updateSubmitButtonState(state);
     }
+  };
+
+  const attachLiveValidationListeners = (state: FormState): void => {
+    // Select all user-editable elements
+    const inputs = state.container.querySelectorAll(
+      "input, select, textarea"
+    );
+
+    inputs.forEach((input) => {
+      // Use 'input' event for immediate feedback on text changes
+      // Use 'change' event for elements like dropdowns, checkboxes, etc.
+      input.addEventListener("input", () => {
+        // 1. Update the state's formData (essential, but likely handled in your field-specific components)
+        // 2. Refresh labels/errors for all fields
+        refreshLabels(state);
+      });
+
+      // Add a 'change' listener as a fallback for elements that don't fire 'input' (like <select>)
+      input.addEventListener("change", () => {
+        refreshLabels(state);
+      });
+    });
   };
 
   return Object.freeze({
@@ -728,6 +935,8 @@ const JsonFormBuilder = (
       }
       await addRecaptchaScript(state);
       render(state);
+      attachLiveValidationListeners(state);
+      state.isFormInitialized = true;
     },
     getFormData: (): FormData => getFormData(state),
     updateLanguage: (
@@ -758,14 +967,20 @@ const createFormElement = (
       return fieldType === InputType.SIMPLE_TYPE
         ? createSimpleTextbox(state, field)
         : createStringField(state, field);
+    case ControlType.TEXTAREA:
+      return createTextareaField(state, field);
     case ControlType.PASSWORD:
       return createPasswordField(state, field);
     case ControlType.DATE:
       return createDateField(state, field);
     case ControlType.DROPDOWN:
-      return createDropdownField(state, field);
+      return createDropdownField(state, field as SubTypeField);
     case ControlType.CHECKBOX:
       return createCheckboxField(state, field);
+    case ControlType.RADIO:
+      return createRadioField(state, field as SubTypeField);
+    case ControlType.FILE:
+      return createFileUploadField(state, field as SubTypeField);
     case ControlType.PHONE:
       return createPhoneField(state, field);
     case ControlType.PHOTO:
