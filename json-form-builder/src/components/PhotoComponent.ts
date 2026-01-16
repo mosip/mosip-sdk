@@ -249,6 +249,8 @@ const requiredFieldCheck = (
   hiddenInput.classList.toggle("error", !isValid);
 };
 
+let currentStream: MediaStream | null = null;
+
 export const createPhotoField = (
   state: FormState,
   field: FormField
@@ -332,6 +334,11 @@ export const createPhotoField = (
       return;
     }
 
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
+
     await navigator.mediaDevices
       .getUserMedia({
         audio: false,
@@ -340,6 +347,8 @@ export const createPhotoField = (
         },
       })
       .then((stream) => {
+        currentStream = stream;
+
         // setting the element to video div
         mainContentDiv.innerHTML = ""; // Clear the main content div
         mainContentDiv.appendChild(videoDiv);
@@ -424,6 +433,10 @@ export const createPhotoField = (
       format: "",
       refId: "",
     };
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
     cameraOn = false;
 
     mainContentDiv.innerHTML = ""; // Clear the main content div
@@ -490,9 +503,10 @@ export const createPhotoField = (
     }
 
     // stopping the camera stream
-    const stream = videoElement.srcObject as MediaStream;
-
-    stopCameraStream(stream);
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
 
     videoElement.srcObject = null; // Stop the video stream
     cameraOn = false;

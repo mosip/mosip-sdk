@@ -567,7 +567,7 @@ input[type="radio"]:disabled {
 .selected-image {
   position: relative;
   display: inline-block;
-  width: 430px;
+  width: 100%;
   height: 350px;
   background: 1px solid lightgrey;
   border-radius: 10px;
@@ -578,6 +578,7 @@ input[type="radio"]:disabled {
   height: 350px !important;
   object-fit: cover;
   border-radius: 10px;
+  width: 100%;
 }
 
 .delete-image-button {  
@@ -587,7 +588,7 @@ input[type="radio"]:disabled {
   position: absolute;
   top: 5px;
   right: 5px;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1;
   color: white;
   width: 25px;
