@@ -249,12 +249,12 @@ const requiredFieldCheck = (
   hiddenInput.classList.toggle("error", !isValid);
 };
 
-let currentStream: MediaStream | null = null;
-
 export const createPhotoField = (
   state: FormState,
   field: FormField
 ): HTMLDivElement => {
+  let currentStream: MediaStream | null = null;
+
   (state.formData[field.id] as FileUploadData) = {
     value: "",
     docType: "",
