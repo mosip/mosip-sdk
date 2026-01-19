@@ -21,7 +21,8 @@ on:
       - develop
   pull_request:
     types: [ opened, synchronize, reopened ]
-
+permissions:
+  contents: write
 jobs:
   build-sign-in-with-esignet:
     if: "${{ contains(github.event.inputs.source_directory, 'sign-in-with-esignet') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
