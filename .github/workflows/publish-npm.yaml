@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       message:
-        description: 'Message for manually triggering'
+        description: "Message for manually triggering"
         required: false
-        default: 'Triggered for NPM Publish'
+        default: "Triggered for NPM Publish"
         type: string
   push:
     branches:
@@ -14,21 +14,24 @@ on:
       - develop*
       - MOSIP*
 
+permissions:
+  contents: write
+
 jobs:
   publish-to-npm-registry:
     strategy:
       matrix:
         service:
           - name: json-form-builder
-            path: './json-form-builder'
+            path: "./json-form-builder"
           - name: react-secure-biometric-interface-integrator
-            path: './react-secure-biometric-interface-integrator'
+            path: "./react-secure-biometric-interface-integrator"
           - name: secure-biometric-interface-integrator
-            path: './secure-biometric-interface-integrator'
+            path: "./secure-biometric-interface-integrator"
           - name: react-sign-in-with-esignet
-            path: './react-sign-in-with-esignet'
+            path: "./react-sign-in-with-esignet"
           - name: sign-in-with-esignet
-            path: './sign-in-with-esignet'
+            path: "./sign-in-with-esignet"
       fail-fast: false
 
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.ref, 'master'))
