@@ -93,7 +93,9 @@ export const createDateField = (
   // Open native date picker
   // ---------------------------
   const openPicker = () => {
-    try { realInput.showPicker(); } catch (_) { }
+    try { realInput.showPicker(); } catch (_) {
+      console.warn("showPicker not supported");
+    }
   };
 
   displayInput.addEventListener("click", openPicker);
