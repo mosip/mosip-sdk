@@ -254,6 +254,15 @@ export const createPhotoField = (
   field: FormField
 ): HTMLDivElement => {
   let currentStream: MediaStream | null = null;
+  let cameraOn = false;
+
+  const stopCurrentStream = () => {
+    if (!currentStream) return;
+
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+    cameraOn = false;
+  };
 
   (state.formData[field.id] as FileUploadData) = {
     value: "",
@@ -262,7 +271,6 @@ export const createPhotoField = (
     refId: "",
   };
 
-  let cameraOn = false;
   let facingUserMode: boolean = true;
   let permissionGranted: boolean = false;
   let permissionErrorCode: string = CameraErrorCodes.PERMISSION_DENIED;
@@ -334,10 +342,7 @@ export const createPhotoField = (
       return;
     }
 
-    if (currentStream) {
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
-    }
+    stopCurrentStream();
 
     await navigator.mediaDevices
       .getUserMedia({
@@ -348,6 +353,7 @@ export const createPhotoField = (
       })
       .then((stream) => {
         currentStream = stream;
+        cameraOn = true;
 
         // setting the element to video div
         mainContentDiv.innerHTML = ""; // Clear the main content div
@@ -362,8 +368,6 @@ export const createPhotoField = (
         mainContentDiv.innerHTML = ""; // Clear the main content div
         mainContentDiv.appendChild(errorDiv);
       });
-
-    cameraOn = true;
   };
 
   const wrapper = document.createElement("div");
@@ -433,11 +437,7 @@ export const createPhotoField = (
       format: "",
       refId: "",
     };
-    if (currentStream) {
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
-    }
-    cameraOn = false;
+    stopCurrentStream();
 
     mainContentDiv.innerHTML = ""; // Clear the main content div
     alternateDiv = alternateDivElement(state, field);
@@ -503,13 +503,8 @@ export const createPhotoField = (
     }
 
     // stopping the camera stream
-    if (currentStream) {
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
-    }
-
+    stopCurrentStream();
     videoElement.srcObject = null; // Stop the video stream
-    cameraOn = false;
 
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
   });
