@@ -253,6 +253,17 @@ export const createPhotoField = (
   state: FormState,
   field: FormField
 ): HTMLDivElement => {
+  let currentStream: MediaStream | null = null;
+  let cameraOn = false;
+
+  const stopCurrentStream = () => {
+    if (!currentStream) return;
+
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+    cameraOn = false;
+  };
+
   (state.formData[field.id] as FileUploadData) = {
     value: "",
     docType: "",
@@ -260,7 +271,6 @@ export const createPhotoField = (
     refId: "",
   };
 
-  let cameraOn = false;
   let facingUserMode: boolean = true;
   let permissionGranted: boolean = false;
   let permissionErrorCode: string = CameraErrorCodes.PERMISSION_DENIED;
@@ -332,6 +342,8 @@ export const createPhotoField = (
       return;
     }
 
+    stopCurrentStream();
+
     await navigator.mediaDevices
       .getUserMedia({
         audio: false,
@@ -340,6 +352,9 @@ export const createPhotoField = (
         },
       })
       .then((stream) => {
+        currentStream = stream;
+        cameraOn = true;
+
         // setting the element to video div
         mainContentDiv.innerHTML = ""; // Clear the main content div
         mainContentDiv.appendChild(videoDiv);
@@ -353,8 +368,6 @@ export const createPhotoField = (
         mainContentDiv.innerHTML = ""; // Clear the main content div
         mainContentDiv.appendChild(errorDiv);
       });
-
-    cameraOn = true;
   };
 
   const wrapper = document.createElement("div");
@@ -424,7 +437,7 @@ export const createPhotoField = (
       format: "",
       refId: "",
     };
-    cameraOn = false;
+    stopCurrentStream();
 
     mainContentDiv.innerHTML = ""; // Clear the main content div
     alternateDiv = alternateDivElement(state, field);
@@ -490,12 +503,8 @@ export const createPhotoField = (
     }
 
     // stopping the camera stream
-    const stream = videoElement.srcObject as MediaStream;
-
-    stopCameraStream(stream);
-
+    stopCurrentStream();
     videoElement.srcObject = null; // Stop the video stream
-    cameraOn = false;
 
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
   });
