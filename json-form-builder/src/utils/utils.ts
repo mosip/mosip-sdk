@@ -490,7 +490,8 @@ const validateForm = (state: FormState): boolean => {
 
           const originalKey = input.value;
 
-          const allOptions = state.allowedValues?.[fieldId];
+          const allOptions = state.allowedValues?.[(fieldDef as SubTypeField).subType] ||
+            state.allowedValues?.[fieldId];
 
           // Narrow the union type
           if (!allOptions || typeof allOptions !== "object") {
