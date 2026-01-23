@@ -275,7 +275,7 @@ input[type="radio"]:disabled {
   padding: 0.75rem;
   border: 1px solid rgb(204, 204, 204) !important;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .file-upload {
@@ -421,7 +421,7 @@ input[type="radio"]:disabled {
 
 @media screen and (max-width: 640px) {
   .info-detail {
-    transform: translate(-40%, 5%); /* Adjust for smaller screens */
+    transform: translate(-29%, 5%); /* Adjust for smaller screens */
     top: 100% !important;
     left: 50% !important; 
   }
@@ -429,7 +429,7 @@ input[type="radio"]:disabled {
   .info-detail-arrow {
     transform-origin: center 0px;
     transform: rotate(180deg);
-    left: 94px;
+    left: 67px;
     top: 0px;
   }
 }
