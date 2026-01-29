@@ -15,17 +15,6 @@ import { uploadIconSvg, trashIconSvg, fileIconSvg } from "../utils/icons";
 import { createStringField } from "./TextInputComponent";
 import { createDropdownField } from "./DropdownComponent";
 
-/* ----------------------- Base64 Converter ----------------------- */
-async function fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () =>
-            resolve(reader.result!.toString().split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
 /* ----------------------- Allowed File Types Text ----------------------- */
 function getAllowedFileTypesText(
     allowedTypes: string[],
@@ -295,12 +284,10 @@ export const createFileUploadField = (
             return;
         }
 
-        const base64Value = await fileToBase64(file);
-
         state.formData[field.id] ??= {} as FileUploadData;
 
         const fileData = state.formData[field.id] as FileUploadData;
-        fileData.value = base64Value;
+        fileData.value = file;
         fileData.format = file.type;
 
         input.value = "";
