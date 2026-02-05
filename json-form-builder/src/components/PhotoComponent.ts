@@ -395,7 +395,7 @@ export const createPhotoField = (
   canvas.id = `${field.id}-canvas`;
   canvas.style.display = "none";
   canvas.width = 430; // Set canvas width
-  canvas.height = 500; // Set canvas height
+  canvas.height = 350; // Set canvas height
 
   const hiddenInput = document.createElement("input");
   hiddenInput.type = "hidden";
@@ -452,33 +452,53 @@ export const createPhotoField = (
 
   // capture button event for capturing the photo
   captureButton.addEventListener("click", async () => {
-    const videoElement = videoDiv.querySelector(
+    const video = videoDiv.querySelector(
       `video#${field.id}-video`
     ) as HTMLVideoElement;
-    if (!videoElement) {
-      return;
-    }
-    canvas.height = videoElement.videoHeight;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      console.error("Failed to get canvas context");
-      return;
+    if (!video || video.readyState < 2) return;
+
+    const rect = video.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    // Match CSS size
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+
+    // Match device pixels
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // --- MATCH PREVIEW ---
+    const videoAR = video.videoWidth / video.videoHeight;
+    const viewAR = rect.width / rect.height;
+
+    let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
+
+    if (videoAR > viewAR) {
+      // crop left/right
+      sWidth = video.videoHeight * viewAR;
+      sx = (video.videoWidth - sWidth) / 2;
+    } else {
+      // crop top/bottom
+      sHeight = video.videoWidth / viewAR;
+      sy = (video.videoHeight - sHeight) / 2;
     }
 
-    // Draw the video frame to the canvas
-    // const sy = videoElement.videoHeight / 2 - canvas.height / 2;
-    const sx = videoElement.videoWidth / 2 - canvas.width / 2;
-
-    context.drawImage(
-      videoElement,
+    ctx.drawImage(
+      video,
       sx,
+      sy,
+      sWidth,
+      sHeight,
       0,
-      canvas.width,
-      canvas.height,
       0,
-      0,
-      canvas.width,
-      canvas.height
+      rect.width,
+      rect.height
     );
 
     const imageData = canvas.toDataURL("image/jpeg", 0.5);
@@ -504,7 +524,7 @@ export const createPhotoField = (
 
     // stopping the camera stream
     stopCurrentStream();
-    videoElement.srcObject = null; // Stop the video stream
+    video.srcObject = null; // Stop the video stream
 
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
   });

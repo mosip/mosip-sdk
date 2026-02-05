@@ -1,4 +1,5 @@
 import { FormState } from "../types";
+import { appendError } from "./utils";
 
 /**
  * Loads the reCAPTCHA script asynchronously and checks if it is already loaded.
@@ -175,10 +176,11 @@ const validateRecaptcha = (state: FormState): boolean => {
             Number(widgetId)
           );
           if (!recaptchaResponse) {
-            const errorMessage = document.createElement("div");
-            errorMessage.className = "error-message";
-            errorMessage.textContent = "Please complete the reCAPTCHA";
-            recaptchaContainer.appendChild(errorMessage);
+            appendError(
+              recaptchaContainer as HTMLDivElement,
+              "Please complete the reCAPTCHA",
+              state
+            );
             return false;
           }
         } catch (error) {

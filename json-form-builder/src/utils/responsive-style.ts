@@ -86,23 +86,27 @@ input[type="date"]:hover, input[type="date"]::-webkit-calendar-picker-indicator 
   cursor: pointer;
 }
 
-.error-message {
+.error-message, .recaptcha-container {
   display: flex;
   align-items: center;
   margin-top: 0.25rem;
 
   .error-icon {
     position: relative;
-    top: 2.5px;
+    top: 3.5px;
     align-self: start;
   }
 
   .error-text {
-    color: #fe6b6b;
-    font-size: 12px;
     margin-left: 4px;
+    font-size: small;
+    color: #fe6b6b;
     font-weight: 500;
   }
+}
+
+.recaptcha-container {
+  margin-bottom: 1rem;
 }
 
 #form-submit-button:disabled {
@@ -292,12 +296,6 @@ input[type="radio"]:disabled {
   display: flex;
   align-items: center;
   font-size: 0.9rem;
-}
-
-.recaptcha-container {
-  margin: 1rem 0;
-  display: flex;
-  justify-content: center;
 }
 
 /* Select Input Styling */
@@ -567,7 +565,7 @@ input[type="radio"]:disabled {
 .selected-image {
   position: relative;
   display: inline-block;
-  width: 100%;
+  width: 430px !important;
   height: 350px;
   background: 1px solid lightgrey;
   border-radius: 10px;
@@ -578,7 +576,7 @@ input[type="radio"]:disabled {
   height: 350px !important;
   object-fit: cover;
   border-radius: 10px;
-  width: 100%;
+  width: 430px !important;
 }
 
 .delete-image-button {  
