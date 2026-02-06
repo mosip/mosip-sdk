@@ -1,6 +1,6 @@
 {
   "name": "@mosip/json-form-builder",
-  "version": "0.1.1-beta.3",
+  "version": "0.1.1-beta.4",
   "description": "A dynamic JSON form builder with multi-language support, validation, and responsive design",
   "main": "dist/JsonFormBuilder.umd.js",
   "module": "dist/JsonFormBuilder.esm.js",

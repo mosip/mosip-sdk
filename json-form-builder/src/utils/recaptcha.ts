@@ -176,8 +176,20 @@ const validateRecaptcha = (state: FormState): boolean => {
             Number(widgetId)
           );
           if (!recaptchaResponse) {
+            // find/create inner error wrapper INSIDE captcha container
+            let errorDiv = recaptchaContainer.querySelector(
+              ".recaptcha-error"
+            ) as HTMLDivElement | null;
+
+            if (!errorDiv) {
+              errorDiv = document.createElement("div");
+              errorDiv.className = "recaptcha-error";
+
+              // place error BELOW captcha iframe
+              recaptchaContainer.appendChild(errorDiv);
+            }
             appendError(
-              recaptchaContainer as HTMLDivElement,
+              errorDiv,
               "Please complete the reCAPTCHA",
               state
             );

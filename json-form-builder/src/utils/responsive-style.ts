@@ -107,6 +107,11 @@ input[type="date"]:hover, input[type="date"]::-webkit-calendar-picker-indicator 
 
 .recaptcha-container {
   margin-bottom: 1rem;
+  display: block !important;
+
+  .recaptcha-error {
+    display: flex !important;
+  }
 }
 
 #form-submit-button:disabled {
