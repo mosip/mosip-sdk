@@ -448,6 +448,9 @@ export const createPhotoField = (
     // deleting image from the state
 
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
+
+    hiddenInput.dispatchEvent(new Event("input", { bubbles: true }));
+    hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
   });
 
   // capture button event for capturing the photo
@@ -527,6 +530,10 @@ export const createPhotoField = (
     video.srcObject = null; // Stop the video stream
 
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
+
+    // trigger global form validation like real input
+    hiddenInput.dispatchEvent(new Event("input", { bubbles: true }));
+    hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
   });
 
   // flipping camera button event for changing

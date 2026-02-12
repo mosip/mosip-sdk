@@ -68,7 +68,7 @@ export const createCheckboxField = (
   parentNode.className = "form-field-group";
 
   parentNode.appendChild(wrapper);
-  parentNode.appendChild(errorContainer);
+  wrapper.appendChild(errorContainer);
 
   return parentNode;
 };

@@ -1,14 +1,14 @@
 # JSON Form Builder
 
-A flexible and customizable form builder that creates forms from JSON configuration. Supports multiple languages, RTL layouts, and Google reCAPTCHA integration.
+A flexible and customizable form builder for creating forms from JSON configurations.
 
 ## Features
 
-- Create forms from JSON configuration
-- Support for multiple languages
-- RTL language support
+- JSON-based form creation
+- Multilingual support
+- RTL layout support
 - Responsive design
-- Field validation
+- Built-in field validation
 - Google reCAPTCHA integration
 - Customizable styling
 
@@ -28,125 +28,149 @@ import { JsonFormBuilder } from "@mosip/json-form-builder";
 const config = {
   schema: [
     {
-      id: "sampleInputId",
-      required: true,
-      type: "string",
-      labelName: {
-        eng: "Sample Field",
-        ara: "حقل تجريبي",
-        fra: "Champ d'exemple",
-      },
-      placeholder: {
-        eng: "Enter value",
-        ara: "أدخل القيمة",
-        fra: "Entrez la valeur",
-      },
+      alignmentGroup: "group1",
+      capsLockCheck: true,
+      controlType: "textbox",
+      cssClasses: "name-input-field",
+      id: "name",
       info: {
-        eng: "You have to input some text in this field",
         ara: "عليك إدخال بعض النصوص في هذا الحقل",
+        eng: "You must enter some text in this field",
         fra: "Vous devez saisir du texte dans ce champ",
       },
-      capsLockCheck: true,
-      cssClasses: "sample-input-field",
-      controlType: "textbox",
+      labelName: {
+        ara: "الاسم",
+        eng: "Name",
+        fra: "Nom",
+      },
+      placeholder: {
+        ara: "أدخل الاسم",
+        eng: "Enter name",
+        fra: "Entrez le nom",
+      },
+      required: true,
+      type: "string",
       validators: [
         {
-          regex: "^[a-zA-Z0-9]+$",
-          langCode: null,
           error: {
-            eng: "Special characters are not allowed",
             ara: "لا يُسمح باستخدام الأحرف الخاصة",
+            eng: "Special characters are not allowed",
             fra: "Les caractères spéciaux ne sont pas autorisés",
           },
+          langCode: null,
+          regex: "^[a-zA-Z0-9]+$",
         },
       ],
-      alignmentGroup: "group1",
     },
     {
-      id: "gender",
+      alignmentGroup: "group2",
       controlType: "dropdown",
+      id: "gender",
+      subType: "gender-options",
       labelName: {
+        ara: "الجنس",
         eng: "Gender",
         fra: "Genre",
-        ara: "جنس",
       },
       required: false,
-      alignmentGroup: "group2",
     },
     {
-      id: "samplePhone",
+      alignmentGroup: "group2",
       controlType: "phone",
       disabled: true,
-      required: false,
-      prefix: ["+91"],
+      id: "phone",
       labelName: {
-        eng: "Phone Number",
         ara: "رقم الهاتف",
+        eng: "Phone Number",
         fra: "Numéro de téléphone",
       },
       placeholder: {
-        eng: "Enter your phone number",
         ara: "أدخل رقم هاتفك",
+        eng: "Enter your phone number",
         fra: "Entrez votre numéro de téléphone",
       },
+      prefix: ["+91"],
+      required: true,
     },
     {
-      id: "password",
+      alignmentGroup: "group3",
       controlType: "password",
+      id: "password",
+      info: {
+        ara: "استخدم 8 أحرف أو أكثر مع مزيج من الحروف ورقم واحد على الأقل.",
+        eng: "Use 8 or more characters with a mix of letters and at least one number.",
+        fra: "Utilisez 8 caractères ou plus avec un mélange de lettres et au moins un chiffre.",
+      },
       labelName: {
-        eng: "Password",
         ara: "كلمة المرور",
+        eng: "Password",
         fra: "Mot de passe",
       },
       placeholder: {
+        ara: "أدخل كلمة المرور",
         eng: "Enter your password",
-        ara: "أدخل كلمة المرور الخاصة بك",
         fra: "Entrez votre mot de passe",
       },
-      info: {
-        eng: "Use 8 or more characters with a mix of letters and at least one number.",
-        ara: "استخدم 8 أحرف أو أكثر بمزيج من الحروف ورقم واحد على الأقل.",
-        fra: "Utilisez 8 caractères ou plus avec un mélange de lettres et au moins un chiffre.",
-      },
       required: true,
-      alignmentGroup: "group3",
     },
     {
-      id: "dob",
+      alignmentGroup: "group4",
       controlType: "date",
+      id: "dob",
       labelName: {
-        eng: "Date of Birth",
         ara: "تاريخ الميلاد",
+        eng: "Date of Birth",
         fra: "Date de naissance",
       },
       minAge: 2,
       maxAge: 3,
-      alignmentGroup: "group4",
+      format: "dd-MM-yyyy",
       required: true,
     },
     {
-      id: "consent",
+      alignmentGroup: "group5",
       controlType: "checkbox",
+      id: "consent",
       labelName: {
-        eng: "I agree to the <b><a href='#'>Terms & Conditions</a></b> and <b><a href='#'>Privacy Policy</a></b>.",
         ara: "أوافق على <b><a href='#'>الشروط والأحكام</a></b> و<b><a href='#'>سياسة الخصوصية</a></b>.",
+        eng: "I agree to the <b><a href='#'>Terms & Conditions</a></b> and <b><a href='#'>Privacy Policy</a></b>.",
         fra: "J'accepte les <b><a href='#'>conditions générales</a></b> et la <b><a href='#'>politique de confidentialité</a></b>.",
       },
       required: true,
-      alignmentGroup: "group5",
     },
   ],
+  allowedValues: {
+    "gender-options": {
+      male: {
+        ara: "ذكر",
+        eng: "Male",
+        fra: "Homme",
+      },
+      female: {
+        ara: "أنثى",
+        eng: "Female",
+        fra: "Femme",
+      },
+      other: {
+        ara: "آخر",
+        eng: "Other",
+        fra: "Autre",
+      },
+    },
+  },
   i18nValues: {
     errors: {
       required: {
+        ara: "هذا الحقل مطلوب",
         eng: "This field is required",
         fra: "Ce champ est obligatoire",
       },
       capsLock: {
+        ara: "زر الأحرف الكبيرة مفعّل",
         eng: "Caps Lock is on",
-        fra: "Verr Maj activé"
-      }
-    }
+        fra: "Verr Maj activé",
+      },
+    },
   },
   language: {
     mandatory: ["eng"],
@@ -197,61 +221,154 @@ interface FormConfig {
     errors?: Errors;
     labels?: { [id: string]: Label };
     placeholders?: { [id: string]: Label };
-  }
-  errors?: Errors;
+  };
 }
 ```
 
-## 📘 Schema Properties
+## Schema Properties
 
 The schema consists of the following properties:
 
-### Field Properties Section (mandatory)
+### Field Properties Reference (Alphabetical)
 
-| Property            | Type     | Requirement   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------------- | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `alignmentGroup`    | string   | Optional      | Fields with the same alignment group are placed horizontally next to each other in the UI.                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `capsLockCheck`     | boolean  | Optional      | It enable a caps lock indication in top right corner(or top left corner if in rtl direction).                                                                                                                                                                                                                                                                                                                                                                                               |
-| `controlType`       | string   | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`.                                                                                                                                                                                                                                                                                                                                                              |
-| `cssClasses`        | string   | Optional      | External css class which can be added to the component.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `disabled`          | boolean  | Optional      | By enabling this, it will disable that field. By default it will be `false`.                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `format`            | string   | Optional      | It will return date value in the prescribe format for date field. Used only in when you pass controlType as `date`. |
-| `id`                | string   | **Mandatory** | Unique identifier for the field. Used internally to map the field.                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `info`              | object   | Optional      | It will create an info icon beside the label of the component, to show some info in the tooltip. It will be a multilingual fields and keys represent with language codes.                                                                                                                                                                                                                                                                                                                   |
-| `labelName`         | object   | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `placeholder`       | object   | Optional      | Multilingual placeholders shown inside input fields before user enters data.                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `prefix`            | string[] | Optional      | Multiple or single prefix for phone component, so that it can be selected as per the needs, it will work only when controlType is `phone`                                                                                                                                                                                                                                                                                                                                                   |
-| `required`          | boolean  | Optional      | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.                                                                                                                                                                                                                                                                                                                                                   |
-| `type`              | string   | Optional      | Type of data expected. Can be `string` for a single-language input, or `simpleType` for multilingual input where each input ID renders multiple input fields, one for each language.                                                                                                                                                                                                                                                                                                        |
-| `validators`        | array    | Optional      | List of validation rules. Each validator object has the following structure:<br><br> <table><tr><th>Property</th><th>Type</th><th>Requirement</th><th>Description</th></tr><tr><td>`regex`</td><td>string</td><td>**Mandatory**</td><td>Validation pattern</td></tr><tr><td>`error`</td><td>object</td><td>**Mandatory**</td><td>Multilingual error messages</td></tr><tr><td>`langCode`</td><td>string</td><td>Optional</td><td>Language code; if `null`, applies to all</td></tr></table> |
+| Property            | Type         | Requirement   | Description                                                                                                                                                                                                                                                    |
+| ------------------- | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `alignmentGroup`    | string       | Optional      | Fields in the same group are aligned horizontally in the UI.                                                                                                                                                                                                   |
+| `acceptedFileTypes` | string/array | Optional      | For file/photo uploads: allowed MIME types, e.g., `image/jpeg`, `application/pdf`.                                                                                                                                                                             |
+| `controlType`       | string       | **Mandatory** | Type of UI control. Options: `textbox`, `textarea`, `date`, `dropdown`, `password`, `checkbox`, `radio`, `phone`, `photo`, `fileupload`.                                                                                                                       |
+| `disabled`          | boolean      | Optional      | Disables the field when `true`. Defaults to `false`.                                                                                                                                                                                                           |
+| `format`            | string       | Optional      | For date fields: format in which the date value should be displayed, placeholder rendered, and submitted. Defaults to `yyyy/MM/dd` if not provided.                                                                                                            |
+| `id`                | string       | **Mandatory** | Unique identifier for the field, used internally to map values.                                                                                                                                                                                                |
+| `info`              | object       | Optional      | Multilingual tooltip info for the field. Displayed as an info icon next to the label.                                                                                                                                                                          |
+| `maxAge`            | number       | Optional      | For date fields: maximum allowed age in days from today. Selected date must be ≤ (today + maxAge).                                                                                                                                                             |
+| `maxFileSizeMB`     | number       | Optional      | For file uploads: maximum allowed file size in MB.                                                                                                                                                                                                             |
+| `minAge`            | number       | Optional      | For date fields: minimum allowed age in days from today. Selected date must be ≥ (today − minAge).                                                                                                                                                             |
+| `placeholder`       | object       | Optional      | Multilingual placeholder text displayed inside input fields.                                                                                                                                                                                                   |
+| `prefix`            | string/array | Optional      | Single or multiple prefixes for the phone field. Works only when `controlType` is `phone`.                                                                                                                                                                     |
+| `required`          | boolean      | Optional      | Whether the field must be filled. Defaults to `false`.                                                                                                                                                                                                         |
+| `rows`              | number       | Optional      | For textarea fields: number of visible rows. Defaults to 2 if not provided.                                                                                                                                                                                    |
+| `subType`           | string       | Optional      | Optional sub-type for certain controls like `dropdown` and `radio`. Refers to predefined allowed values.                                                                                                                                                       |
+| `type`              | string       | Optional      | Input type: `string` for single-language or `simpleType` for multilingual fields (renders one input per language).                                                                                                                                             |
+| `validators`        | array        | Optional      | List of validation rules. Each validator has:<br>- `regex` (string, **Mandatory**) – pattern to validate<br>- `error` (object, **Mandatory**) – multilingual error messages<br>- `langCode` (string, Optional) – applies only to specific language if provided |
+
+---
+
+### Special Field Behaviors
+
+#### Date Field
+
+- **Age Validation (`minAge` / `maxAge`)**: minAge/maxAge are in days relative to today.
+  - `minAge = 0` → date must be today or later.
+  - `maxAge = 5` → date must be today or within the next 5 days.
+  - Validation fails if the selected date is outside the allowed range.
+- **Date Format (`format`)**: Placeholder, selected display, and submitted value must all follow the same format. Defaults to `yyyy/MM/dd` if not provided.
+
+#### Radio Field
+
+- **Final Submitted Value (string type)**: The submitted value is always taken from the **first language listed in mandatoryLanguages**, regardless of current UI language. Both 2-letter and 3-letter language codes are supported.
+
+#### SimpleType Radio Field
+
+- **Final Submitted Value Structure**: Submitted data is an **array of objects**, one per mandatory language.
+  ```json
+  {
+    "language": "<3-letter-language-code>",
+    "value": "<selected-option-value>"
+  }
+  ```
+
+#### File Upload Field (`fileupload` / `photo`)
+
+The file upload field allows users to upload files or photos with additional options and validations.
+
+- **Accepted File Types (`acceptedFileTypes`)**
+  - Restricts uploads to specific file types such as `image/jpeg`, `application/pdf`.
+  - Multiple types are supported.
+  - Example display text: `"JPEG, PNG, PDF (max. 5 MB)"`.
+
+- **Maximum File Size (`maxFileSizeMB`)**
+  - Sets the maximum allowed file size in MB.
+  - Example: `5` → maximum 5 MB per file.
+
+- **Document Type (`docType`)**
+  - Optional dropdown to select the type of document.
+  - Supports multilingual labels and placeholders.
+
+- **Reference ID (`refId`)**
+  - Optional text input to enter a document reference number.
+  - Supports multilingual labels and placeholders.
+
+- **Proof of Document (`proofOfDoc`)**
+  - Label displayed above the upload area.
+  - Indicates the area where users can upload their file or photo.
+  - Supports multilingual labels.
+
+- **Upload Area**
+  - Users can click to select a file or drag-and-drop it into the area.
+  - Displays supported file types and maximum size as helper text.
+  - Can be disabled to prevent uploads.
+
+- **File Preview**
+  - **Photos**: Shows a thumbnail of the uploaded image.
+  - **Other files**: Shows file name, size, and an icon.
+  - Each preview includes a delete button to remove the file.
+
+- **Validation**
+  - Required uploads must have a file.
+  - Only allowed file types and sizes are accepted.
+  - Validation messages are shown in multiple languages if configured.
 
 ### Allowed Values Section (optional)
 
-| Property        | Type   | Description                                                                                                                |
-| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. |
+| Property        | Type   | Description                                                                                                                            |
+| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option `subType`/ `id`, and values provide multilingual labels. |
 
 ### i18nValues Section (optional)
+
 #### It contains errors, additional labels & placeholders
-Errors Section
 
-| Property           | Type   | Description                                                       |
-| ------------------ | ------ | ----------------------------------------------------------------- |
-| `required`         | object | Defines multilingual error messages for required fields.          |
-| `passwordMismatch` | object | Defines multilingual error messages for password mismatch.        |
-| `capsLock` | object | Defines multilingual error messages for caps lock enabled.       |
+---
 
+#### Errors Section
 
+| Property           | Type   | Description                                                                                                                       |
+| ------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `required`         | object | Multilingual error messages for required fields. Example: `"eng": "This field is required"`                                       |
+| `passwordMismatch` | object | Multilingual error messages when passwords do not match. Example: `"eng": "Passwords is not matching please check your password"` |
+| `capsLock`         | object | Multilingual error messages when Caps Lock is enabled. Example: `"eng": "Caps Lock is ON"`                                        |
+
+---
+
+#### Labels Section
+
+| Property           | Type   | Description                                                                      |
+| ------------------ | ------ | -------------------------------------------------------------------------------- |
+| `password_confirm` | object | Multilingual label for confirming password. Example: `"eng": "Confirm Password"` |
+| `capturePhoto`     | object | Label for capturing photo. Example: `"eng": "Capture Photo"`                     |
+| `clickToUpload`    | object | Label for click-to-upload buttons. Example: `"eng": "Click to upload"`           |
+| `docType`          | object | Label for document type selection. Example: `"eng": "Document Type"`             |
+| `docRef`           | object | Label for document reference ID. Example: `"eng": "Document Reference ID"`       |
+| `proofOfDoc`       | object | Label for proof of document. Example: `"eng": "Proof Of Document"`               |
+
+---
+
+#### Placeholders Section
+
+| Property           | Type   | Description                                                                                    |
+| ------------------ | ------ | ---------------------------------------------------------------------------------------------- |
+| `password_confirm` | object | Placeholder for confirm password. Example: `"eng": "Enter your confirm password"`              |
+| `docType`          | object | Placeholder for document type selection. Example: `"eng": "Select an option"`                  |
+| `docRef`           | object | Placeholder for document reference ID. Example: `"eng": "Enter Reference ID here"`             |
+| `proofOfDoc`       | object | Placeholder for proof of document upload. Example: `"eng": "Click to upload or drag and drop"` |
 
 ### Language Section (mandatory)
 
-| Property      | Type   | Description                                                                               |
-| ------------- | ------ | ----------------------------------------------------------------------------------------- |
-| `mandatory`   | array  | List of mandatory language codes that must be present in the schema.                      |
-| `optional`    | array  | List of optional language codes that may be included if available.                        |
+| Property      | Type   | Description                                                                                |
+| ------------- | ------ | ------------------------------------------------------------------------------------------ |
+| `mandatory`   | array  | List of mandatory language codes that must be present in the schema.                       |
+| `optional`    | array  | List of optional language codes that may be included if available.                         |
 | `langCodeMap` | object | Bi-directional mapping between 2-letter and 3-letter language codes (e.g., `eng` ↔ `en`). |
-
-
 
 ### Additional Configuration
 
@@ -287,9 +404,9 @@ The form builder supports Google reCAPTCHA v2 integration. To enable reCAPTCHA:
 
 ```javascript
 recaptcha: {
-  siteKey: 'your-recaptcha-site-key', // Required
-  enabled: true,                      // Optional, defaults to true
-  language: 'en'                      // Optional, defaults to form's current
+  siteKey: 'your-recaptcha-site-key',  // Required
+  enabled: true,                       // Optional, defaults to true
+  language: 'eng'                      // Optional, defaults to form's current
 }
 ```
 
@@ -425,9 +542,9 @@ This will generate:
    npm link
    ```
 2. Now go to the application, where you want to use `json-form-builder` library, and run the below command
-    ```bash
-    npm link @mosip/json-form-builder
-    ```
+   ```bash
+   npm link @mosip/json-form-builder
+   ```
 3. This will create a link between the library and application, after that if any changes has been done in the library, just run the below command and it will reflect in the application as well
    ```bash
    npm run build
