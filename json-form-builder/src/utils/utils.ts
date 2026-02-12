@@ -730,6 +730,13 @@ const isSubTypeField = (field: FormField): field is SubTypeField =>
   field.controlType === ControlType.RADIO ||
   field.controlType === ControlType.FILE;
 
+const triggerRefreshLabels = (state: FormState) => {
+  const el = state.container.querySelector("input, select, textarea");
+  if (el) {
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+};
+
 export {
   getLabelText,
   getMultiLangText,
@@ -749,5 +756,6 @@ export {
   emptyInvalidFn,
   getAcceptString,
   mimeToLabel,
-  isSubTypeField
+  isSubTypeField,
+  triggerRefreshLabels
 };

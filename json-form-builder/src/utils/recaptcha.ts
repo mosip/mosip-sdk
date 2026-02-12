@@ -1,5 +1,6 @@
 import { FormState } from "../types";
 import { appendError } from "./utils";
+import { triggerRefreshLabels } from "./utils";
 
 /**
  * Loads the reCAPTCHA script asynchronously and checks if it is already loaded.
@@ -85,6 +86,8 @@ const enableRecaptcha = (state: FormState, form: HTMLElement): void => {
 };
 
 const initializeRecaptcha = (state: FormState): void => {
+  let lastTokenState = "";
+
   // Initialize reCAPTCHA if enabled
   if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
     const recaptchaContainer = document.getElementById("recaptcha-container");
@@ -102,15 +105,21 @@ const initializeRecaptcha = (state: FormState): void => {
             // Store the response in form data
             state.formData.recaptchaToken = response;
             userInteracted = true;
+            lastTokenState = "valid";
 
             // REMOVE error when user completes captcha
             const recaptchaContainer = document.getElementById("recaptcha-container");
             const errorDiv = recaptchaContainer?.querySelector(".recaptcha-error");
             if (errorDiv) errorDiv.innerHTML = "";
+
+            triggerRefreshLabels(state);
           },
           "expired-callback": () => {
             delete state.formData.recaptchaToken;
             userInteracted = true;
+            lastTokenState = "expired";
+
+            triggerRefreshLabels(state);
           },
         });
         // Store the widget ID for later use
@@ -123,11 +132,15 @@ const initializeRecaptcha = (state: FormState): void => {
 
             const response = window.grecaptcha?.getResponse?.(Number(widgetIdAttr));
 
-            if (!response) {
+            // token became invalid after being valid
+            if (!response && lastTokenState === "valid") {
               delete state.formData.recaptchaToken;
+              lastTokenState = "expired";
 
-              if (!userInteracted) return;
+              triggerRefreshLabels(state);
+            }
 
+            if (!response && userInteracted) {
               let errorDiv = recaptchaContainer.querySelector(".recaptcha-error") as HTMLDivElement;
 
               if (!errorDiv) {
