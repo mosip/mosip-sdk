@@ -151,7 +151,9 @@ const initializeRecaptcha = (state: FormState): void => {
 
               appendError(errorDiv, "Please complete the reCAPTCHA", state);
             }
-          } catch { }
+          } catch {
+            console.error("Error occurred while checking reCAPTCHA response");
+          }
         }, 0);
       } catch (error) {
         console.error("Failed to initialize reCAPTCHA:", error);
@@ -227,7 +229,7 @@ const validateRecaptcha = (state: FormState): boolean => {
             Number(widgetId)
           );
 
-          let errorDiv = recaptchaContainer.querySelector(
+          const errorDiv = recaptchaContainer.querySelector(
             ".recaptcha-error"
           ) as HTMLDivElement | null;
           if (!recaptchaResponse) {
