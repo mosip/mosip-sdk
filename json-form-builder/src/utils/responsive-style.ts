@@ -346,11 +346,6 @@ input[type="radio"]:disabled {
 /* Password Input Styling End */
 
 /* Checkbox Container Styling */
-.checkbox-container {
-  display: flex; /* Use flexbox to align checkbox and label */
-  gap: 1rem; /* Space between checkbox and label (Tailwind gap-2) */
-  align-items: center; /* Vertically center the checkbox and label */
-}
 
 .checkbox-container input[type="checkbox"] {
   width: 1.25rem; /* Tailwind w-5 */
@@ -358,7 +353,8 @@ input[type="radio"]:disabled {
   border: 1px solid #d1d5db; /* Tailwind border-gray-300 */
   border-radius: 2px; /* Tailwind rounded */
   cursor: pointer;
-  flex-shrink: 0; /* Prevent checkbox from shrinking */
+  flex-shrink: 0; /* Prevent checkbox from shrinking */  
+  vertical-align: text-top;
 }
 
 .checkbox-container label {
@@ -368,6 +364,7 @@ input[type="radio"]:disabled {
   color: #1f2937; /* Tailwind text-gray-900 */
   cursor: pointer;
   user-select: none; /* Prevent text selection when clicking label */
+  margin-left: 0.5rem;
 }
 /* Checkbox Container Styling End */
 
