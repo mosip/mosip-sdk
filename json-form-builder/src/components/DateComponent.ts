@@ -67,21 +67,27 @@ export const createDateField = (
   const errorContainer = createErrorContainer();
 
   const today = new Date();
-  const minAge = field.minAge;
-  const maxAge = field.maxAge;
+  const minAgeRaw = field.minAge;
+  const maxAgeRaw = field.maxAge;
 
   let minDate: Date | null = null;
   let maxDate: Date | null = null;
 
-  const isValidNumber = (val: any): val is number =>
-    typeof val === "number" && !isNaN(val);
+  // only allow positive numbers
+  const isValidPositiveNumber = (val: any): val is number =>
+    typeof val === "number" && !isNaN(val) && val >= 0;
 
+  // treat negative as null automatically
+  const minAge = isValidPositiveNumber(minAgeRaw) ? minAgeRaw : null;
+  const maxAge = isValidPositiveNumber(maxAgeRaw) ? maxAgeRaw : null;
+
+  // if both null or both zero → ignore range
   const bothInvalid =
-    (!isValidNumber(minAge) && !isValidNumber(maxAge)) || (minAge === 0 && maxAge === 0);
+    (minAge === null && maxAge === null) || (minAge === 0 && maxAge === 0);
 
   if (!bothInvalid) {
-    if (isValidNumber(minAge)) minDate = addDays(today, -Math.abs(minAge));
-    if (isValidNumber(maxAge)) maxDate = addDays(today, Math.abs(maxAge));
+    if (minAge !== null) minDate = addDays(today, -minAge);
+    if (maxAge !== null) maxDate = addDays(today, maxAge);
   }
 
   if (minDate) realInput.min = format(minDate, "yyyy-MM-dd");
