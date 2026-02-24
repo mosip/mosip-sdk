@@ -503,12 +503,12 @@ async function code_challenge_callback(
   oidcConfig: OidcConfigProp
 ): Promise<{ code_challenge: string; code_challenge_method: string } | null> {
   if (!oidcConfig.client_id) {
-    throw new Error(errorMessage.clientIdMissing);
+    return null;
   }
   try {
     return await callbackFunction(oidcConfig.client_id, oidcConfig.state);
   } catch (error) {
-    throw new Error(errorMessage.codeChallengeEncodeFailed);
+    return null;
   }
 }
 
