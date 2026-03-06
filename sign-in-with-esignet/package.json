@@ -8,7 +8,8 @@
   "homepage": "https://docs.esignet.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/mosip-sdk"
+    "url": "git+https://github.com/mosip/mosip-sdk",
+    "directory": "sign-in-with-esignet"
   },
   "files": [
     "dist",
@@ -61,6 +62,7 @@
     "typescript-plugin-css-modules": "^5.2.0"
   },
   "scripts": {
+    "verify": "npm run build",
     "build": "rimraf dist && rollup -c",
     "rollup": "rimraf dist && rollup -c",
     "package": "npm run rollup && npm pack",
