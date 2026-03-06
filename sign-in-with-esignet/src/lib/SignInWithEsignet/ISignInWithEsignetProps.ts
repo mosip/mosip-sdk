@@ -16,6 +16,10 @@ interface OidcConfigProp {
   par_callback?: (clientId: string) => Promise<string>;
   par_callback_timeout?: number;
   dpop_callback?: () => Promise<string>;
+  code_challenge?: (
+    clientId: string,
+    state?: string
+  ) => Promise<{ code_challenge: string; code_challenge_method: string } | null>;
 }
 
 interface CallbackFunctionProp {
@@ -23,7 +27,9 @@ interface CallbackFunctionProp {
     clientId: string,
     state?: string,
     ui_locales?: string,
-    dpop_jkt?: string
+    dpop_jkt?: string,
+    codeChallenge?: string,
+    codeChallengeMethod?: string
   ): Promise<string>;
 }
 
