@@ -32,10 +32,16 @@ export const createCheckboxField = (
   checkbox.name = field.id;
   checkbox.oninvalid = emptyInvalidFn(checkbox);
   checkbox.dataset.fieldId = field.id;
-  checkbox.checked = Boolean(state.allowedValues?.[field.id] || false);
 
   if (field.disabled || false) {
     disableField(checkbox);
+  }
+
+  if (
+    state.prefilledValues && state.prefilledValues[field.id] &&
+    typeof state.prefilledValues[field.id] === "boolean"
+  ) {
+    checkbox.checked = Boolean(state.prefilledValues?.[field.id] || false);
   }
 
   const errorContainer = createErrorContainer();

@@ -178,6 +178,14 @@ input[type="radio"]:disabled {
   }
 }
 
+.upload-disabled {
+  background: #EFEFEF4D !important;
+
+  &:hover {
+    cursor: not-allowed !important;
+  }
+}
+
 .custom-group-box {
   border: 1px solid rgb(204, 204, 204);
   padding: 12px 16px;
@@ -277,14 +285,6 @@ input[type="radio"]:disabled {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.input_box {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid rgb(204, 204, 204) !important;
-  border-radius: 4px;
-  font-size: 1rem;
 }
 
 .file-upload {
@@ -464,6 +464,8 @@ input[type="radio"]:disabled {
   width: 64px !important;
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
+  background: #fff;
+  border-right: none;
 }
 
 .prefix-button:disabled {
@@ -481,24 +483,38 @@ input[type="radio"]:disabled {
 .prefix-dropdown {
   display: none;
   position: absolute;
-  top: 100%; /* Position below the button */
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  z-index: 1;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 6px;
+  min-width: 180px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  z-index: 1000;
+  padding: 4px;
 }
 
 /* Links inside the dropdown */
 .prefix-dropdown a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
   display: block;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #344054;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.15s ease;
 }
 
 /* Change color of dropdown links on hover */
 .prefix-dropdown a:hover {
-  background-color: #E4E7EC;
+  background: #f2f4f7;
+}
+
+.prefix-dropdown a:active {
+  background: #e4e7ec;
 }
 
 .prefix-option {
@@ -517,6 +533,19 @@ input[type="radio"]:disabled {
   border-left: none !important;
 }
 /* prefix for phone number input */
+
+.input_box {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgb(204, 204, 204) !important;
+  border-radius: 4px;
+  font-size: 1rem;
+
+  &:focus,
+  .input_box ~ .input_box {
+    border: 1px solid black !important;
+  }
+}
 
 /* file input styling */
 .file-upload-container {

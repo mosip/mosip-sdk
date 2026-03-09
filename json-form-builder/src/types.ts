@@ -98,6 +98,8 @@ export interface FormConfig {
     labels?: { [id: string]: Label };
     placeholders?: { [id: string]: Label };
   };
+  resetPasswordChallengeFields: string[];
+  prefilledValues?: Record<string, any>
 }
 
 export interface FileUploadData {
@@ -159,4 +161,5 @@ export interface FormState {
   labels: { [id: string]: Label };
   placeholders: { [id: string]: Label };
   isFormInitialized: boolean;
+  prefilledValues?: Record<string, any>;
 }

@@ -66,7 +66,8 @@ export const createFileUploadField = (
                 || { en: "Document Type" },
             placeholder: state.placeholders?.docType || { en: "Select an option" },
             subType: field.subType,
-            required: true
+            required: true,
+            disabled: field.disabled
         };
         docTypeFieldEl = createDropdownField(state, docTypeField, true);
         docTypeFieldEl.dataset.i18nLabel = "docType";
@@ -157,7 +158,10 @@ export const createFileUploadField = (
     input.style.display = "none";
     input.oninvalid = emptyInvalidFn(input);
 
-    if (field.disabled) disableField(input);
+    if (field.disabled) {
+        disableField(input);
+        uploadArea.classList.add("upload-disabled");
+    }
 
     const iconWrapper = document.createElement("div");
     iconWrapper.className = "icon-wrapper";
@@ -274,13 +278,19 @@ export const createFileUploadField = (
             return;
         }
 
+        // corrupted / empty file
+        if (!file || file.size === 0) {
+            appendError(errorContainer, "File appears to be corrupted or empty");
+            return;
+        }
+
         if (!allowedTypes.includes(file.type)) {
             appendError(errorContainer, `Unsupported file type: ${file.name}`);
             return;
         }
 
         if (file.size > maxBytes) {
-            appendError(errorContainer, `File too large (${file.name})`);
+            appendError(errorContainer, `File too large (${file.name}). Maximum size is ${maxSizeMB} MB`);
             return;
         }
 

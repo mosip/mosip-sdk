@@ -9,6 +9,7 @@ import {
   getCapsLockSpan,
   getLabelText,
   emptyInvalidFn,
+  disableField
 } from "../utils/utils";
 
 /**
@@ -47,7 +48,10 @@ export const createSimpleTextbox = (
     state.formData[field.id] = [];
   }
 
-  const languages = Object.keys(field.labelName || {});
+  const languages = [
+    ...state.mandatoryLanguages,
+    ...state.optionalLanguages,
+  ].filter(Boolean);
 
   // Helper to normalize any lang code to 3-letter code if possible
   const normalizeToThreeLetterCode = (
@@ -86,6 +90,17 @@ export const createSimpleTextbox = (
       state.defaultLanguage
     );
 
+    if (field.disabled || false) {
+      disableField(input);
+    }
+
+    if (
+      state.prefilledValues && state.prefilledValues[field.id] &&
+      typeof state.prefilledValues[field.id] === "object"
+    ) {
+      input.value = (state.prefilledValues[field.id] as any)[0].value;
+    }
+
     const errorContainer = createErrorContainer();
     langWrapper.appendChild(input);
     langWrapper.appendChild(errorContainer);
@@ -118,7 +133,7 @@ export const createSimpleTextbox = (
           value,
           true,
           currentLang,
-          state.currentLanguage 
+          state.currentLanguage
         );
         lastError = result.lastError;
         isValid = result.isValid;

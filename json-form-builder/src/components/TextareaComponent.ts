@@ -59,6 +59,13 @@ export const createTextareaField = (
         disableField(textarea);
     }
 
+    if (
+        state.prefilledValues && state.prefilledValues[field.id] &&
+        typeof state.prefilledValues[field.id] === "string"
+    ) {
+        textarea.value = (state.prefilledValues[field.id] as string).trim();
+    }
+
     const errorContainer = createErrorContainer();
 
     // Even though caps lock is uncommon for textarea, keeping it "EXACTLY similar"
