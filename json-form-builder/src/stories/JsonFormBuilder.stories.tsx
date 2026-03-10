@@ -166,6 +166,7 @@ const defaultFormConfig = {
       },
     },
   },
+  resetPasswordChallengeFields: ["individualId"],
   errors: {
     required: {
       eng: "This field is required",
@@ -196,7 +197,7 @@ const defaultFormConfig = {
 
 const availableLanguages =
   defaultFormConfig?.language?.mandatory?.concat(
-    defaultFormConfig?.language?.optional || []
+    defaultFormConfig?.language?.optional || [],
   ) || [];
 
 const JsonFormBuilderWrapper: React.FC<any> = () => <div />;
@@ -311,7 +312,7 @@ export const JsonFormBuilderExample: Story = {
       const form = JsonFormBuilder(
         localConfig,
         "formContainer",
-        additionalConfig
+        additionalConfig,
       );
       form.render();
 

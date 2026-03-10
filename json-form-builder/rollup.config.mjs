@@ -4,7 +4,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 import json from "@rollup/plugin-json";
-import nodePolyfills from "rollup-plugin-node-polyfills";
+import polyfillNode from "rollup-plugin-polyfill-node";
 
 const require = createRequire(import.meta.url);
 const pkg = require("./package.json");
@@ -30,7 +30,7 @@ export default {
   ],
   external: ["react", "react-dom"],
   plugins: [
-    nodePolyfills(),
+    polyfillNode(),
     resolve(),
     commonjs(),
     json(), // Handles JSON imports in the bundle
