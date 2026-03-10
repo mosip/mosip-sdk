@@ -168,12 +168,15 @@ const alternateDivElement = (state: FormState, field: FormField): HTMLDivElement
   const svgUrl = "data:image/svg+xml;base64," + btoa(svgString);
   altImage.src = svgUrl;
 
-  const popupDiv = document.createElement("div");
-  popupDiv.className = "alternate-icon-popup";
-  popupDiv.innerText = getMultiLangText(state, field.placeholder);
-
   altDiv.appendChild(altImage);
-  altDiv.appendChild(popupDiv);
+
+  if (!field.disabled) {
+    const popupDiv = document.createElement("div");
+    popupDiv.className = "alternate-icon-popup";
+    popupDiv.innerText = getMultiLangText(state, field.placeholder);
+    altDiv.appendChild(popupDiv);
+  }
+
   return altDiv;
 };
 
@@ -406,10 +409,13 @@ export const createPhotoField = (
 
   wrapper.appendChild(label);
 
+  const isDisabled = !!field.disabled;
+
   let alternateDiv = alternateDivElement(state, field);
-  alternateDiv.addEventListener("click", async () =>
-    openCamera(videoDiv, mainContentDiv, facingUserMode)
-  );
+  alternateDiv.addEventListener("click", async () => {
+    if (isDisabled) return;
+    openCamera(videoDiv, mainContentDiv, facingUserMode);
+  });
   mainContentDiv.appendChild(alternateDiv);
   wrapper.appendChild(mainContentDiv);
   wrapper.appendChild(hiddenInput);
@@ -420,6 +426,19 @@ export const createPhotoField = (
     event.preventDefault();
     requiredFieldCheck(state, field, hiddenInput, errorContainer);
   });
+
+  if (isDisabled) {
+    hiddenInput.disabled = true;
+    alternateDiv.style.pointerEvents = "none";
+    alternateDiv.style.background = "#EFEFEF4D";
+    mainContentDiv.addEventListener("mouseenter", () => {
+      mainContentDiv.style.cursor = "not-allowed";
+    });
+
+    mainContentDiv.addEventListener("mouseleave", () => {
+      mainContentDiv.style.cursor = "default";
+    });
+  }
 
   // delete event button for clearing
   // the current captured photo

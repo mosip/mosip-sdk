@@ -28,6 +28,10 @@ const createPasswordIconSpan = (
   eyeIconSpan.className = "password-eye-icon";
   eyeIconSpan.innerHTML = eyeIconSvg;
 
+  const toggleVisibility = () => {
+    eyeIconSpan.style.display = input.value ? "flex" : "none";
+  };
+
   eyeIconSpan.addEventListener("click", () => {
     eyeIconSpan.innerHTML = "";
     if (input.type === ControlType.PASSWORD) {
@@ -38,6 +42,11 @@ const createPasswordIconSpan = (
       eyeIconSpan.innerHTML = eyeIconSvg;
     }
   });
+
+  input.addEventListener("input", toggleVisibility);
+
+  // Initial state
+  toggleVisibility();
   return eyeIconSpan;
 };
 
@@ -83,6 +92,13 @@ export const createPasswordField = (
   input.oninvalid = emptyInvalidFn(input);
   input.dataset.fieldId = field.id;
   input.placeholder = getMultiLangText(state, field.placeholder);
+
+  if (
+    state.allowedValues[field.id] &&
+    typeof state.allowedValues[field.id] === "string"
+  ) {
+    input.value = (state.allowedValues[field.id] as string).trim();
+  }
 
   const eyeIconSpan = createPasswordIconSpan(input, `${field.id}_eye`);
 
