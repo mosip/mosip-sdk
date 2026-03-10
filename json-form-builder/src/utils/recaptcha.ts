@@ -86,61 +86,45 @@ const enableRecaptcha = (state: FormState, form: HTMLElement): void => {
 };
 
 const initializeRecaptcha = (state: FormState): void => {
-  let lastTokenState = "";
-
-  // Initialize reCAPTCHA if enabled
   if (state.recaptcha?.enabled !== false && state.recaptcha?.siteKey) {
     const recaptchaContainer = document.getElementById("recaptcha-container");
+
     if (
       recaptchaContainer &&
       window.grecaptcha &&
       typeof window.grecaptcha.render === "function"
     ) {
       try {
-        let userInteracted = false;
+        let solvedOnce = false;
 
         const widgetId = window.grecaptcha.render(recaptchaContainer, {
           sitekey: state.recaptcha.siteKey,
-          callback: (response) => {
-            // Store the response in form data
-            state.formData.recaptchaToken = response;
-            userInteracted = true;
-            lastTokenState = "valid";
 
-            // REMOVE error when user completes captcha
-            const recaptchaContainer = document.getElementById("recaptcha-container");
-            const errorDiv = recaptchaContainer?.querySelector(".recaptcha-error");
+          // USER SOLVED CAPTCHA
+          callback: (response: string) => {
+            state.formData.recaptchaToken = response;
+            solvedOnce = true;
+
+            // remove error
+            const errorDiv = recaptchaContainer.querySelector(".recaptcha-error");
             if (errorDiv) errorDiv.innerHTML = "";
 
+            // enable submit button
             triggerRefreshLabels(state);
           },
+
+          // CAPTCHA AUTO EXPIRED
           "expired-callback": () => {
             delete state.formData.recaptchaToken;
-            userInteracted = true;
-            lastTokenState = "expired";
 
+            // disable button
             triggerRefreshLabels(state);
-          },
-        });
-        // Store the widget ID for later use
-        recaptchaContainer.setAttribute("data-widget-id", widgetId.toString());
 
-        setInterval(() => {
-          try {
-            const widgetIdAttr = recaptchaContainer.getAttribute("data-widget-id");
-            if (!widgetIdAttr) return;
+            // do not show error on first load
+            if (!solvedOnce) return;
 
-            const response = window.grecaptcha?.getResponse?.(Number(widgetIdAttr));
-
-            // token became invalid after being valid
-            if (!response && lastTokenState === "valid") {
-              delete state.formData.recaptchaToken;
-              lastTokenState = "expired";
-
-              triggerRefreshLabels(state);
-            }
-
-            if (!response && userInteracted) {
+            // wait for recaptcha DOM refresh
+            setTimeout(() => {
               let errorDiv = recaptchaContainer.querySelector(".recaptcha-error") as HTMLDivElement;
 
               if (!errorDiv) {
@@ -150,14 +134,14 @@ const initializeRecaptcha = (state: FormState): void => {
               }
 
               appendError(errorDiv, "Please complete the reCAPTCHA", state);
-            }
-          } catch {
-            console.error("Error occurred while checking reCAPTCHA response");
+            }, 50);
           }
-        }, 0);
+        });
+
+        recaptchaContainer.setAttribute("data-widget-id", widgetId.toString());
+
       } catch (error) {
         console.error("Failed to initialize reCAPTCHA:", error);
-        // Disable reCAPTCHA if initialization fails
         state.recaptcha.enabled = false;
       }
     } else {

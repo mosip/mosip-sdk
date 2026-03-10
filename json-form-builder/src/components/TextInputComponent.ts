@@ -59,6 +59,13 @@ export const createStringField = (
     disableField(input);
   }
 
+  if (
+    state.prefilledValues && state.prefilledValues[field.id] &&
+    typeof state.prefilledValues[field.id] === "string"
+  ) {
+    input.value = (state.prefilledValues[field.id] as string).trim();
+  }
+
   const errorContainer = createErrorContainer();
 
   enableCapsLockCheck(field, wrapper, input);
