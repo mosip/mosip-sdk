@@ -63,7 +63,9 @@ export const createTextareaField = (
         state.prefilledValues && state.prefilledValues[field.id] &&
         typeof state.prefilledValues[field.id] === "string"
     ) {
-        textarea.value = (state.prefilledValues[field.id] as string).trim();
+        const result = (state.prefilledValues[field.id] as string).trim();
+        textarea.value = result;
+        state.formData[textarea.id] = result;
     }
 
     const errorContainer = createErrorContainer();

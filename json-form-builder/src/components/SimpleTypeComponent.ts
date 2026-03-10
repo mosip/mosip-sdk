@@ -99,6 +99,7 @@ export const createSimpleTextbox = (
       typeof state.prefilledValues[field.id] === "object"
     ) {
       input.value = (state.prefilledValues[field.id] as any)[0].value;
+      state.formData[field.id] = (state.prefilledValues[field.id] as any);
     }
 
     const errorContainer = createErrorContainer();
