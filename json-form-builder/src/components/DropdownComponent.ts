@@ -41,6 +41,10 @@ export const createDropdownField = (
   select.oninvalid = emptyInvalidFn(select);
   select.dataset.fieldId = field.id;
 
+  if (field.disabled) {
+    select.disabled = true;
+  }
+
   // Placeholder
   const placeholder = document.createElement("option");
   placeholder.className = "select-placeholder";
@@ -64,6 +68,30 @@ export const createDropdownField = (
     option.textContent = getMultiLangText(state, labels);
     select.appendChild(option);
   });
+
+  if (
+    state.prefilledValues &&
+    typeof state.prefilledValues[field.id] === "string"
+  ) {
+    const prefill = (state.prefilledValues[field.id] as string).trim();
+
+    let matchedKey = "";
+
+    for (const [key, labels] of Object.entries(optionSource)) {
+      if (
+        key === prefill ||
+        Object.values(labels as Record<string, string>).includes(prefill)
+      ) {
+        matchedKey = key;
+        break;
+      }
+    }
+
+    if (matchedKey) {
+      select.value = matchedKey;
+      state.formData[field.id] = matchedKey;
+    }
+  }
 
   const errorContainer = createErrorContainer();
 

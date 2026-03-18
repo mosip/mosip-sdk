@@ -59,7 +59,11 @@ function validateInput(oidcConfig: OidcConfigProp): string {
  * @param oidcConfig
  * @returns URL
  */
-function buildRedirectURL(oidcConfig: OidcConfigProp, dpop_jkt?: string): string {
+function buildRedirectURL(
+  oidcConfig: OidcConfigProp,
+  dpop_jkt?: string,
+  codeChallengeObj?: { code_challenge: string; code_challenge_method: string } | null
+): string {
   let urlToNavigate: string = oidcConfig?.authorizeUri + "?";
 
   if (oidcConfig?.nonce) urlToNavigate += "nonce=" + oidcConfig.nonce + "&";
@@ -100,6 +104,14 @@ function buildRedirectURL(oidcConfig: OidcConfigProp, dpop_jkt?: string): string
 
   if (dpop_jkt) {
     urlToNavigate += "&dpop_jkt=" + dpop_jkt;
+  }
+
+  if (codeChallengeObj) {
+    urlToNavigate +=
+      "&code_challenge=" + encodeURIComponent(codeChallengeObj.code_challenge);
+    urlToNavigate +=
+      "&code_challenge_method=" +
+      encodeURIComponent(codeChallengeObj.code_challenge_method);
   }
 
   return urlToNavigate;
@@ -445,7 +457,9 @@ function buildParAuthorizeUrl(
 async function par_callback(
   callbackFunction: CallbackFunctionProp,
   oidcConfig: OidcConfigProp,
-  dpop_jkt?: string
+  dpop_jkt?: string,
+  codeChallenge?: string,
+  codeChallengeMethod?: string
 ): Promise<string> {
   if (!oidcConfig.client_id) {
     return errorMessage.clientIdMissing;
@@ -455,7 +469,9 @@ async function par_callback(
       oidcConfig.client_id,
       oidcConfig.state,
       oidcConfig.ui_locales,
-      dpop_jkt
+      dpop_jkt,
+      codeChallenge,
+      codeChallengeMethod
     );
   } catch (error) {
     return errorMessage.requestUriFailed;
@@ -479,6 +495,23 @@ async function dpop_callback(
   }
 }
 
+async function code_challenge_callback(
+  callbackFunction: (
+    clientId: string,
+    state?: string
+  ) => Promise<{ code_challenge: string; code_challenge_method: string } | null>,
+  oidcConfig: OidcConfigProp
+): Promise<{ code_challenge: string; code_challenge_method: string } | null> {
+  if (!oidcConfig.client_id) {
+    return null;
+  }
+  try {
+    return await callbackFunction(oidcConfig.client_id, oidcConfig.state);
+  } catch (error) {
+    return null;
+  }
+}
+
 function getTimeoutMs(timeout: unknown, fallback: number = 5000): number {
   const parsed = typeof timeout === "string" ? parseInt(timeout, 10) : timeout;
   return typeof parsed === "number" && Number.isFinite(parsed) && parsed > 0
@@ -495,6 +528,8 @@ const SignInWithEsignet = async ({
 
   const hasDpopCallback = oidcConfig && hasFunction(oidcConfig.dpop_callback);
   const hasParCallback = oidcConfig && hasFunction(oidcConfig.par_callback);
+  const hasCodeChallengeCallback =
+    oidcConfig && hasFunction(oidcConfig.code_challenge);
 
   if (signInElement == null) {
     return signInElement;
@@ -503,12 +538,22 @@ const SignInWithEsignet = async ({
   //validate input
   let errorMsg = validateInput(oidcConfig);
   let urlToNavigate = "#";
-  const handleParCallback = async (event: MouseEvent, dpop_jkt?: string) => {
+  const handleParCallback = async (
+    event: MouseEvent,
+    dpop_jkt?: string,
+    codeChallengeObj?: { code_challenge: string; code_challenge_method: string } | null
+  ) => {
     event.preventDefault();
 
     const timeoutMs = getTimeoutMs(oidcConfig.par_callback_timeout, 5000);
     const result = await promiseWithTimeout(
-      par_callback(oidcConfig.par_callback!, oidcConfig, dpop_jkt),
+      par_callback(
+        oidcConfig.par_callback!,
+        oidcConfig,
+        dpop_jkt,
+        codeChallengeObj?.code_challenge,
+        codeChallengeObj?.code_challenge_method
+      ),
       timeoutMs
     );
 
@@ -566,7 +611,15 @@ const SignInWithEsignet = async ({
   const handleDPopCallback = async (event: MouseEvent) => {
     event.preventDefault();
     return await dpop_callback(oidcConfig.dpop_callback!, oidcConfig);
-  }
+  };
+
+  const handleCodeChallengeCallback = async (event: MouseEvent) => {
+    event.preventDefault();
+    return await code_challenge_callback(
+      oidcConfig.code_challenge!,
+      oidcConfig
+    );
+  };
 
   let onClickHandler: ((event: MouseEvent) => void | Promise<void>) | undefined;
 
@@ -575,13 +628,20 @@ const SignInWithEsignet = async ({
 
     try {
       let dpop_jkt: string = "";
+      let codeChallengeObj: {
+        code_challenge: string;
+        code_challenge_method: string;
+      } | null = null;
+
+      // Handle DPoP callback if present
       if (hasDpopCallback) {
-        // Wait for DPoP callback first
         const dpop_response = await handleDPopCallback(event);
-        if (dpop_response && !Object.values(errorMessage).includes(dpop_response)) {
+        if (
+          dpop_response &&
+          !Object.values(errorMessage).includes(dpop_response)
+        ) {
           dpop_jkt = dpop_response;
-        }
-        else {
+        } else {
           const redirected = buildErrorRedirectUrl(
             dpop_response,
             "dpop_failed",
@@ -602,19 +662,42 @@ const SignInWithEsignet = async ({
           }
           return;
         }
-        if (hasParCallback) {
-          // Then handle PAR if available
-          await handleParCallback(event, dpop_jkt);
-        } else if (!errorMsg) {
-          urlToNavigate = buildRedirectURL(oidcConfig, dpop_jkt);
-          window.location.href = urlToNavigate;
+      }
+
+      // Handle Code Challenge callback if present
+      if (hasCodeChallengeCallback) {
+        const challenge_response = await handleCodeChallengeCallback(event);
+        if (challenge_response) {
+          codeChallengeObj = challenge_response;
+        } else {
+          const redirected = buildErrorRedirectUrl(
+            errorMessage.codeChallengeEncodeFailed,
+            "code_challenge_failed",
+            oidcConfig
+          );
+          if (!redirected) {
+            errorMsg = errorMessage.codeChallengeEncodeFailed;
+            rerenderButton(
+              signInElement,
+              label,
+              buttonCustomStyle,
+              buttonClasses,
+              buttonStyle,
+              logoPath,
+              errorMsg,
+              buttonConfig.type
+            );
+          }
+          return;
         }
-      } else if (hasParCallback) {
-        // Only PAR
-        await handleParCallback(event);
+      }
+
+      // Handle PAR callback if present
+      if (hasParCallback) {
+        await handleParCallback(event, dpop_jkt, codeChallengeObj);
       } else if (!errorMsg) {
         // Fallback redirect
-        urlToNavigate = buildRedirectURL(oidcConfig);
+        urlToNavigate = buildRedirectURL(oidcConfig, dpop_jkt, codeChallengeObj);
         window.location.href = urlToNavigate;
       }
     } catch (err) {

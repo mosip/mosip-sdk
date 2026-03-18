@@ -45,6 +45,15 @@ export const createRadioField = (
 
     const savedValue = state.formData?.[field.id];
 
+    const getGenderKey = (value: string, options: any) => {
+        for (const key in options) {
+            const langs = options[key];
+            if (Object.values(langs).includes(value)) {
+                return key;
+            }
+        }
+    };
+
     Object.entries(options).forEach(([valueKey, labelObj]) => {
         const optionWrapper = document.createElement("div");
         optionWrapper.className = "radio-option";
@@ -61,14 +70,29 @@ export const createRadioField = (
 
         if (field.disabled) disableField(radio);
 
-        // Check saved value
-        if (field.type === InputType.SIMPLE_TYPE && Array.isArray(savedValue)) {
-            radio.checked = savedValue.some(
+        let isChecked = false;
+
+        if (
+            state.prefilledValues) {
+            if (typeof state.prefilledValues[field.id] === "string") {
+                const result = getGenderKey(state.prefilledValues[field.id], options);
+                isChecked = result === valueKey;
+            }
+            else if (typeof state.prefilledValues[field.id] === "object") {
+                const result = getGenderKey((state.prefilledValues[field.id] as any)[0].value, options);
+                isChecked = result === valueKey;
+            }
+        }
+        else if (field.type === InputType.SIMPLE_TYPE && Array.isArray(savedValue)) {
+            isChecked = savedValue.some(
                 (v: any) => v.value === labelObj[allowedValueLangKey]
             );
-        } else {
-            radio.checked = savedValue === valueKey;
         }
+        else {
+            isChecked = savedValue === valueKey;
+        }
+
+        radio.checked = isChecked;
 
         const optionLabel = document.createElement("label");
         optionLabel.htmlFor = uniqueId;

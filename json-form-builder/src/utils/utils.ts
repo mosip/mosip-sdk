@@ -10,6 +10,7 @@ import {
 } from "../types";
 type LabelObject = Record<string, string>;
 import { ControlType } from "./constants";
+import mime from "mime-types";
 
 /**
  * Helps to get the label text for a form field, including a required indicator if the field is marked as required.
@@ -683,29 +684,9 @@ const emptyInvalidFn = (
 };
 
 // Convert MIME → clean extension
-const mimeToExtension = (mime: string): string => {
-  const specialMap: Record<string, string> = {
-    "application/pdf": "pdf",
-    "application/msword": "doc",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-    "application/vnd.ms-excel": "xls",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-    "application/vnd.ms-powerpoint": "ppt",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx"
-  };
-
-  // If special format → return readable extension
-  if (specialMap[mime]) return specialMap[mime];
-
-  // Generic fallback: image/png → png
-  if (mime.includes("/")) {
-    return mime
-      .split("/")[1]
-      .replace("+xml", "")
-      .replace("xml", "");
-  }
-
-  return "";
+const mimeToExtension = (mimeType: string): string => {
+  const ext = mime.extension(mimeType);
+  return ext || ""; // fallback to empty string if unknown
 };
 
 // Create accept string (for file input)

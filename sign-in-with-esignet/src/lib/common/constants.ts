@@ -25,7 +25,8 @@ const errorMessage = {
   requestUriFailed: "Failed to get Request URI. Please try again later.",
   clientIdMissing: "Client ID missing.",
   generic: "An unexpected error occurred. Please try again.",
-  dpopFailed: "DPoP callback failed. Please try again."
+  dpopFailed: "DPoP callback failed. Please try again.",
+  codeChallengeEncodeFailed: "Code challenge generation failed. Please try again."
 };
 
 const defaultButtonLabel = "Sign in with e-Signet";

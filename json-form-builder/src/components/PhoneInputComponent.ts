@@ -172,7 +172,7 @@ export const createPhoneField = (
 
   const prefixValue = getPrefix(
     field.prefix,
-    (state.allowedValues[field.id] as string) || ""
+    state.prefilledValues ? (state.prefilledValues[field.id] as string) : (state.allowedValues[field.id] as string) || ""
   );
 
   const prefixButton = addPrefixButton(
@@ -192,12 +192,11 @@ export const createPhoneField = (
   input.dataset.fieldId = field.id;
   // remove prefixValue from allowedValues string
   if (
-    state.allowedValues[field.id] &&
-    typeof state.allowedValues[field.id] === "string"
+    state.prefilledValues && state.prefilledValues[field.id] &&
+    typeof state.prefilledValues[field.id] === "string"
   ) {
-    input.value = (state.allowedValues[field.id] as string)
-      .replace(prefixValue || "", "")
-      .trim();
+    const val = state.prefilledValues[field.id]
+    input.value = (val as string).trim().startsWith(prefixValue) ? val.slice(prefixValue.length) : val;
   }
   input.placeholder = getMultiLangText(state, field.placeholder);
 

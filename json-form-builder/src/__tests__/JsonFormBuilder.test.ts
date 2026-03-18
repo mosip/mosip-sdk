@@ -57,6 +57,7 @@ describe('JsonFormBuilder', () => {
           ]
         }
       ],
+      resetPasswordChallengeFields: ["name", "email"],
       language: {
         mandatory: ["eng"],
         optional: ['fra', 'ara'],

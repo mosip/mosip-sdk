@@ -763,6 +763,7 @@ const JsonFormBuilder = (
     maxFileSizeMB: config.maxFileSizeMB || 5, // Default to 5MB
     labels: config.i18nValues?.labels || {},
     placeholders: config.i18nValues?.placeholders || {},
+    prefilledValues: config.prefilledValues || {}
   };
 
   /**
