@@ -164,33 +164,10 @@ const reInitializeRecaptcha = (state: FormState): void => {
         try {
           window.grecaptcha.reset(Number(widgetId));
 
-          const newContainer = document.createElement("div");
-          newContainer.id = "recaptcha-container";
-          newContainer.className = "recaptcha-container";
+          delete state.formData.recaptchaToken;
 
-          recaptchaContainer.parentNode?.replaceChild(
-            newContainer,
-            recaptchaContainer
-          );
-
-          const newWidgetId = window.grecaptcha.render(newContainer, {
-            sitekey: state.recaptcha.siteKey,
-            callback: (response) => {
-              state.formData.recaptchaToken = response;
-
-              // REMOVE error when user completes captcha
-              const recaptchaContainer = document.getElementById("recaptcha-container");
-              const errorDiv = recaptchaContainer?.querySelector(".recaptcha-error");
-              if (errorDiv) errorDiv.innerHTML = "";
-            },
-            "expired-callback": () => {
-              delete state.formData.recaptchaToken;
-            },
-          });
-
-          newContainer.setAttribute("data-widget-id", newWidgetId.toString());
         } catch (error) {
-          console.error("Failed to update reCAPTCHA language:", error);
+          console.error("Failed to reset reCAPTCHA:", error);
         }
       }
     }
