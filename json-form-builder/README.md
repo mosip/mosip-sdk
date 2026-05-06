@@ -139,6 +139,7 @@ const config = {
       required: true,
     },
   ],
+  resetPasswordChallengeFields: ["name", "gender", "dob", "consent"],
   allowedValues: {
     "gender-options": {
       male: {
@@ -318,6 +319,32 @@ The file upload field allows users to upload files or photos with additional opt
   - Only allowed file types and sizes are accepted.
   - Validation messages are shown in multiple languages if configured.
 
+### Reset Password Challenge Fields Section
+
+| Property                       | Type  | Description                                                                                                                                                |
+| ------------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resetPasswordChallengeFields` | array | Specifies a list of field `id`s from the schema that should be included in the **Reset Password flow**. These fields are combined to build the final form. |
+
+#### Behavior
+
+- The final rendered schema is dynamically built using `resetPasswordChallengeFields`
+- The order of fields follows the fields listed in `resetPasswordChallengeFields` (in given order)
+- Only the specified fields will be rendered during the reset password flow, and all of them will be treated as mandatory, while any fields not included in this list will be ignored.
+
+#### Validations
+
+The following validations are strictly enforced:
+
+1. **Mandatory Requirement**
+   - `resetPasswordChallengeFields` must:
+     - Exist
+     - Be an array of strings
+     - Not be empty
+
+2. **Schema Integrity**
+   - All field IDs in `resetPasswordChallengeFields` must exist in `schema`.
+   - If any field is missing → throws error.
+
 ### Allowed Values Section (optional)
 
 | Property        | Type   | Description                                                                                                                            |
@@ -364,10 +391,10 @@ The file upload field allows users to upload files or photos with additional opt
 
 ### Language Section (mandatory)
 
-| Property      | Type   | Description                                                                                |
-| ------------- | ------ | ------------------------------------------------------------------------------------------ |
-| `mandatory`   | array  | List of mandatory language codes that must be present in the schema.                       |
-| `optional`    | array  | List of optional language codes that may be included if available.                         |
+| Property      | Type   | Description                                                                               |
+| ------------- | ------ | ----------------------------------------------------------------------------------------- |
+| `mandatory`   | array  | List of mandatory language codes that must be present in the schema.                      |
+| `optional`    | array  | List of optional language codes that may be included if available.                        |
 | `langCodeMap` | object | Bi-directional mapping between 2-letter and 3-letter language codes (e.g., `eng` ↔ `en`). |
 
 ### Additional Configuration
