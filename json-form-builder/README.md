@@ -223,6 +223,7 @@ interface FormConfig {
     labels?: { [id: string]: Label };
     placeholders?: { [id: string]: Label };
   };
+  resetPasswordChallengeFields: string[];
 }
 ```
 
