@@ -292,7 +292,8 @@ export const createFileUploadField = (
             lastError = result.lastError;
         }
 
-        state.lastErrors![field.id] = lastError;
+        state.lastErrors ||= {};
+        state.lastErrors[field.id] = lastError;
 
         input.classList.toggle("error", !isValid);
     };
