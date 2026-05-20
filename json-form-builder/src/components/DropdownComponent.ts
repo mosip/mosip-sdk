@@ -105,8 +105,10 @@ export const createDropdownField = (
     const isFileUploaded = !!parentData?.value;
     const hasDocType = !!select.value;
 
-    // required only when one side is filled
-    const shouldBeRequired = isFileUploaded || hasDocType;
+    // If the dropdown is related to a file upload's docType, it should be required if a file is uploaded or a docType is selected
+    // This ensures that if a user uploads a file, they must select a docType, and if they select a docType, they must upload a file
+    // For other dropdowns, the required validation is based solely on the field's required property
+    const shouldBeRequired = !!field.required || isFileUploaded || hasDocType;
 
     if (shouldBeRequired && !select.value) {
       const result = handleRequiredValidation(state, errorContainer);
