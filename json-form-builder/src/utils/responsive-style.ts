@@ -106,8 +106,9 @@ input[type="date"]:hover, input[type="date"]::-webkit-calendar-picker-indicator 
 }
 
 .recaptcha-container {
-  margin-bottom: 1rem;
-  display: block !important;
+  margin-bottom: 2rem;
+  display: flex !important;
+  justify-content: center;
 
   .recaptcha-error {
     display: flex !important;
@@ -289,11 +290,11 @@ input[type="radio"]:disabled {
 
 .file-upload {
   .form-field {
-    margin-bottom: 0px !important; 
+    margin-bottom: 1rem !important; 
   }
 
   .input_box {
-    margin-bottom: 1rem !important
+    margin-bottom: 0px !important
   }
 }
 

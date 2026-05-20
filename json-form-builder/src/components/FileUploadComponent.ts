@@ -39,7 +39,6 @@ export const createFileUploadField = (
 
     const label = document.createElement("label");
     label.innerHTML = getLabelText(state, field);
-    label.htmlFor = field.id;
 
     if (field.info) {
         const infoIcon = createInfoIcon(getMultiLangText(state, field.info));

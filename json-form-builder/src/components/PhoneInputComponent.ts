@@ -263,7 +263,9 @@ export const createPhoneField = (
         errorContainer,
         field.validators,
         value,
-        false
+        false,
+        state.currentLanguage,
+        state.currentLanguage
       );
       lastError = result.lastError;
       isValid = result.isValid;

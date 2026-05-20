@@ -654,7 +654,7 @@ const updateLanguage = (
   submitButtonLabel?: string,
   additionalSchema?: AdditionalSchema
 ): void => {
-  const normalizedLang = newLanguage || state.languageMap[newLanguage];
+  const normalizedLang = state.languageMap[newLanguage] || newLanguage;
   state.currentLanguage = normalizedLang;
   state.isRTL = state.rtlLanguages.includes(normalizedLang);
   state.container.dir = state.isRTL ? "rtl" : "ltr";
@@ -672,7 +672,7 @@ const updateLanguage = (
     state.submitLabel = submitButtonLabel;
   }
   refreshLabels(state);
-  triggerAllEvents(state, "touchedOnly");
+  triggerAllEvents(state, "all");
 };
 
 /**

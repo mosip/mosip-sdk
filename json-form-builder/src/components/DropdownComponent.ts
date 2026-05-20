@@ -103,8 +103,10 @@ export const createDropdownField = (
 
     const parentData = state.formData[parentId] as FileUploadData | undefined;
     const isFileUploaded = !!parentData?.value;
+    const hasDocType = !!select.value;
 
-    const shouldBeRequired = field.required || isFileUploaded;
+    // required only when one side is filled
+    const shouldBeRequired = isFileUploaded || hasDocType;
 
     if (shouldBeRequired && !select.value) {
       const result = handleRequiredValidation(state, errorContainer);

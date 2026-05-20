@@ -87,7 +87,9 @@ export const createStringField = (
         errorContainer,
         field.validators,
         value,
-        false
+        false,
+        state.currentLanguage,
+        state.currentLanguage
       );
       lastError = result.lastError;
       isValid = result.isValid;
