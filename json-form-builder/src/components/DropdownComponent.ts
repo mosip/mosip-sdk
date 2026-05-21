@@ -1,4 +1,4 @@
-import { FormState, SubTypeField } from "../types";
+import { FileUploadData, FormState, SubTypeField } from "../types";
 import {
   getMultiLangText,
   createErrorContainer,
@@ -38,7 +38,6 @@ export const createDropdownField = (
   select.className = "input_box select-input";
   select.id = field.id;
   select.name = field.id;
-  select.oninvalid = emptyInvalidFn(select);
   select.dataset.fieldId = field.id;
 
   if (field.disabled) {
@@ -51,9 +50,7 @@ export const createDropdownField = (
   placeholder.value = "";
   placeholder.textContent =
     getMultiLangText(state, field.placeholder) || "Select an Option";
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  placeholder.hidden = true;
+  placeholder.disabled = false;
   select.appendChild(placeholder);
 
   // Options
@@ -90,6 +87,8 @@ export const createDropdownField = (
     if (matchedKey) {
       select.value = matchedKey;
       state.formData[field.id] = matchedKey;
+    } else {
+      select.value = "";
     }
   }
 
@@ -100,7 +99,18 @@ export const createDropdownField = (
     let lastError: "required" | null = null;
     appendError(errorContainer, "");
 
-    if (field.required && !select.value) {
+    const parentId = field.id.replace("_docType", "");
+
+    const parentData = state.formData[parentId] as FileUploadData | undefined;
+    const isFileUploaded = !!parentData?.value;
+    const hasDocType = !!select.value;
+
+    // If the dropdown is related to a file upload's docType, it should be required if a file is uploaded or a docType is selected
+    // This ensures that if a user uploads a file, they must select a docType, and if they select a docType, they must upload a file
+    // For other dropdowns, the required validation is based solely on the field's required property
+    const shouldBeRequired = !!field.required || isFileUploaded || hasDocType;
+
+    if (shouldBeRequired && !select.value) {
       const result = handleRequiredValidation(state, errorContainer);
       lastError = result.lastError;
       isValid = result.isValid;
@@ -109,15 +119,14 @@ export const createDropdownField = (
     state.lastErrors = state.lastErrors || {};
     state.lastErrors[field.id] = lastError;
 
-    select.setCustomValidity(isValid ? "" : "Invalid input");
     select.classList.toggle("error", !isValid);
   };
 
   select.addEventListener("change", (e) => {
     const target = e.target as HTMLSelectElement;
-
+    const value = target.value || "";
     if (!isSubComponent) {
-      state.formData[field.id] = target.value;
+      state.formData[field.id] = value;
     }
 
     select.style.color = target.value ? "black" : "";

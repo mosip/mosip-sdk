@@ -39,7 +39,6 @@ export const createFileUploadField = (
 
     const label = document.createElement("label");
     label.innerHTML = getLabelText(state, field);
-    label.htmlFor = field.id;
 
     if (field.info) {
         const infoIcon = createInfoIcon(getMultiLangText(state, field.info));
@@ -59,7 +58,6 @@ export const createFileUploadField = (
 
     if (field.subType && state.allowedValues[field.subType]) {
         const docTypeField: SubTypeField = {
-            ...field,
             id: `${field.id}_docType`,
             controlType: "dropdown",
             labelName: state.labels?.docType
@@ -79,15 +77,18 @@ export const createFileUploadField = (
 
         selectEl?.addEventListener("change", () => {
             state.formData[field.id] ??= {} as FileUploadData;
-            (state.formData[field.id] as FileUploadData).docType = selectEl.value;
-        });
 
+            const fileData = state.formData[field.id] as FileUploadData;
+            fileData.docType = selectEl.value;
+
+            // validate file field immediately
+            validateFileField();
+        });
     }
 
     /* ----------------------- REF ID FIELD ----------------------- */
 
     const refIdField: FormField = {
-        ...field,
         id: `${field.id}_refId`,
         controlType: "textbox",
         labelName: state.labels?.docRef
@@ -112,7 +113,8 @@ export const createFileUploadField = (
     podLabel.dataset.i18nLabel = "proofOfDoc";
     podLabel.style.marginBottom = "4px";
     podLabel.innerHTML = getLabelText(state, {
-        ...field,
+        id: `${field.id}_proof`,
+        controlType: "textbox",
         required: true,
         labelName: state.labels?.proofOfDoc
             || { en: "Proof Of Document" }
@@ -223,6 +225,7 @@ export const createFileUploadField = (
             existing.value = "";
             existing.format = "";
         }
+        validateFileField();
 
         input.value = "";
         previewImg.src = "";
@@ -230,6 +233,11 @@ export const createFileUploadField = (
         photoDeleteBtn.style.display = "none";
 
         showUploadArea();
+
+        const docTypeSelect = wrapper.querySelector(
+            `select[data-field-id="${field.id}_docType"]`
+        ) as HTMLSelectElement;
+        docTypeSelect?.dispatchEvent(new Event("input", { bubbles: true }));
 
         // re-run form validation
         input.dispatchEvent(new Event("change", { bubbles: true }));
@@ -265,6 +273,30 @@ export const createFileUploadField = (
         await processFiles(files);
     });
 
+    const validateFileField = () => {
+        appendError(errorContainer, "");
+
+        const fileData = state.formData[field.id] as FileUploadData | undefined;
+        const hasFile = !!fileData?.value;
+        const hasDocType = !!fileData?.docType;
+
+        const shouldRequireFile = field.required || hasDocType;
+
+        let isValid = true;
+        let lastError: "required" | null = null;
+
+        if (shouldRequireFile && !hasFile) {
+            const result = handleRequiredValidation(state, errorContainer);
+            isValid = result.isValid;
+            lastError = result.lastError;
+        }
+
+        state.lastErrors ||= {};
+        state.lastErrors[field.id] = lastError;
+
+        input.classList.toggle("error", !isValid);
+    };
+
     /* ----------------------- PROCESS FILES – SINGLE OBJECT ----------------------- */
     async function processFiles(files: FileList) {
         appendError(errorContainer, "");
@@ -272,7 +304,12 @@ export const createFileUploadField = (
         const file = files[0];
 
         /* Validation */
-        if (field.required && !file) {
+        const fileVal = state.formData[field.id] as FileUploadData | undefined;
+        const docTypeValue = fileVal?.docType;
+
+        const shouldRequireFile = field.required || !!docTypeValue;
+
+        if (shouldRequireFile && !file) {
             const result = handleRequiredValidation(state, errorContainer);
             state.lastErrors![field.id] = result.lastError;
             return;
@@ -299,6 +336,14 @@ export const createFileUploadField = (
         const fileData = state.formData[field.id] as FileUploadData;
         fileData.value = file;
         fileData.format = file.type;
+
+        validateFileField();
+
+        const docTypeSelect = wrapper.querySelector(
+            `select[data-field-id="${field.id}_docType"]`
+        ) as HTMLSelectElement;
+
+        docTypeSelect?.dispatchEvent(new Event("input", { bubbles: true }));
 
         input.value = "";
 
@@ -359,10 +404,17 @@ export const createFileUploadField = (
                 existing.value = "";
                 existing.format = "";
             }
+            validateFileField();
 
             input.value = "";
             previewWrapper.innerHTML = "";
             showUploadArea();
+
+            const docTypeSelect = wrapper.querySelector(
+                `select[data-field-id="${field.id}_docType"]`
+            ) as HTMLSelectElement;
+
+            docTypeSelect?.dispatchEvent(new Event("input", { bubbles: true }));
 
             // re-run form validation
             input.dispatchEvent(new Event("change", { bubbles: true }));

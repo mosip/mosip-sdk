@@ -60,6 +60,7 @@ export const createPasswordField = (
 ): HTMLDivElement => {
   const wrapper = document.createElement("div");
   wrapper.className = `form-field password-container ${field.cssClasses?.join(" ") || ""}`;
+  wrapper.dataset.fieldId = field.id;
 
   // Label
   const labelDiv = document.createElement("div");
@@ -121,7 +122,7 @@ export const createPasswordField = (
       lastError = result.lastError;
       isValid = result.isValid;
     } else if (value && Array.isArray(field.validators)) {
-      const result = handleRegexValidation(state, errorContainer, field.validators, value, false);
+      const result = handleRegexValidation(state, errorContainer, field.validators, value, false, state.currentLanguage, state.currentLanguage);
       lastError = result.lastError;
       isValid = result.isValid;
     }
@@ -169,6 +170,7 @@ export const createPasswordField = (
 
   const confirmField = document.createElement("div");
   confirmField.className = "form-field password-container";
+  confirmField.dataset.fieldId = confirmId;
 
   const confirmLabelDiv = document.createElement("div");
   confirmLabelDiv.className = "label-div-display";

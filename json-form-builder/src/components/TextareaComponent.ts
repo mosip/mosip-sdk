@@ -25,6 +25,7 @@ export const createTextareaField = (
 ): HTMLDivElement => {
     const wrapper = document.createElement("div");
     wrapper.className = `form-field ${field.cssClasses?.join(" ") || ""}`;
+    wrapper.dataset.fieldId = field.id;
 
     const labelDiv = document.createElement("div");
     labelDiv.className = "label-div-display";
@@ -90,7 +91,9 @@ export const createTextareaField = (
                 errorContainer,
                 field.validators,
                 value,
-                false
+                true,
+                state.currentLanguage,
+                state.currentLanguage
             );
             lastError = result.lastError;
             isValid = result.isValid;
