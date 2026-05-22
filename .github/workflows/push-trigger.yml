@@ -79,13 +79,13 @@ jobs:
           user_name: mosip
         if: "${{ github.event_name != 'pull_request' }}"
 
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+      #- uses: 8398a7/action-slack@v3
+      #  with:
+      #    status: ${{ job.status }}
+      #    fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+      #  env:
+      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+      #  if: failure() # Pick up events even if the job fails or is canceled.
 
   build-secure-biometric-interface-integrator:
     if: "${{ contains(github.event.inputs.source_directory, 'secure-biometric-interface-integrator') || github.event_name == 'pull_request' || github.event_name == 'push' || false }}"
@@ -145,13 +145,13 @@ jobs:
           publish_dir: storybook-example/storybook-static
         if: "${{ github.event_name != 'pull_request' }}"
 
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+      #- uses: 8398a7/action-slack@v3
+      #  with:
+      #    status: ${{ job.status }}
+      #    fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+      #  env:
+      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+      #  if: failure() # Pick up events even if the job fails or is canceled.
 
   sonarcloud:
     if: "${{ github.event_name != 'pull_request' }}"
@@ -166,10 +166,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+      #- uses: 8398a7/action-slack@v3
+      #  with:
+      #    status: ${{ job.status }}
+      #    fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+      #  env:
+      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+      #  if: failure() # Pick up events even if the job fails or is canceled.
