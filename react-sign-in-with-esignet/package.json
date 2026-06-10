@@ -1,13 +1,13 @@
 {
-  "name": "react-sign-in-with-esignet",
-  "version": "0.1.0",
+  "name": "@mosip/react-sign-in-with-esignet",
+  "version": "0.1.1-beta.0",
   "description": "A react component for rendering “Sign in with..” button on mosip client’s web page for oidc integration.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "homepage": "https://docs.esignet.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mosip/mosip-plugins"
+    "url": "git+https://github.com/mosip/mosip-sdk"
   },
   "files": [
     "dist",
@@ -71,6 +71,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "rollup -c",
+    "verify": "npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "rollup": "rollup -c",

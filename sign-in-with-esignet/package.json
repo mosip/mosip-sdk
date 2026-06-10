@@ -63,6 +63,7 @@
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "rollup": "rimraf dist && rollup -c",
+    "verify": "npm run build",
     "package": "npm run rollup && npm pack",
     "watch": "npm-watch",
     "storybook": "storybook dev -p 6006",

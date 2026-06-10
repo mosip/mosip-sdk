@@ -56,13 +56,18 @@ function validateInput(oidcConfig: OidcConfigProp): string {
 
 /**
  * Builds redirect URL to navigate to id provider's portal.
- * @param oidcConfig
+ * @param oidcConfig - OIDC configuration object which has all the parameters required for building the url. Some of the parameters are optional and will be added to the url if present in the config object.
+ * @param dpop_jkt - DPoP proof thumbprint to be added as dpop_jkt in the url if dpop flow is implemented by the client.
+ * @param codeChallengeObj - object containing code_challenge and code_challenge_method
  * @returns URL
  */
 function buildRedirectURL(
   oidcConfig: OidcConfigProp,
   dpop_jkt?: string,
-  codeChallengeObj?: { code_challenge: string; code_challenge_method: string } | null
+  codeChallengeObj?: {
+    code_challenge: string;
+    code_challenge_method: string;
+  } | null,
 ): string {
   let urlToNavigate: string = oidcConfig?.authorizeUri + "?";
 
@@ -216,7 +221,7 @@ function buildButtonClasses(buttonConfig: ButtonConfigProp): styleClasses {
  */
 function buildButtonStyles(
   baseStyle: { [key: string]: string },
-  buttonConfig: ButtonConfigProp
+  buttonConfig: ButtonConfigProp,
 ): { [key: string]: string } {
   if (buttonConfig?.width) baseStyle["width"] = buttonConfig.width;
   if (buttonConfig?.background)
@@ -249,7 +254,7 @@ function buildButtonStyles(
  */
 function buildButtonCustomStyles(
   baseStyle: { [key: string]: string },
-  buttonConfig: ButtonConfigProp
+  buttonConfig: ButtonConfigProp,
 ): customStyle {
   if (!buttonConfig.customStyle) {
     return {};
@@ -277,7 +282,7 @@ function buildButtonCustomStyles(
  */
 const setStyleAttribute = (
   element: HTMLElement,
-  attrs: { [key: string]: string } | undefined
+  attrs: { [key: string]: string } | undefined,
 ): void => {
   if (attrs !== undefined) {
     Object.keys(attrs).forEach((key: string) => {
@@ -321,7 +326,7 @@ const createButton = (
   logoPath: string,
   errorMsg: string,
   type: string | undefined,
-  onClickHandler?: (event: MouseEvent) => void
+  onClickHandler?: (event: MouseEvent) => void,
 ): HTMLElement => {
   //Button
   let anchor: HTMLElement;
@@ -387,6 +392,17 @@ const createButton = (
   return anchor;
 };
 
+/**
+ * Renders the button again with updated error message in case of error during callback function execution.
+ * @param signInElement Html element where the button is rendered. This is required to re-render the button with error message in case of callback failure.
+ * @param label button label which is required to re-render the button
+ * @param buttonCustomStyle custom style object which is required to re-render the button with same custom styling in case of callback failure.
+ * @param buttonClasses button classes which is required to re-render the button with same classes in case of callback failure.
+ * @param buttonStyle button style which is required to re-render the button with same styling in case of callback failure.
+ * @param logoPath logo path which is required to re-render the button with same logo in case of callback failure.
+ * @param errorMsg error message to be displayed on the button in case of callback failure.
+ * @param buttonType button type which is required to re-render the button with same type in case of callback failure.
+ */
 function rerenderButton(
   signInElement: HTMLElement,
   label: string,
@@ -395,7 +411,7 @@ function rerenderButton(
   buttonStyle: { [key: string]: string },
   logoPath: string,
   errorMsg: string,
-  buttonType: string | undefined
+  buttonType: string | undefined,
 ) {
   signInElement.innerHTML = "";
   signInElement.appendChild(
@@ -407,15 +423,22 @@ function rerenderButton(
       buttonStyle,
       logoPath,
       errorMsg,
-      buttonType
-    )
-  )
+      buttonType,
+    ),
+  );
 }
 
+/**
+ * Builds a redirect URL for error handling.
+ * @param errorDescription Error description to be sent as error_description in the url
+ * @param errorCode Error code to be sent as error in the url
+ * @param oidcConfig OIDC configuration object which has the redirect_uri to which the url needs to be built and navigated to.
+ * @returns boolean value indicating whether the url was built and navigation was triggered. It returns false when redirect_uri is not present in the oidcConfig object and url cannot be built. In that case error message will be displayed on the button itself.
+ */
 function buildErrorRedirectUrl(
   errorDescription: string,
   errorCode: string,
-  oidcConfig: OidcConfigProp
+  oidcConfig: OidcConfigProp,
 ): boolean {
   if (!oidcConfig.redirect_uri) return false;
 
@@ -428,19 +451,19 @@ function buildErrorRedirectUrl(
 
 function promiseWithTimeout<T>(
   promise: Promise<T>,
-  ms: number
+  ms: number,
 ): Promise<T | "timeout"> {
   return Promise.race([
     promise,
     new Promise<"timeout">((resolve) =>
-      setTimeout(() => resolve("timeout"), ms)
+      setTimeout(() => resolve("timeout"), ms),
     ),
   ]);
 }
 
 function buildParAuthorizeUrl(
   oidcConfig: OidcConfigProp,
-  requestUri: string
+  requestUri: string,
 ): string {
   let url = `${oidcConfig.authorizeUri}?`;
 
@@ -459,7 +482,7 @@ async function par_callback(
   oidcConfig: OidcConfigProp,
   dpop_jkt?: string,
   codeChallenge?: string,
-  codeChallengeMethod?: string
+  codeChallengeMethod?: string,
 ): Promise<string> {
   if (!oidcConfig.client_id) {
     return errorMessage.clientIdMissing;
@@ -471,7 +494,7 @@ async function par_callback(
       oidcConfig.ui_locales,
       dpop_jkt,
       codeChallenge,
-      codeChallengeMethod
+      codeChallengeMethod,
     );
   } catch (error) {
     return errorMessage.requestUriFailed;
@@ -480,16 +503,13 @@ async function par_callback(
 
 async function dpop_callback(
   callbackFunction: CallbackFunctionProp,
-  oidcConfig: OidcConfigProp
+  oidcConfig: OidcConfigProp,
 ): Promise<string> {
   if (!oidcConfig.client_id) {
     return errorMessage.clientIdMissing;
   }
   try {
-    return await callbackFunction(
-      oidcConfig.client_id,
-      oidcConfig.state
-    );
+    return await callbackFunction(oidcConfig.client_id, oidcConfig.state);
   } catch (error) {
     return errorMessage.dpopFailed;
   }
@@ -498,9 +518,12 @@ async function dpop_callback(
 async function code_challenge_callback(
   callbackFunction: (
     clientId: string,
-    state?: string
-  ) => Promise<{ code_challenge: string; code_challenge_method: string } | null>,
-  oidcConfig: OidcConfigProp
+    state?: string,
+  ) => Promise<{
+    code_challenge: string;
+    code_challenge_method: string;
+  } | null>,
+  oidcConfig: OidcConfigProp,
 ): Promise<{ code_challenge: string; code_challenge_method: string } | null> {
   if (!oidcConfig.client_id) {
     return null;
@@ -541,7 +564,10 @@ const SignInWithEsignet = async ({
   const handleParCallback = async (
     event: MouseEvent,
     dpop_jkt?: string,
-    codeChallengeObj?: { code_challenge: string; code_challenge_method: string } | null
+    codeChallengeObj?: {
+      code_challenge: string;
+      code_challenge_method: string;
+    } | null,
   ) => {
     event.preventDefault();
 
@@ -552,16 +578,16 @@ const SignInWithEsignet = async ({
         oidcConfig,
         dpop_jkt,
         codeChallengeObj?.code_challenge,
-        codeChallengeObj?.code_challenge_method
+        codeChallengeObj?.code_challenge_method,
       ),
-      timeoutMs
+      timeoutMs,
     );
 
     if (result === "timeout") {
       const redirected = buildErrorRedirectUrl(
         errorMessage.requestUriTimeout,
         "request_uri_timeout",
-        oidcConfig
+        oidcConfig,
       );
       if (!redirected) {
         errorMsg = errorMessage.requestUriTimeout;
@@ -573,7 +599,7 @@ const SignInWithEsignet = async ({
           buttonStyle,
           logoPath,
           errorMsg,
-          buttonConfig.type
+          buttonConfig.type,
         );
       }
       return;
@@ -591,7 +617,7 @@ const SignInWithEsignet = async ({
     const redirected = buildErrorRedirectUrl(
       errorMessage.requestUriFailed,
       "request_uri_error",
-      oidcConfig
+      oidcConfig,
     );
     if (!redirected) {
       errorMsg = errorMessage.requestUriFailed;
@@ -603,7 +629,7 @@ const SignInWithEsignet = async ({
         buttonStyle,
         logoPath,
         errorMsg,
-        buttonConfig.type
+        buttonConfig.type,
       );
     }
   };
@@ -617,7 +643,7 @@ const SignInWithEsignet = async ({
     event.preventDefault();
     return await code_challenge_callback(
       oidcConfig.code_challenge!,
-      oidcConfig
+      oidcConfig,
     );
   };
 
@@ -645,7 +671,7 @@ const SignInWithEsignet = async ({
           const redirected = buildErrorRedirectUrl(
             dpop_response,
             "dpop_failed",
-            oidcConfig
+            oidcConfig,
           );
           if (!redirected) {
             errorMsg = errorMessage.dpopFailed;
@@ -657,7 +683,7 @@ const SignInWithEsignet = async ({
               buttonStyle,
               logoPath,
               errorMsg,
-              buttonConfig.type
+              buttonConfig.type,
             );
           }
           return;
@@ -673,7 +699,7 @@ const SignInWithEsignet = async ({
           const redirected = buildErrorRedirectUrl(
             errorMessage.codeChallengeEncodeFailed,
             "code_challenge_failed",
-            oidcConfig
+            oidcConfig,
           );
           if (!redirected) {
             errorMsg = errorMessage.codeChallengeEncodeFailed;
@@ -685,7 +711,7 @@ const SignInWithEsignet = async ({
               buttonStyle,
               logoPath,
               errorMsg,
-              buttonConfig.type
+              buttonConfig.type,
             );
           }
           return;
@@ -697,7 +723,11 @@ const SignInWithEsignet = async ({
         await handleParCallback(event, dpop_jkt, codeChallengeObj);
       } else if (!errorMsg) {
         // Fallback redirect
-        urlToNavigate = buildRedirectURL(oidcConfig, dpop_jkt, codeChallengeObj);
+        urlToNavigate = buildRedirectURL(
+          oidcConfig,
+          dpop_jkt,
+          codeChallengeObj,
+        );
         window.location.href = urlToNavigate;
       }
     } catch (err) {
@@ -738,7 +768,7 @@ const SignInWithEsignet = async ({
     logoPath,
     errorMsg,
     buttonConfig.type,
-    onClickHandler
+    onClickHandler,
   );
   signInElement.innerHTML = "";
   signInElement.appendChild(button);
