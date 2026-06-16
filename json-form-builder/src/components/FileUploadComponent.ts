@@ -64,7 +64,7 @@ export const createFileUploadField = (
                 || { en: "Document Type" },
             placeholder: state.placeholders?.docType || { en: "Select an option" },
             subType: field.subType,
-            required: true,
+            required: field.required,
             disabled: field.disabled
         };
         docTypeFieldEl = createDropdownField(state, docTypeField, true);
@@ -115,7 +115,7 @@ export const createFileUploadField = (
     podLabel.innerHTML = getLabelText(state, {
         id: `${field.id}_proof`,
         controlType: "textbox",
-        required: true,
+        required: field.required,
         labelName: state.labels?.proofOfDoc
             || { en: "Proof Of Document" }
     });
