@@ -683,6 +683,43 @@ const emptyInvalidFn = (
   };
 };
 
+/**
+ * Known file magic byte signatures mapped to their MIME types.
+ */
+const MAGIC_BYTE_SIGNATURES: ReadonlyArray<{ readonly hex: string; readonly mime: string }> = [
+  { hex: "89504E47", mime: "image/png" },
+  { hex: "FFD8FF",   mime: "image/jpeg" },
+  { hex: "25504446", mime: "application/pdf" },
+];
+
+const UNKNOWN_MIME_TYPE = "application/octet-stream";
+
+/**
+ * Detects the MIME type of a file by reading its magic bytes (first 12 bytes).
+ * Returns UNKNOWN_MIME_TYPE if the signature is not recognised.
+ * This is content-based detection — independent of the file name or extension.
+ */
+const detectMimeFromMagicBytes = async (file: File): Promise<string> => {
+  const buffer = await file.slice(0, 12).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const hex = Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, "0").toUpperCase())
+    .join("");
+
+  // WebP: RIFF (4 bytes) + file size (4 bytes) + WEBP (4 bytes)
+  const RIFF_SIGNATURE = "52494646";
+  const WEBP_SIGNATURE = "57454250";
+  if (hex.startsWith(RIFF_SIGNATURE) && hex.substring(16, 24) === WEBP_SIGNATURE) {
+    return "image/webp";
+  }
+
+  for (const { hex: sig, mime } of MAGIC_BYTE_SIGNATURES) {
+    if (hex.startsWith(sig)) return mime;
+  }
+
+  return UNKNOWN_MIME_TYPE;
+};
+
 // Convert MIME → clean extension
 const mimeToExtension = (mimeType: string): string => {
   const ext = mime.extension(mimeType);
@@ -738,5 +775,7 @@ export {
   getAcceptString,
   mimeToLabel,
   isSubTypeField,
-  triggerRefreshLabels
+  triggerRefreshLabels,
+  detectMimeFromMagicBytes,
+  UNKNOWN_MIME_TYPE
 };
