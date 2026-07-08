@@ -9,7 +9,9 @@ import {
     getLabelText,
     emptyInvalidFn,
     getAcceptString,
-    mimeToLabel
+    mimeToLabel,
+    detectMimeFromMagicBytes,
+    UNKNOWN_MIME_TYPE
 } from "../utils/utils";
 import { uploadIconSvg, trashIconSvg, fileIconSvg } from "../utils/icons";
 import { createStringField } from "./TextInputComponent";
@@ -321,7 +323,18 @@ export const createFileUploadField = (
             return;
         }
 
-        if (!allowedTypes.includes(file.type)) {
+        // Validate file type using magic bytes (content-based, not extension-based).
+        // If the type is recognised, it is used as the source of truth.
+        // If unrecognised or detection fails, fall back to the browser's extension-based file.type.
+        let effectiveMime: string;
+        try {
+            const detectedMime = await detectMimeFromMagicBytes(file);
+            effectiveMime = detectedMime !== UNKNOWN_MIME_TYPE ? detectedMime : file.type;
+        } catch {
+            effectiveMime = file.type;
+        }
+
+        if (!allowedTypes.includes(effectiveMime)) {
             appendError(errorContainer, `Unsupported file type: ${file.name}`);
             return;
         }
