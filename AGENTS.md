@@ -2,190 +2,130 @@
 
 ## Repository Overview
 
-`mosip-sdk` is a collection of independent front-end plugins and utilities for
-the MOSIP (Modular Open Source Identity Platform) ecosystem. It is not a
-single application — it is six separate, independently-versioned and
-independently-published npm packages living side by side in one repo:
+`mosip-sdk` is six independent, independently-versioned npm packages for the
+MOSIP ecosystem — not a single app. No root `package.json`, no workspace
+manager, no cross-module build/test command. Always `cd` into a module first.
 
 | Module | Purpose | Guide |
 |---|---|---|
-| `json-form-builder` | TypeScript dynamic form builder driven by JSON config | [json-form-builder/AGENTS.md](json-form-builder/AGENTS.md) |
-| `react-secure-biometric-interface-integrator` | React component for integrating Secure Biometric Interface (SBI) devices | [react-secure-biometric-interface-integrator/AGENTS.md](react-secure-biometric-interface-integrator/AGENTS.md) |
-| `secure-biometric-interface-integrator` | Vanilla JS (framework-free) equivalent of the SBI integrator | [secure-biometric-interface-integrator/AGENTS.md](secure-biometric-interface-integrator/AGENTS.md) |
-| `react-sign-in-with-esignet` | React "Sign in with eSignet" OIDC button component | [react-sign-in-with-esignet/AGENTS.md](react-sign-in-with-esignet/AGENTS.md) |
-| `sign-in-with-esignet` | Vanilla JS "Sign in with eSignet" OIDC button component | [sign-in-with-esignet/AGENTS.md](sign-in-with-esignet/AGENTS.md) |
-| `storybook-example` | Storybook site that aggregates stories from the other plugins for demo/publishing | [storybook-example/AGENTS.md](storybook-example/AGENTS.md) |
+| `json-form-builder` | TypeScript dynamic form builder driven by JSON config | [AGENTS.md](json-form-builder/AGENTS.md) |
+| `react-secure-biometric-interface-integrator` | React SBI (Secure Biometric Interface) device integration | [AGENTS.md](react-secure-biometric-interface-integrator/AGENTS.md) |
+| `secure-biometric-interface-integrator` | Vanilla-JS equivalent of the SBI integrator | [AGENTS.md](secure-biometric-interface-integrator/AGENTS.md) |
+| `react-sign-in-with-esignet` | React "Sign in with eSignet" OIDC button | [AGENTS.md](react-sign-in-with-esignet/AGENTS.md) |
+| `sign-in-with-esignet` | Vanilla-JS "Sign in with eSignet" OIDC button | [AGENTS.md](sign-in-with-esignet/AGENTS.md) |
+| `storybook-example` | Storybook site aggregating stories from the other modules; demo only, not published to npm | [AGENTS.md](storybook-example/AGENTS.md) |
 
-Each module has its own `package.json`, its own build tooling, and (except
-`storybook-example`) is published to npm under the `@mosip/*` scope. There is
-no root `package.json`, no workspace manager (no npm/yarn/pnpm workspaces,
-no Lerna/Nx), and no single command that builds or tests everything at once
-— each module is built and tested from inside its own directory.
+Each module has its own `package.json`/build tooling and (except
+`storybook-example`) publishes to npm under `@mosip/*`.
 
 ## Technology Stack
 
-- Language: TypeScript/JSX (`json-form-builder`,
-  `react-secure-biometric-interface-integrator`,
-  `react-sign-in-with-esignet`, `sign-in-with-esignet`) and plain JavaScript
-  (`secure-biometric-interface-integrator`, `storybook-example`).
-- UI framework: React 18 for the `react-*` modules and `storybook-example`;
-  the non-`react-*` modules are framework-free (vanilla JS/DOM).
-- Bundler: Rollup, in every publishable module (`rollup.config.js`/`.ts`/`.mjs`).
-  `react-secure-biometric-interface-integrator` and
-  `react-sign-in-with-esignet` additionally use `react-scripts` (Create React
-  App) for local dev/test.
-- Test runner: Jest directly in `json-form-builder` and
-  `sign-in-with-esignet`; Jest via `react-scripts test` in
-  `react-secure-biometric-interface-integrator` and
-  `react-sign-in-with-esignet`. `secure-biometric-interface-integrator` and
-  `storybook-example` have no automated test suite (see each module's guide).
-- Component explorer: Storybook 7/8, present in every module.
-- Package manager: npm (each module ships its own `package-lock.json`; there
-  is no root lockfile).
-- License headers: all publishable modules declare `MPL-2.0` in
-  `package.json`; the repository root `LICENSE` file is MPL 2.0.
+- TypeScript/JSX: `json-form-builder`, `react-secure-biometric-interface-integrator`,
+  `react-sign-in-with-esignet`, `sign-in-with-esignet`. Plain JS:
+  `secure-biometric-interface-integrator`, `storybook-example`.
+- React 18 in the `react-*` modules and `storybook-example`; the rest are
+  framework-free vanilla JS/DOM.
+- Bundler: Rollup everywhere; `react-*` modules also use `react-scripts` (CRA)
+  for local dev/test.
+- Tests: Jest (directly, or via `react-scripts test` in `react-*` modules) —
+  except `secure-biometric-interface-integrator` and `storybook-example`,
+  which have no test suite.
+- Storybook 7/8 in every module. npm only (each module has its own
+  `package-lock.json`, no root lockfile). License: `MPL-2.0`.
 
 ## Build & Test Commands
 
-There is no root build/test command. `cd` into the module you are changing
-and run its npm scripts, for example:
-
 ```bash
-cd json-form-builder
+cd <module>
 npm install
 npm run build
 npm test
 ```
 
-Every publishable module exposes a `verify` script that npm-publish CI calls
-(`npm run verify`, which in every module currently just runs the build). See
-each module's `AGENTS.md` for its exact script list — they are not identical
-across modules (for instance, `secure-biometric-interface-integrator` has no
-`test` script at all).
+Script lists differ per module (e.g. `secure-biometric-interface-integrator`
+has no `test` script) — check the module's own `AGENTS.md`. Every publishable
+module has a `verify` script that npm-publish CI calls.
 
 ## Configuration
 
-- Module-level `.env` files hold non-secret UI configuration only (for
-  example `react-secure-biometric-interface-integrator/.env` sets
-  `REACT_APP_DEFAULT_LANGUAGE`, and `storybook-example/.env*` set
-  `BASE_PATH`, `PLUGINS_FOLDER`, `VERSION_BRANCH`,
-  `REACT_APP_DEFAULT_LANGUAGE`). None of the `.env*` files checked into this
-  repo contain secrets or tokens — do not add any (API keys, npm auth
-  tokens, Slack webhooks, etc.) to a tracked `.env*` file. Real secrets for
-  this repo (`NPM_AUTH_TOKEN`, `SLACK_WEBHOOK`, `SONAR_TOKEN`, `ACTION_PAT`)
-  live only in GitHub Actions repository secrets, referenced from
-  `.github/workflows/*.yaml`/`.yml`.
-- `sonar-project.properties` at the repo root configures the SonarCloud scan
-  used by `.github/workflows/push-trigger.yml`.
-- `.gitignore` at the root excludes `node_modules`, `dist`, `build`,
-  `coverage`, and `storybook-static` for every module — do not commit build
-  output or dependency trees.
+- Module `.env*` files hold non-secret UI config only (e.g.
+  `REACT_APP_DEFAULT_LANGUAGE`; `storybook-example`'s `BASE_PATH`/
+  `PLUGINS_FOLDER`/`VERSION_BRANCH`). Never add secrets/tokens to a tracked
+  `.env*` file — real secrets (`NPM_AUTH_TOKEN`, `SLACK_WEBHOOK`,
+  `SONAR_TOKEN`, `ACTION_PAT`) live only in GitHub Actions repo secrets.
+- `sonar-project.properties` configures the SonarCloud scan run by
+  `.github/workflows/push-trigger.yml`.
+- `.gitignore` excludes `node_modules`, `dist`, `build`, `coverage`, and
+  `storybook-static` for every module.
 
 ## Project Structure Notes
 
 ```text
 mosip-sdk/
 ├── .github/workflows/          CI: build, publish-to-npm, tagging
-├── json-form-builder/          TS form builder (npm package)
-├── react-secure-biometric-interface-integrator/   React SBI integrator (npm package)
-├── secure-biometric-interface-integrator/         Vanilla JS SBI integrator (npm package)
-├── react-sign-in-with-esignet/ React eSignet sign-in button (npm package)
-├── sign-in-with-esignet/       Vanilla JS eSignet sign-in button (npm package)
-├── storybook-example/          Combined Storybook site (published to GitHub Pages)
+├── json-form-builder/
+├── react-secure-biometric-interface-integrator/
+├── secure-biometric-interface-integrator/
+├── react-sign-in-with-esignet/
+├── sign-in-with-esignet/
+├── storybook-example/          published to GitHub Pages, not npm
 ├── sonar-project.properties
 └── README.md
 ```
 
-The repo is flat by design — there is no shared `src/` or `common/`
-directory, and the modules do not import from one another at build time
-(`storybook-example` only consumes the others' published/story output for
-demo purposes). Treat each module directory as its own project when reading
-or editing code.
+Flat by design — no shared `src/`/`common/`, and modules don't import from
+one another at build time (`storybook-example` only consumes published/story
+output for demos).
 
 ## Development Workflow
 
-1. Fork the repo and clone your fork.
-2. Create a feature branch from `develop` (the active integration branch;
-   `master` tracks releases).
-3. Work inside a single module directory at a time; run `npm install` inside
-   that module before building or testing it.
-4. Run that module's `build` (and `test`, where one exists) before opening a
-   PR — see the module's own `AGENTS.md` for its exact commands.
-5. Do not edit `package-lock.json` by hand; let `npm install`/`npm ci`
+1. Branch from `develop` (`master` tracks releases).
+2. Work inside one module at a time; `npm install` there before
+   building/testing.
+3. Run that module's `build` (and `test`, where present) before opening a PR.
+4. Never hand-edit any `package-lock.json` — let `npm install`/`npm ci`
    regenerate it.
 
 ## Pull Request Guidelines
 
-- Target the `develop` branch.
-- CI (`.github/workflows/push-trigger.yml`) runs an npm build on pull
-  requests for `sign-in-with-esignet`, `secure-biometric-interface-integrator`,
-  `json-form-builder`, and `storybook-example`. It does **not** build
-  `react-secure-biometric-interface-integrator` or
-  `react-sign-in-with-esignet` on pull requests — those two are only built
-  and published on pushes to `release*`/`develop*`/`MOSIP*` branches via
-  `.github/workflows/publish-npm.yaml`. If you change a `react-*` module,
-  build and test it locally before opening the PR, since CI will not catch
-  build breakage for you at PR time.
-- SonarCloud analysis (`sonarcloud` job) only runs on pushes, not on pull
-  requests.
-- Keep changes scoped to one module per PR where practical, since each
-  module has an independent version and release/publish cycle.
-- Follow the commit sign-off convention used in this repo's history
-  (`git commit -s`); recent commits include `Signed-off-by:` trailers.
+- Target `develop`. Sign off commits (`git commit -s`).
+- PR-time CI (`push-trigger.yml`) only builds `sign-in-with-esignet`,
+  `secure-biometric-interface-integrator`, `json-form-builder`, and
+  `storybook-example` — **not** `react-secure-biometric-interface-integrator`
+  or `react-sign-in-with-esignet` (those build/publish only on pushes to
+  `release*`/`develop*`/`MOSIP*` via `publish-npm.yaml`). Build/test `react-*`
+  modules locally before opening a PR. SonarCloud also only runs on push.
+- Scope one module per PR — each has an independent version/release cycle.
 
 ## Repository-Specific Considerations
 
-- Package versions are independent per module (see the `version` field in
-  each `package.json`); bumping one module's version does not affect the
-  others.
-- `secure-biometric-interface-integrator` and `sign-in-with-esignet` ship
-  pre-built output under `lib/`/`dist` conventions and vendor their own
-  `example/`/`examples/` folders demonstrating integration in plain HTML and
-  React — update these examples if you change the public API.
-- `storybook-example` is a consumer/demo app, not a library: its `build`
-  script (`build:version:production` / `build:version:local`) runs
-  `version_build.js` against the `PROFILE` env file before invoking
-  `storybook build`, and `npm run deploy` publishes the result to GitHub
-  Pages via `gh-pages`. It has no meaningful `test` script (`npm test` is a
-  placeholder that exits with an error by design).
-- `build:version:local` and `build:version:production` also run `npm ci`/
-  `npm i` inside each configured sibling plugin directory (see
-  `version_build.js`'s `pluginsFolderList`) — they are not side-effect-free
-  within `storybook-example` alone. Do not run `npm run deploy` or `npm run
-  publish` during routine local development; both publish externally
-  (GitHub Pages / npm).
-- Publishing to the npm registry is automated centrally through the reusable
-  `mosip/kattu` workflows (`npm-publish-to-npm-registry.yml`,
-  `npm-build.yml`) — do not attempt to `npm publish` a module manually from
-  a local machine as part of routine changes.
+- `secure-biometric-interface-integrator`: `lib/` is hand-maintained source
+  input, not shipped output — the published package ships only `dist/`
+  (`iife`, `es`, `cjs`). `sign-in-with-esignet` also ships `dist/` plus
+  `example/`/`examples/` integration demos. Both modules produce an IIFE
+  bundle (`dist/iife/index.js`) for `<script>`-tag consumers.
+- `storybook-example` is a demo app, not a library. `build:version:local`/
+  `build:version:production` run `version_build.js`, which also `npm ci`/`i`'s
+  every sibling plugin directory in `pluginsFolderList` — not side-effect-free.
+  `npm run deploy` publishes to GitHub Pages via `gh-pages`. Don't run
+  `deploy`/`publish` during routine local development.
+- npm publishing is centralized via reusable `mosip/kattu` workflows
+  (`npm-publish-to-npm-registry.yml`, `npm-build.yml`) — never `npm publish`
+  manually.
 
 ## Agent rules
 
 ### Do
 
-1. Work inside one module directory at a time and use that module's own
-   `package.json` scripts — do not assume a script exists in another module
-   just because it exists here.
-2. Read a module's own `AGENTS.md` (linked in the table above) before
-   editing files inside it.
-3. Run the relevant module's `build` (and `test`, if present) before
-   proposing a change as complete.
-4. Keep secrets and tokens out of every `.env*` file; only add non-secret UI
-   configuration there, consistent with the existing files.
-5. Preserve each module's independent `version` in `package.json` unless the
-   task is specifically a release/version bump.
+1. Work inside one module at a time; read its own `AGENTS.md` first.
+2. Run that module's `build`/`test` before calling a change complete.
+3. Keep `.env*` files secret-free.
 
 ### Do not
 
-1. Do not add a root-level `package.json`, workspace config, or a
-   cross-module build script — the repo is intentionally un-unified; that is
-   a structural decision, not an oversight.
-2. Do not commit `node_modules/`, `dist/`, `build/`, `coverage/`, or
-   `storybook-static/` — they are already `.gitignore`d.
-3. Do not assume PR-time CI validates every module; it does not build
-   `react-secure-biometric-interface-integrator` or
-   `react-sign-in-with-esignet` on pull requests (see Pull Request
-   Guidelines above).
-4. Do not hand-edit any module's `package-lock.json`.
-5. Do not run `npm publish` or trigger the publish workflow yourself —
-   publishing is handled by the CI workflows against repository secrets.
+1. Add a root `package.json`, workspace config, or cross-module build script
+   — the split is a deliberate structural decision, not an oversight.
+2. Hand-edit any `package-lock.json`, or commit `node_modules`/`dist`/`build`/
+   `coverage`/`storybook-static`.
+3. Assume PR-time CI covers every module (see Pull Request Guidelines).
+4. Run `npm publish` or trigger the publish workflow yourself.
