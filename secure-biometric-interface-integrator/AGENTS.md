@@ -7,15 +7,17 @@ Parent guide: [../AGENTS.md](../AGENTS.md)
 `@mosip/secure-biometric-interface-integrator` is a standalone, framework-free
 (vanilla JavaScript) library for interacting with SBI devices and capturing
 Face, Finger, and Iris biometrics — the plain-JS counterpart to
-`../react-secure-biometric-interface-integrator`. It ships prebuilt output
-under `lib/` (`secureBiometricInterface.js`, `standardConstant.js`,
-`sbd.css`) and example integrations under `example/html/` and
-`example/react/`.
+`../react-secure-biometric-interface-integrator`. Its hand-maintained source
+lives under `lib/` (`secureBiometricInterface.js`, `standardConstant.js`,
+`sbd.css`); the published package ships only the Rollup-bundled `dist/`
+output (`files: ["dist", "README.md"]` in `package.json`). Example
+integrations live under `example/html/` and `example/react/`.
 
 ## Technology Stack
 
-- Vanilla JavaScript, bundled with Rollup (`rollup.config.js`) into
-  `dist/cjs` and `dist/es`.
+- Vanilla JavaScript. `lib/secureBiometricInterface.js` is the hand-maintained
+  source input; Rollup (`rollup.config.js`) bundles it into `dist/iife`,
+  `dist/es`, and `dist/cjs`.
 - No unit test runner is configured for this module — there is no `test`
   script in `package.json`.
 - Storybook 7 with the HTML renderer (`@storybook/html`,

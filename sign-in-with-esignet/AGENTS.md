@@ -92,9 +92,10 @@ Note that `examples/react-example/` has its own `package.json` and
   sync when changing the OIDC flow or button theming options.
 - The published package ships `dist/` and `README.md`
   (`files: ["dist", "README.md"]` in `package.json`).
-- This is the only module in the repo that also produces an IIFE bundle
-  (`dist/iife/index.js`), for consumers who load the script directly via a
-  `<script>` tag without a bundler (see `examples/html-example/index.html`).
+- This module also produces an IIFE bundle (`dist/iife/index.js`, alongside
+  `secure-biometric-interface-integrator`), for consumers who load the script
+  directly via a `<script>` tag without a bundler (see
+  `examples/html-example/index.html`).
 
 ## Agent rules
 

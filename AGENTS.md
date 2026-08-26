@@ -24,11 +24,10 @@ no Lerna/Nx), and no single command that builds or tests everything at once
 
 ## Technology Stack
 
-- Language: TypeScript (`json-form-builder`, `react-sign-in-with-esignet`,
-  `sign-in-with-esignet`) and plain JavaScript
-  (`secure-biometric-interface-integrator`,
-  `react-secure-biometric-interface-integrator` mixes JS/TS,
-  `storybook-example`).
+- Language: TypeScript/JSX (`json-form-builder`,
+  `react-secure-biometric-interface-integrator`,
+  `react-sign-in-with-esignet`, `sign-in-with-esignet`) and plain JavaScript
+  (`secure-biometric-interface-integrator`, `storybook-example`).
 - UI framework: React 18 for the `react-*` modules and `storybook-example`;
   the non-`react-*` modules are framework-free (vanilla JS/DOM).
 - Bundler: Rollup, in every publishable module (`rollup.config.js`/`.ts`/`.mjs`).
@@ -149,6 +148,12 @@ or editing code.
   `storybook build`, and `npm run deploy` publishes the result to GitHub
   Pages via `gh-pages`. It has no meaningful `test` script (`npm test` is a
   placeholder that exits with an error by design).
+- `build:version:local` and `build:version:production` also run `npm ci`/
+  `npm i` inside each configured sibling plugin directory (see
+  `version_build.js`'s `pluginsFolderList`) — they are not side-effect-free
+  within `storybook-example` alone. Do not run `npm run deploy` or `npm run
+  publish` during routine local development; both publish externally
+  (GitHub Pages / npm).
 - Publishing to the npm registry is automated centrally through the reusable
   `mosip/kattu` workflows (`npm-publish-to-npm-registry.yml`,
   `npm-build.yml`) — do not attempt to `npm publish` a module manually from
